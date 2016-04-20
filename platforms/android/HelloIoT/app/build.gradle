@@ -33,5 +33,9 @@ dependencies {
     //compile 'me.tatarka:gradle-retrolambda:3.3.0-beta4'
     //compile 'javax.xml.bind:jaxb-api:2.2.12'
     //compile 'javax.naming:jndi:1.2.1'
-    compile project(':azureiothub')
+    //compile project(':azureiothub')
+    compile project(path: ':iothub-java-client')
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    compile 'com.mcxiaoke.volley:library:1.0.19'
 }

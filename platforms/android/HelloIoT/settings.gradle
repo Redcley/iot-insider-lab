@@ -1,1 +1,1 @@
-include ':app', ':azureiothub'
+include ':app', ':iothub-java-client'

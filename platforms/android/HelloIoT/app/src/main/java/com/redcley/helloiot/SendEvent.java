@@ -3,34 +3,81 @@
 
 package com.redcley.helloiot;
 
-import com.microsoft.azure.iothub.*;
+//import com.microsoft.azure.iothub.*;
+
+import com.google.gson.JsonObject;
+import com.microsoft.azure.iothub.DeviceClient;
+import com.microsoft.azure.iothub.IotHubClientProtocol;
+import com.microsoft.azure.iothub.IotHubEventCallback;
+import com.microsoft.azure.iothub.IotHubStatusCode;
+import com.microsoft.azure.iothub.Message;
+import com.redcley.helloiot.models.DeviceCommand;
+import com.redcley.helloiot.models.DeviceInfo;
+import com.redcley.helloiot.models.DeviceProperties;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Objects;
 import java.util.Scanner;
 
 
 /** Sends a number of event messages to an IoT Hub. */
 public class SendEvent
 {
+    private static DeviceClient client;
+    private static boolean isTelemetryRunning = false;
+
     protected static class EventCallback
             implements IotHubEventCallback
     {
         public void execute(IotHubStatusCode status, Object context)
         {
-            Integer i = (Integer) context;
-            System.out.println("IoT Hub responded to message " + i.toString()
-                    + " with status " + status.name());
+            //Integer i = (Integer) context;
+            System.out.println("IoT Hub responded to message " + /*i.toString() + */" with status " + status.name());
         }
+    }
+
+    public static void startTelemetry() {
+        isTelemetryRunning = true;
+
+        new Thread(new Runnable() {
+            public void run() {
+                System.out.println("Telemetry thread running");
+
+                while(isTelemetryRunning) {
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("DeviceId", "AndroidDemo1");
+                    jsonObject.addProperty("Temperature", Math.random());
+                    jsonObject.addProperty("Humidity", Math.random());
+                    jsonObject.addProperty("ExternalTemperature", Math.random());
+
+                    Message msg = new Message(jsonObject.toString());
+                    EventCallback callback = new EventCallback();
+                    client.sendEventAsync(msg, callback, null);
+
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                System.out.println("Telemetry thread exited");
+            }
+        }).start();
+    }
+
+    public static void stopTelemetry() {
+        System.out.println("Telemetry thread stopping");
+        isTelemetryRunning = false;
     }
 
     /**
      * Sends a number of messages to an IoT Hub. Default protocol is to
      * use HTTPS transport.
      *
-     * @param args args[0] = IoT Hub connection string; args[1] = number of
-     * requests to send; args[2] = protocol (one of 'https' or 'amqps' or 'mqtt' or 'amqps_ws',
-     * optional).
      */
     public static void run()
             throws IOException, URISyntaxException
@@ -38,19 +85,10 @@ public class SendEvent
         System.out.println("Starting...");
         System.out.println("Beginning setup.");
 
-        /*if (args.length <= 1 || args.length >= 4)
-        {
-            System.out.format(
-                    "Expected 2 or 3 arguments but received:\n%d. The program "
-                            + "should be called with the: "
-                            + "following args: \n"
-                            + "[Device connection string] - String containing Hostname, Device Id & Device Key in one of the following formats: HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>\n"
-                            + "[number of requests to send] (https | amqps | mqtt | amqps_ws).\n",
-                    args.length);
-            return;
-        }*/
+        //final String connString = "HostName=MSPortHub.azure-devices.net;DeviceId=helloiotdevice;SharedAccessKey=ZyhSNIiG5PehSr7mjbW3CtDrIbCb8Hb/ujRLa5Q+D9A="; // args[0];
+        //final String connString = "HostName=IoTLab-Demo.azure-devices.net;DeviceId=Android1Demo;SharedAccessKey=Tpwj4IHrsPh5n5/9EemYgA==";
+        final String connString = "HostName=IoTLab-MonitorDemo.azure-devices.net;DeviceId=AndroidDemo1;SharedAccessKey=1kcz/Xa7OfJMtE43mLRXMw==";
 
-        final String connString = "HostName=MSPortHub.azure-devices.net;DeviceId=helloiotdevice;SharedAccessKey=ZyhSNIiG5PehSr7mjbW3CtDrIbCb8Hb/ujRLa5Q+D9A="; // args[0];
         final int numRequests;
         try
         {
@@ -64,53 +102,12 @@ public class SendEvent
             System.out.format("Could not parse");
             return;
         }
+
         final IotHubClientProtocol protocol = IotHubClientProtocol.HTTPS;
-
-        /*if (args.length == 2)
-        {
-            protocol = IotHubClientProtocol.HTTPS;
-        }
-        else
-        {
-            String protocolStr = args[2];
-            if (protocolStr.equals("https"))
-            {
-                protocol = IotHubClientProtocol.HTTPS;
-            }
-            else if (protocolStr.equals("amqps"))
-            {
-                protocol = IotHubClientProtocol.AMQPS;
-            }
-            else if (protocolStr.equals("mqtt"))
-            {
-                protocol = IotHubClientProtocol.MQTT;
-            }
-            else if (protocolStr.equals("amqps_ws"))
-            {
-                protocol = IotHubClientProtocol.AMQPS_WS;
-            }
-            else
-            {
-                System.out.format(
-                        "Expected argument 2 to be one of 'https', 'amqps' or 'mqtt'or 'amqps_ws'"
-                                + "but received %s. The program should be "
-                                + "called with the: following args:\n"
-                                + "[Device connection string] - String containing Hostname, Device Id & Device Key in one of the following formats: HostName=<iothub_host_name>;DeviceId=<device_id>;SharedAccessKey=<device_key>\n"
-                                + "[number of requests to send]\n"
-                                + "(https | amqps | mqtt | amqps_ws).\n"
-                                + "\n",
-                        protocolStr);
-                return;
-            }
-        }*/
-
-        System.out.println("Successfully read input parameters.");
-        System.out.format("Using communication protocol %s.\n",
-                protocol.name());
 
         new Thread(new Runnable() {
             public void run() {
-                DeviceClient client = null;
+                client = null;
                 try {
                     client = new DeviceClient(connString, protocol);
                 } catch (URISyntaxException e) {
@@ -126,35 +123,28 @@ public class SendEvent
                 }
 
                 System.out.println("Opened connection to IoT Hub.");
-                System.out.println("Sending the "
-                        + "following event messages:");
 
-                for (int i = 0; i < numRequests; ++i) {
-                    String msgStr = "Android Message " + Integer.toString(i);
-                    try {
-                        Message msg = new Message(msgStr);
-                        msg.setProperty("messageCount", Integer.toString(i));
-                        System.out.println(msgStr);
+                DeviceInfo deviceInfo = new DeviceInfo();
+                deviceInfo.IsSimulatedDevice = false;
+                deviceInfo.ObjectType = "DeviceInfo";
+                deviceInfo.Version = "1.0";
+                deviceInfo.DeviceProperties = new DeviceProperties();
+                deviceInfo.DeviceProperties.DeviceID = "AndroidDemo1";
+                deviceInfo.DeviceProperties.HubEnabledState = true;
+                deviceInfo.DeviceProperties.Platform = "Android";
+                deviceInfo.Commands = new ArrayList<DeviceCommand>();
 
-                        EventCallback callback = new EventCallback();
-                        client.sendEventAsync(msg, callback, i);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                DeviceCommand command = new DeviceCommand();
+                command.Name = "StopTelemetry";
+                deviceInfo.Commands.add(command);
+
+                String messageString = deviceInfo.serialize();
+
+                System.out.println("Sending the following event messages: " + messageString);
+                Message msg = new Message(messageString);
+                EventCallback callback = new EventCallback();
+                client.sendEventAsync(msg, callback, null);
             }
         }).start();
-
-        /*Scanner scanner = new Scanner(System.in);
-        scanner.nextLine();
-
-        client.close();
-
-        System.out.println("Shutting down...");*/
     }
 }

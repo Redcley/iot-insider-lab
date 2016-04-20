@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -50,6 +51,22 @@ public class MainActivity extends AppCompatActivity
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+
+        Button btnStart = (Button) findViewById(R.id.btnStartTelemetry);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SendEvent.startTelemetry();
+            }
+        });
+
+        Button btnStop = (Button) findViewById(R.id.btnStopTelemetry);
+        btnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SendEvent.stopTelemetry();
+            }
+        });
     }
 
     @Override

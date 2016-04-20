@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HelloIoT.iml" filepath="$PROJECT_DIR$/HelloIoT.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/azureiothub/azureiothub.iml" filepath="$PROJECT_DIR$/azureiothub/azureiothub.iml" />
+      <module fileurl="file://$PROJECT_DIR$/iothub-java-client/iothub-java-client.iml" filepath="$PROJECT_DIR$/iothub-java-client/iothub-java-client.iml" />
     </modules>
   </component>
 </project>
