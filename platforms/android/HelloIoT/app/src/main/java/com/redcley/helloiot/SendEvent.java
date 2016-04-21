@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import com.microsoft.azure.iothub.DeviceClient;
 import com.microsoft.azure.iothub.IotHubClientProtocol;
 import com.microsoft.azure.iothub.IotHubEventCallback;
+import com.microsoft.azure.iothub.IotHubMessageResult;
 import com.microsoft.azure.iothub.IotHubStatusCode;
 import com.microsoft.azure.iothub.Message;
 import com.redcley.helloiot.models.DeviceCommand;
@@ -28,6 +29,7 @@ public class SendEvent
 {
     private static DeviceClient client;
     private static boolean isTelemetryRunning = false;
+    private static IotMessageCallback msgCallback;
 
     protected static class EventCallback
             implements IotHubEventCallback
@@ -36,6 +38,14 @@ public class SendEvent
         {
             //Integer i = (Integer) context;
             System.out.println("IoT Hub responded to message " + /*i.toString() + */" with status " + status.name());
+        }
+    }
+
+    protected static class IotMessageCallback implements com.microsoft.azure.iothub.MessageCallback {
+        public IotHubMessageResult execute(Message msg, Object context) {
+            System.out.println("Received message with content: " + new String(msg.getBytes(), Message.DEFAULT_IOTHUB_MESSAGE_CHARSET));
+
+            return IotHubMessageResult.COMPLETE;
         }
     }
 
@@ -48,7 +58,7 @@ public class SendEvent
 
                 while(isTelemetryRunning) {
                     JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("DeviceId", "AndroidDemo1");
+                    jsonObject.addProperty("DeviceId", "AndroidDemo2");
                     jsonObject.addProperty("Temperature", Math.random());
                     jsonObject.addProperty("Humidity", Math.random());
                     jsonObject.addProperty("ExternalTemperature", Math.random());
@@ -87,35 +97,24 @@ public class SendEvent
 
         //final String connString = "HostName=MSPortHub.azure-devices.net;DeviceId=helloiotdevice;SharedAccessKey=ZyhSNIiG5PehSr7mjbW3CtDrIbCb8Hb/ujRLa5Q+D9A="; // args[0];
         //final String connString = "HostName=IoTLab-Demo.azure-devices.net;DeviceId=Android1Demo;SharedAccessKey=Tpwj4IHrsPh5n5/9EemYgA==";
-        final String connString = "HostName=IoTLab-MonitorDemo.azure-devices.net;DeviceId=AndroidDemo1;SharedAccessKey=1kcz/Xa7OfJMtE43mLRXMw==";
-
-        final int numRequests;
-        try
-        {
-            numRequests = 5; //Integer.parseInt(args[1]);
-        }
-        catch (NumberFormatException e)
-        {
-            /*System.out.format(
-                    "Could not parse the number of requests to send. "
-                            + "Expected an int but received:\n%s.\n", args[1]);*/
-            System.out.format("Could not parse");
-            return;
-        }
+        final String connString = "HostName=IoTLab-MonitorDemo.azure-devices.net;DeviceId=AndroidDemo2;SharedAccessKey=iBQXSRp2cVcXJESgLIVpRw==";
 
         final IotHubClientProtocol protocol = IotHubClientProtocol.HTTPS;
+        //final IotHubClientProtocol protocol = IotHubClientProtocol.MQTT;
+
+        client = null;
+        try {
+            client = new DeviceClient(connString, protocol);
+            msgCallback = new IotMessageCallback();
+            client.setMessageCallback(msgCallback, null);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Successfully created an IoT Hub client.");
 
         new Thread(new Runnable() {
             public void run() {
-                client = null;
-                try {
-                    client = new DeviceClient(connString, protocol);
-                } catch (URISyntaxException e) {
-                    e.printStackTrace();
-                }
-
-                System.out.println("Successfully created an IoT Hub client.");
-
                 try {
                     client.open();
                 } catch (IOException e) {
@@ -129,7 +128,7 @@ public class SendEvent
                 deviceInfo.ObjectType = "DeviceInfo";
                 deviceInfo.Version = "1.0";
                 deviceInfo.DeviceProperties = new DeviceProperties();
-                deviceInfo.DeviceProperties.DeviceID = "AndroidDemo1";
+                deviceInfo.DeviceProperties.DeviceID = "AndroidDemo2";
                 deviceInfo.DeviceProperties.HubEnabledState = true;
                 deviceInfo.DeviceProperties.Platform = "Android";
                 deviceInfo.Commands = new ArrayList<DeviceCommand>();
@@ -137,6 +136,10 @@ public class SendEvent
                 DeviceCommand command = new DeviceCommand();
                 command.Name = "StopTelemetry";
                 deviceInfo.Commands.add(command);
+
+                DeviceCommand command2 = new DeviceCommand();
+                command2.Name = "StartTelemetry";
+                deviceInfo.Commands.add(command2);
 
                 String messageString = deviceInfo.serialize();
 

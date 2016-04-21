@@ -3,10 +3,12 @@
 
 package com.microsoft.azure.iothub;
 
+//import com.microsoft.azure.iothub.transport.amqps.AmqpsTransport;
 import com.microsoft.azure.iothub.transport.https.HttpsTransport;
 import com.microsoft.azure.iothub.transport.IotHubReceiveTask;
 import com.microsoft.azure.iothub.transport.IotHubSendTask;
 import com.microsoft.azure.iothub.transport.IotHubTransport;
+import com.microsoft.azure.iothub.transport.mqtt.MqttTransport;
 import java.io.Closeable;
 
 import java.io.IOException;
@@ -57,7 +59,7 @@ public final class DeviceClient implements Closeable
      */
     public static long RECEIVE_PERIOD_MILLIS_AMQPS = 10l;
     public static long RECEIVE_PERIOD_MILLIS_MQTT = 10l;
-    public static long RECEIVE_PERIOD_MILLIS_HTTPS = 25*60*1000; /*25 minutes*/
+    public static long RECEIVE_PERIOD_MILLIS_HTTPS = 1*60*1000; /*25 minutes*/
 
     /** The hostname attribute name in a connection string. */
     public static final String HOSTNAME_ATTRIBUTE = "HostName=";
@@ -318,9 +320,27 @@ public final class DeviceClient implements Closeable
         this.config = new DeviceClientConfig(iotHubHostname, deviceId, deviceKey);
         // Codes_SRS_DEVICECLIENT_11_046: [The constructor shall initialize the IoT Hub transport that uses the protocol specified.]
         // Codes_SRS_DEVICECLIENT_11_004: [The constructor shall initialize the IoT Hub transport that uses the protocol specified.]
+        switch (protocol)
+        {
+            case HTTPS:
+                this.transport = new HttpsTransport(this.config);
+                RECEIVE_PERIOD_MILLIS = RECEIVE_PERIOD_MILLIS_HTTPS;
+                break;
+            /*case AMQPS:
+            case AMQPS_WS:
+                this.transport = new AmqpsTransport(this.config, protocol);
+                RECEIVE_PERIOD_MILLIS = RECEIVE_PERIOD_MILLIS_AMQPS;
+                break;*/
+            case MQTT:
+                this.transport = new MqttTransport(this.config);
+                RECEIVE_PERIOD_MILLIS = RECEIVE_PERIOD_MILLIS_MQTT;
+                break;
+            default:
+                // should never happen.
+                throw new IllegalStateException(
+                        "Invalid client protocol specified.");
+        }
 
-        this.transport = new HttpsTransport(this.config);
-        RECEIVE_PERIOD_MILLIS = RECEIVE_PERIOD_MILLIS_HTTPS;
         this.state = IotHubClientState.CLOSED;
     }
 
