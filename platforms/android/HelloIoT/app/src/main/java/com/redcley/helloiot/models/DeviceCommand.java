@@ -1,5 +1,8 @@
 package com.redcley.helloiot.models;
 
+import com.google.gson.Gson;
+
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -7,5 +10,13 @@ import java.util.List;
  */
 public class DeviceCommand {
     public String Name;
+    public String MessageId;
+    public Date CreatedTime;
     public List<CommandParameter> Parameters;
+
+    public static DeviceCommand fromJSON(String json){
+        Gson gson = new Gson();
+
+        return gson.fromJson(json, DeviceCommand.class);
+    }
 }

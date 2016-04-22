@@ -5,16 +5,22 @@ package com.redcley.helloiot;
 
 //import com.microsoft.azure.iothub.*;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.microsoft.azure.iothub.DeviceClient;
 import com.microsoft.azure.iothub.IotHubClientProtocol;
 import com.microsoft.azure.iothub.IotHubEventCallback;
 import com.microsoft.azure.iothub.IotHubMessageResult;
 import com.microsoft.azure.iothub.IotHubStatusCode;
 import com.microsoft.azure.iothub.Message;
+import com.redcley.helloiot.models.CommandParameter;
 import com.redcley.helloiot.models.DeviceCommand;
 import com.redcley.helloiot.models.DeviceInfo;
 import com.redcley.helloiot.models.DeviceProperties;
+
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -43,9 +49,29 @@ public class SendEvent
 
     protected static class IotMessageCallback implements com.microsoft.azure.iothub.MessageCallback {
         public IotHubMessageResult execute(Message msg, Object context) {
-            System.out.println("Received message with content: " + new String(msg.getBytes(), Message.DEFAULT_IOTHUB_MESSAGE_CHARSET));
+            IotHubMessageResult result = IotHubMessageResult.REJECT;
 
-            return IotHubMessageResult.COMPLETE;
+            try {
+                String commandJson = new String(msg.getBytes(), Message.DEFAULT_IOTHUB_MESSAGE_CHARSET);
+
+                //DeviceCommand command = DeviceCommand.fromJSON(commandJson);
+                org.json.JSONObject jsonObject = new JSONObject(commandJson);
+
+                System.out.println("Received message with content: " + commandJson);
+                String commandName = jsonObject.getString("Name");
+
+                if ("StartTelemetry".equalsIgnoreCase(commandName)) {
+                    SendEvent.startTelemetry();
+                    result = IotHubMessageResult.COMPLETE;
+                } else if ("StopTelemetry".equalsIgnoreCase(commandName)) {
+                    SendEvent.stopTelemetry();
+                    result = IotHubMessageResult.COMPLETE;
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+
+            return result;
         }
     }
 
@@ -135,12 +161,15 @@ public class SendEvent
 
                 DeviceCommand command = new DeviceCommand();
                 command.Name = "StopTelemetry";
+                command.Parameters = new ArrayList<CommandParameter>();
+                command.Parameters.add(new CommandParameter("param1", "String"));
                 deviceInfo.Commands.add(command);
 
                 DeviceCommand command2 = new DeviceCommand();
                 command2.Name = "StartTelemetry";
                 deviceInfo.Commands.add(command2);
-
+                command2.Parameters = new ArrayList<CommandParameter>();
+                command2.Parameters.add(new CommandParameter("param1", "String"));
                 String messageString = deviceInfo.serialize();
 
                 System.out.println("Sending the following event messages: " + messageString);

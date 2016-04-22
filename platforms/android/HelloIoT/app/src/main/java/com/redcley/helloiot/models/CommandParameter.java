@@ -6,4 +6,13 @@ package com.redcley.helloiot.models;
 public class CommandParameter {
     public String Name;
     public String Type;
+
+    public CommandParameter() {
+
+    }
+
+    public CommandParameter(String name, String type) {
+        this.Name = name;
+        this.Type = type;
+    }
 }

@@ -59,7 +59,7 @@ public final class DeviceClient implements Closeable
      */
     public static long RECEIVE_PERIOD_MILLIS_AMQPS = 10l;
     public static long RECEIVE_PERIOD_MILLIS_MQTT = 10l;
-    public static long RECEIVE_PERIOD_MILLIS_HTTPS = 1*60*1000; /*25 minutes*/
+    public static long RECEIVE_PERIOD_MILLIS_HTTPS = 500;//25*60*1000; /*25 minutes*/
 
     /** The hostname attribute name in a connection string. */
     public static final String HOSTNAME_ATTRIBUTE = "HostName=";
