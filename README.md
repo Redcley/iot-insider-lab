@@ -49,6 +49,20 @@ If you encounter any bugs or have suggestions for new features, please file an i
 
 ## Support
 
+## Machine Configuration Notes
+
+The tool chain for IoT can be daunting. Here are some notes of common packages and tools that are useful for developers
+
+* [Windows](doc/machine-config/windows-dev-env.md) as a development platform
+* [Mac](doc/machine-config/mac-dev-env.md) as a development platform
+* [Linux](doc/machine-config/linux-server.md) as a server
+
+## Lab Notes
+
+We have a lot of machines in the IoT Lab. Here is a place to keep and share notes as we become experts at prototype fabrication.
+
+* [Epilog Fusion M2 Laser](doc/lab-notes/laser-cutter.md)
+
 ## Additional resources
 
 ### /build
