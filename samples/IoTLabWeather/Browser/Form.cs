@@ -82,6 +82,7 @@ namespace Browser
             if (_queue.Count == 0)
             {
                 // We do not - get out.
+                Debug.WriteLine( $"Average db round trip took {_totalMs / _numberOfTrips} ms." );
                 Close();
                 return;
             }
@@ -161,9 +162,15 @@ namespace Browser
                         observation.LocationCode = webBrowser.Tag.ToString();
 
                         // We have to rely on ordinal positions.
-                        // We have to make a few assumptions about date: we have neither year nor month. 
-                        // For April 2016 we assume -
-                        observation.ObservedOn = "2016-04-" + list[0] + " " + list[1];
+                        // We have to make a few assumptions about date: we have neither year nor month,
+                        // only the day of the observation.
+                        // For now we assume -
+                        var yyyy = "2016";
+
+                        // If the day is greater than today's day, date is in the past month.
+                        var mm = Convert.ToInt32(list[0]) <= DateTime.Now.Day ? DateTime.Now.Month.ToString() : (DateTime.Now.Month - 1).ToString();
+
+                        observation.ObservedOn = $"{yyyy}-{mm}-{list[0]} {list[1]}";
                         observation.Wind = list[2];
                         observation.Visibility = list[3];
                         observation.Weather = list[4];
@@ -181,22 +188,17 @@ namespace Browser
                         observation.Precipitation3hr = list[16];
                         observation.Precipitation6hr = list[17];
 
-                        try
-                        {
-                            _stopwatch.Reset();
-                            _stopwatch.Start();
+                        // Measure performance.
+                        _stopwatch.Reset();
+                        _stopwatch.Start();
 
-                            facade.PersistObservation(observation);
+                        // Errors are handled by the facade.
+                        facade.PersistObservation(observation);
 
-                            _stopwatch.Stop();
-
-                            _numberOfTrips++;
-                            _totalMs += _stopwatch.ElapsedMilliseconds;
-                        }
-                        catch (Exception ex)
-                        {
-                            // TODO
-                        }
+                        // Store performance data.
+                        _stopwatch.Stop();
+                        _totalMs += _stopwatch.ElapsedMilliseconds;
+                        _numberOfTrips++;
                     }
                 }
             }

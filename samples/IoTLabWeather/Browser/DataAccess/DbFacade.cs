@@ -106,10 +106,17 @@ namespace IoTLabWeather.DataAccess
             // We have to catch execution errors; therefore -
             try
             {
-                return ((int)_cmd.ExecuteScalar() == 0);
+                //return ((int)_cmd.ExecuteScalar() == 0);
+                var errorCode = (int)_cmd.ExecuteScalar();
+                if (errorCode != 0)
+                {
+                    Debug.WriteLine( $"{observation.LocationCode} observed on {observation.ObservedOn} error {errorCode}" );
+                }
+                return errorCode == 0;
             }
             catch (Exception ex)
             {
+                Debug.WriteLine( $"{observation.LocationCode} observed on {observation.ObservedOn}: {ex.Message}" );
                 return false;
             }
         }

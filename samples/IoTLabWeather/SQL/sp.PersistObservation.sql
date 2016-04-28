@@ -4,12 +4,16 @@ SET QUOTED_IDENTIFIER ON
 GO
 -- ================================================================
 -- Author:		Jan Machat (Redcley LLC)
--- Create date: 12 March 2016
+-- Create date: 12 April 2016
 -- Description:	Persists one observation for a particular location.
 -- Returns:     0 if succeeded, error code if failed.
+--
+-- Change log:
+-- 27 Apr 2016: Corrected handling of multiple sky conditions.
+--
 -- Copyright © 2016 by Microsoft Corporation. All rights reserved.
 -- =================================================================
-CREATE PROCEDURE dbo.PersistObservation
+ALTER PROCEDURE dbo.PersistObservation
 	-- All parameters are passed as strings.
 	@locationCode      NVARCHAR(50),
 	@observedOn        NVARCHAR(50),
@@ -116,7 +120,8 @@ BEGIN
 				(@id
 				,SUBSTRING(@skyConditions, 1, 6))
 			;
-			SET @skyConditions = SUBSTRING(@skyConditions, 8, LEN(@skyConditions) - 7)
+			-- Prepare the next token for the next pass; if this was the last one, we wipe it out.
+			SET @skyConditions = IIF(LEN(@skyConditions) < 8, '', SUBSTRING(@skyConditions, 8, LEN(@skyConditions) - 7))
 			;
 		END
 
