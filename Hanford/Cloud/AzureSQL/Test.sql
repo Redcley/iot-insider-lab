@@ -13,17 +13,18 @@ EXEC	@return_value = [dbo].[PersistConfig]
 		@updateFrequency = N'30'
 
 SELECT * FROM Messages m LEFT JOIN UpdateFrequencies u ON m.MessageId = u.MessageId
+*/
 
 EXEC	@return_value = [dbo].[PersistEnvironment]
 		@messageGUID = N'5cd1bd25-bd39-4411-99e1-ff0a6b5a69dc',
 		@deviceId = N'JansTest',
 		@timestamp = N'2016-04-20 12:41',
-		@humidity = N'1',
-		@pressure = N'2',
-		@temperature = N'3'
+		@humidity = N'1.1',
+		@pressure = N'2.2',
+		@temperature = N'3.3'
 
 SELECT * FROM Messages m LEFT JOIN Environments e ON m.MessageId = e.MessageId
-
+/*
 EXEC	@return_value = [dbo].[PersistInput]
 		@messageGUID = N'ab5dbb62-a84d-455f-9d68-588583d03e2a',
 		@deviceId = N'JansTest',
