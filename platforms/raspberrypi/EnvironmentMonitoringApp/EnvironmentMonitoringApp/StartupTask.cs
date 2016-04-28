@@ -8,6 +8,9 @@ using Windows.Networking.Connectivity;
 using System.Threading;
 using Windows.System.Threading;
 using System.Text;
+using System.Threading.Tasks;
+using Windows.Foundation;
+using Windows.Storage;
 
 // The Background Application template is documented at http://go.microsoft.com/fwlink/?LinkID=533884&clcid=0x409
 
@@ -23,7 +26,8 @@ namespace EnvironmentMonitoringApp
         private string mutexId = "WeatherShield";
         private ThreadPoolTimer i2cTimer;
         private EnvironmentData environmentData = new EnvironmentData();
-
+        private string connectionStringLocation = "C:\\config\\IoTDemoConnectionString.txt";
+         
         string deviceId;
         DeviceClient client;
 
@@ -34,20 +38,23 @@ namespace EnvironmentMonitoringApp
             taskInstance.Canceled += OnCanceled;
 
             mutex = new Mutex(false, mutexId);
+            Debug.WriteLine(connectionStringLocation);
+            string connectionString = System.IO.File.ReadAllLines(connectionStringLocation)[0].TrimEnd('\r','\n');
+             
 
-            deviceId = GetHostName();
+            Debug.WriteLine(connectionString);
 
-            client = DeviceClient.CreateFromConnectionString("HostName=IoTLabDemo.azure-devices.net;DeviceId=lab-pi3-1;SharedAccessKey=si8daal5pXhTDS74HOu4FPiZGa0UtoFgyW6XW9i6hww=");
+            client = DeviceClient.CreateFromConnectionString(connectionString);
 
             await weatherShield.BeginAsync();
 
             i2cTimer = ThreadPoolTimer.CreatePeriodicTimer(PopulateWeatherData, TimeSpan.FromSeconds(i2cReadIntervalSeconds));
         }
 
-        private void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
+        private async void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
         {
             // Relinquish our task deferral
-            client.CloseAsync();
+            await client.CloseAsync();
             taskDeferral.Complete();
         }
 
@@ -67,6 +74,7 @@ namespace EnvironmentMonitoringApp
         private async void PopulateWeatherData(ThreadPoolTimer timer)
         {
             bool hasMutex = false;
+
             try
             {
                 hasMutex = mutex.WaitOne(1000);
@@ -76,8 +84,9 @@ namespace EnvironmentMonitoringApp
                     environmentData.temperature = weatherShield.Temperature;
                     environmentData.humidity = weatherShield.Humidity;
                     Debug.Write(environmentData.JSON + "\n");
-                    Message m = new Message(System.Text.UTF8Encoding.UTF8.GetBytes(environmentData.JSON));
- //                   await client.SendEventAsync(m);
+                    Message m = new Message(Encoding.UTF8.GetBytes(environmentData.JSON));
+                    m.MessageId = Guid.NewGuid().ToString();
+                    client.SendEventAsync(m);
                 }
             } catch (System.Exception e)
             {
