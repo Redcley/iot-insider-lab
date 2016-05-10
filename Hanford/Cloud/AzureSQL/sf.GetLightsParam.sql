@@ -30,46 +30,32 @@ ALTER FUNCTION dbo.GetLightsParam
 RETURNS NVARCHAR(50)
 AS
 BEGIN
-	-- Return value defaults to NULL.
-	DECLARE @value NVARCHAR(50) = NULL
-	;
 
 	-- To keep things simple, we will drop parameter names
 	-- and go by position, per the second assumption.
-	SET @item = REPLACE(@item, '"power":', '')
-	SET @item = REPLACE(@item, '"color":', '')
+	SET @item = REPLACE(@item, '"', '')
+	SET @item = REPLACE(@item, 'power:', '')
+	SET @item = REPLACE(@item, 'color:', '')
 	;
 
 	-- We need to know wherer is the comma separating the two values.
-	DECLARE @commaAt INT = CHARINDEX(',', @item)
+	DECLARE @commaAt INT          = CHARINDEX(',', @item)
+	DECLARE @power   NVARCHAR(50) = IIF(@commaAt = 0, @item, SUBSTRING(@item, 1, @commaAt - 1)),
+			@color   NVARCHAR(50) = IIF(@commaAt = 0, NULL,  SUBSTRING(@item, @commaAt + 1, LEN(@item) - 1))
 	;
 
-	IF @parameter = 'power'
-	BEGIN
+	-- If we have no Power value, we assume 'false'.
+	SET @power = IIF(@power IN ('true', 'false'), @power, 'false')
+	;
 
-		-- Get the value before the comma, if there is a comma.
-		-- If there is no comma, we have only the 'power' value we are looking for.
-		SET @value = IIF(@commaAt = 0, @item, SUBSTRING(@item, 1, @commaAt - 1))
-		;
+	-- If we have no Color value, assume NULL (unknown).
+	SET @color = IIF(LEN(@color) > 0, @color, NULL)
+	;
 
-		-- If we have no value, we assume 'false'.
-		SET @value = IIF(@value IN ('true', 'false'), @value, 'false')
-
+	RETURN CASE @parameter
+		WHEN 'power' THEN @power
+		WHEN 'color' THEN @color
+		ELSE NULL    /* wrong name */
 	END
-
-	IF @parameter = 'color'
-	BEGIN
-
-		-- Get the value after the comma, if there is a comma.
-		-- If there is no comma, there is no second parameter - return NULL.
-		SET @value = IIF(@commaAt = 0, NULL, SUBSTRING(@item, @commaAt + 1, LEN(@item) - 1))
-		;
-
-		-- If we have no value, assume NULL (unknown).
-		SET @value = IIF(LEN(@value) > 0, @value, NULL)
-
-	END
-
-	RETURN @value
 
 END
