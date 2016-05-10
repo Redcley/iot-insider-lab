@@ -28,6 +28,9 @@ namespace Browser
     {
         #region Declarations
 
+        private Queue<string> _connectionStrings = new Queue<string>();
+        private string _connectionString;
+
         private Queue<string> _queue = new Queue<string>();
         private int _retries = 0;
 
@@ -45,20 +48,14 @@ namespace Browser
         private void BrowserForm_Load(object sender, EventArgs e)
         {
             this.Show();
+            this.Refresh();
 
+            // Connection strings are in App.config.
+            _connectionStrings.Enqueue(ConfigurationManager.ConnectionStrings[0].ToString());
+            _connectionStrings.Enqueue(ConfigurationManager.ConnectionStrings[1].ToString());
 
-            // Connection string is in App.config.
-            using (var facade = new DbFacade(ConfigurationManager.ConnectionStrings[0].ToString()))
-            {
-                // Enqueue all locations.
-                foreach (var location in facade.GetLocations())
-                {
-                    _queue.Enqueue(location.Code);
-                }
-            }
-
-            // Trigger the first navigation by pretending that the previous one finished.
-            webBrowser_Navigated(null, null);
+            // Start processing on the first connection.
+            GetLocations();
         }
 
         private void webBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
@@ -81,10 +78,22 @@ namespace Browser
             // Do we have a location to process?
             if (_queue.Count == 0)
             {
-                // We do not - get out.
-                Debug.WriteLine( $"Average db round trip took {_totalMs / _numberOfTrips} ms." );
-                Close();
-                return;
+                // Display round trip time and reset counters.
+                Debug.WriteLine(_connectionString);
+                Debug.WriteLine($"Average db round trip took {_totalMs / _numberOfTrips} ms.");
+                _totalMs = _numberOfTrips = 0;
+
+                // Do we have another connection to update?
+                if (_connectionStrings.Count > 0)
+                {
+                    GetLocations();
+                }
+                else
+                {
+                    // We do not - get out.
+                    Close();
+                    return;
+                }
             }
 
             // We do: queue is not empty. Submit request for the next location.
@@ -93,6 +102,24 @@ namespace Browser
             var uri = "http://w1.weather.gov/data/obhistory/" + webBrowser.Tag.ToString() + ".html";
             _retries = 0;
             webBrowser.Navigate(uri);
+        }
+
+        private void GetLocations()
+        {
+            // Keep the connection string for future reference.
+            _connectionString = _connectionStrings.Dequeue();
+
+            using (var facade = new DbFacade(_connectionString))
+            {
+                // Enqueue all locations.
+                foreach (var location in facade.GetLocations())
+                {
+                    _queue.Enqueue(location.Code);
+                }
+            }
+
+            // Trigger the first navigation by pretending that the previous one finished.
+            webBrowser_Navigated(null, null);
         }
 
         private bool ProcessDocument(string code, string document)
@@ -135,7 +162,7 @@ namespace Browser
                       select r;
 
             // We handle the table row by row.
-            using (var facade = new DbFacade(ConfigurationManager.ConnectionStrings[0].ToString()))
+            using (var facade = new DbFacade(_connectionString))
             {
                 foreach (var row in xml)
                 {
