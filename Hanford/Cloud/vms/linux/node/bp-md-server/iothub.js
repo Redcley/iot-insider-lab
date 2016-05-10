@@ -1,5 +1,12 @@
 'use strict';
 
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 const util = require("util");
 const EventEmitter = require("events");
 const iothub = require('azure-iothub');
@@ -53,7 +60,7 @@ function IoTHub() {
           iotClient = null;
         } else {
           receiver.on("errorReceived", function (err) {
-            self.emit("errorReceived", err);
+            self.emit("sendError", err);
           });
 
           receiver.on("message", function (response) {

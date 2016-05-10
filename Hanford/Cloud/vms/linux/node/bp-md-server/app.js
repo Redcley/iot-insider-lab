@@ -1,5 +1,12 @@
 'use strict';
 
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 // When running in production, forever doesn't set the working directory
 // correctly so we need to adjust it before trying to load files from the
 // requires below. Since we know we are run as the node user in production
@@ -22,7 +29,7 @@ const log = require("./logging.js");
 var db = null;
 
 var stats = {
-  messageCount: 0,
+  messageCount: {},
   sendErrorCount: 0,
   receiveErrorCount: 0,
   sqlErrorCount: 0,
@@ -124,7 +131,8 @@ app.use('/device', device);
 // processes messages from the IoTHub and gets them into
 // the Azure SQL database.
 iothub.on("message", function (msg) {
-  stats.messageCount += 1;
+  stats.messageCount[msg.deviceId] = stats.messageCount[msg.deviceId] || 0;
+  stats.messageCount[msg.deviceId] += 1;
 
   // format a zulu time string for MSSQL
   var timestamp = JSON.stringify(msg.datestamp).slice(1,-1);

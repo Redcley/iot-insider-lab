@@ -1,5 +1,12 @@
 'use strict';
 
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 // Rather than use the template plugin of the day and
 // potentially make this sample harder to undeerstand,
 // instead, employ a minimal amount of html formatting.
