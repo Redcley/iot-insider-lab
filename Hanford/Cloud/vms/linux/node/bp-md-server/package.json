@@ -1,0 +1,32 @@
+{
+  "name": "bp-md-server",
+  "version": "1.0.0",
+  "description": "Backend Processing and Management Dashboard Server",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Redcley/iot-insider-lab.git"
+  },
+  "keywords": [
+    "IoT"
+  ],
+  "author": "SeanK",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Redcley/iot-insider-lab/issues"
+  },
+  "homepage": "https://github.com/Redcley/iot-insider-lab#readme",
+  "dependencies": {
+    "azure-event-hubs": "../azure-event-hubs/node/send_receive",
+    "azure-iot-common": "^1.0.5",
+    "azure-iothub": "^1.0.4",
+    "body-parser": "^1.15.0",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "mssql": "^3.2.1",
+    "uuid": "^2.0.2"
+  }  
+}
