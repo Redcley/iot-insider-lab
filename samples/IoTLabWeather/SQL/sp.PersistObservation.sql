@@ -10,6 +10,8 @@ GO
 --
 -- Change log:
 -- 27 Apr 2016: Corrected handling of multiple sky conditions.
+--  6 May 2016: Deprecated the SkyConditions table, storing
+--              sky conditions in the new Observations columns.
 --
 -- Copyright © 2016 by Microsoft Corporation. All rights reserved.
 -- =================================================================
@@ -79,6 +81,7 @@ BEGIN
 			,Wind
 			,Visibility
 			,Weather
+			,SkyConditions
 			,TemperatureAir
 			,Dewpoint
 			,RelativeHumidity
@@ -88,7 +91,8 @@ BEGIN
 			,PressureSeaLevel
 			,Precipitation1hr
 			,Precipitation3hr
-			,Precipitation6hr)
+			,Precipitation6hr
+			,SkyConditionsCleansed)
 		VALUES
 			(@id
 			,@locationCode
@@ -96,6 +100,7 @@ BEGIN
 			,@wind
 			,IIF(LEN(@visibility) = 0,        NULL, @visibility)
 			,@weather
+			,IIF(LEN(@skyConditions) = 0,     NULL, @skyConditions)
 			,IIF(LEN(@temperatureAir) = 0,    NULL, @temperatureAir)
 			,IIF(LEN(@dewpoint) = 0,          NULL, @dewpoint)
 			,IIF(LEN(@relativeHumidity) = 0,  NULL, @relativeHumidity)
@@ -105,25 +110,9 @@ BEGIN
 			,IIF(LEN(@pressureSeaLevel) = 0,  NULL, @pressureSeaLevel)
 			,IIF(LEN(@precipitation1hr) = 0,  NULL, @precipitation1hr)
 			,IIF(LEN(@precipitation3hr) = 0,  NULL, @precipitation3hr )
-			,IIF(LEN(@precipitation6hr) = 0,  NULL, @precipitation6hr) )
+			,IIF(LEN(@precipitation6hr) = 0,  NULL, @precipitation6hr) 
+			,dbo.Cleanse(@skyConditions) )
 		;
-		-- Now the conditions.
-		WHILE LEN(@skyConditions) > 0
-		BEGIN
-
-			-- We know that conditions are 6 characters long and are
-			-- separated by spaces.
-			INSERT INTO SkyConditions
-				(ObservationId
-				,SkyCondition)
-			VALUES
-				(@id
-				,SUBSTRING(@skyConditions, 1, 6))
-			;
-			-- Prepare the next token for the next pass; if this was the last one, we wipe it out.
-			SET @skyConditions = IIF(LEN(@skyConditions) < 8, '', SUBSTRING(@skyConditions, 8, LEN(@skyConditions) - 7))
-			;
-		END
 
 		SELECT 0
 	END TRY
