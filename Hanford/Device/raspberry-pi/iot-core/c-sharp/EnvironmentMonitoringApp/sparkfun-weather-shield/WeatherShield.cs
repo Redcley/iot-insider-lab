@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.Devices.Gpio;
 using Windows.Foundation;
+using I2CNeoPixelDriver;
 
 namespace Microsoft.Maker.Sparkfun.WeatherShield
 {
@@ -14,6 +15,7 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         /// </summary>
         private int statusLedBluePin;
         private int statusLedGreenPin;
+        private PixelDriver neoPixel;
 
         /// <summary>
         /// Used to signal that the device is properly initialized and ready to use
@@ -39,8 +41,9 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         {
             statusLedBluePin = ledBluePin;
             statusLedGreenPin = ledGreenPin;
-            htu21d = new Htu21d(i2cBusName);
+            //htu21d = new Htu21d(i2cBusName);
             mpl3115a2 = new Mpl3115a2(i2cBusName);
+            neoPixel = new PixelDriver(i2cBusName);
         }
 
         /// <summary>
@@ -125,7 +128,7 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
             get
             {
                 if (!enable) { return 0f; }
-                return htu21d.Humidity;
+                return 0; // htu21d.Humidity;
             }
         }
 
@@ -155,8 +158,13 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
             get
             {
                 if (!enable) { return 0f; }
-                return htu21d.Temperature;
+                return mpl3115a2.Temperature;// htu21d.Temperature;
             }
+        }
+
+        public void SetColor(byte Red, byte Green, byte Blue)
+        {
+            neoPixel.SetColor(Red, Green, Blue);
         }
 
         /// <summary>
@@ -217,13 +225,14 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
             GreenLedPin.Write(GpioPinValue.Low);
             GreenLedPin.SetDriveMode(GpioPinDriveMode.Output);
 
+            /*
             if (!await htu21d.BeginAsync())
             {
                 available = false;
                 enable = false;
                 return false;
             }
-
+*/
             if (!await mpl3115a2.BeginAsync())
             {
                 available = false;
@@ -231,6 +240,12 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
                 return false;
             }
 
+            if (!await neoPixel.BeginAsync())
+            {
+                available = false;
+                enable = false;
+                return false;
+            }
             available = true;
             enable = true;
             return true;

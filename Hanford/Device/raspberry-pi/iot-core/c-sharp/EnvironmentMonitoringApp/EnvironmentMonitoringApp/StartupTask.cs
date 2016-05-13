@@ -25,9 +25,13 @@ namespace EnvironmentMonitoringApp
         private Mutex mutex;
         private string mutexId = "WeatherShield";
         private ThreadPoolTimer i2cTimer;
+        private ThreadPoolTimer ledTimer;
+
         private EnvironmentData environmentData = new EnvironmentData();
         private string connectionStringLocation = "C:\\config\\IoTDemoConnectionString.txt";
-         
+        private byte[] color = { 0, 0, 0 };
+        private int count = 0;
+
         string deviceId;
         DeviceClient client;
 
@@ -49,6 +53,7 @@ namespace EnvironmentMonitoringApp
             await weatherShield.BeginAsync();
 
             i2cTimer = ThreadPoolTimer.CreatePeriodicTimer(PopulateWeatherData, TimeSpan.FromSeconds(i2cReadIntervalSeconds));
+            ledTimer = ThreadPoolTimer.CreatePeriodicTimer(LedDisplayUpdate, TimeSpan.FromMilliseconds(250));
         }
 
         private async void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
@@ -71,6 +76,40 @@ namespace EnvironmentMonitoringApp
             return "minwinpc";
         }
 
+        private async void LedDisplayUpdate(ThreadPoolTimer timer)
+        {
+            bool hasMutex = false;
+            
+            try
+            {
+                color[0] += 32;
+                if (0 == color[0])
+                {
+                    color[1] += 32;
+                    if (0 == color[1])
+                    {
+                        color[2] += 32;
+                    }
+                }
+
+                hasMutex = mutex.WaitOne(100);
+                if (hasMutex)
+                {
+                    weatherShield.SetColor(color[0], color[1], color[2]);
+                    mutex.ReleaseMutex();
+                }
+            }
+            catch (System.Exception e)
+            {
+                if (hasMutex)
+                    mutex.ReleaseMutex();
+                count++;
+                Debug.WriteLine(e.ToString());
+                Debug.WriteLine("RGB: " + color[0].ToString() +"." + color[1].ToString() + "." + color[2].ToString());
+                Debug.WriteLine("Count: " + count.ToString());
+            }
+        }
+
         private async void PopulateWeatherData(ThreadPoolTimer timer)
         {
             bool hasMutex = false;
@@ -83,9 +122,11 @@ namespace EnvironmentMonitoringApp
                     environmentData.pressure = weatherShield.Pressure;
                     environmentData.temperature = weatherShield.Temperature;
                     environmentData.humidity = weatherShield.Humidity;
+
                     Debug.Write(environmentData.JSON + "\n");
                     Message m = new Message(Encoding.UTF8.GetBytes(environmentData.JSON));
                     m.MessageId = Guid.NewGuid().ToString();
+
                     client.SendEventAsync(m);
                 }
             } catch (System.Exception e)
