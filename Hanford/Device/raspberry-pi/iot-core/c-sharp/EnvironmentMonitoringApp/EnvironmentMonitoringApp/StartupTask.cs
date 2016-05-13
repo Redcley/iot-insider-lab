@@ -44,7 +44,7 @@ namespace EnvironmentMonitoringApp
 
             Debug.WriteLine(connectionString);
 
-            client = DeviceClient.CreateFromConnectionString(connectionString);
+            client = DeviceClient.CreateFromConnectionString(connectionString, Microsoft.Azure.Devices.Client.TransportType.Amqp);
 
             await weatherShield.BeginAsync();
 
