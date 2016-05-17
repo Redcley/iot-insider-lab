@@ -1,10 +1,16 @@
 -- ================================================================
 -- Author:		Jan Machat (Redcley LLC)
--- Create date: 7 March 2016
+-- Create date: 7 April 2016
 -- Description:	Creates or recreates all Hanford tables.
+--
+-- Update log:
+--  9 May 2016  jm Added ErrorLog.
+--
 -- Copyright © 2016 by Microsoft Corporation. All rights reserved.
 -- =================================================================
 
+DROP TABLE [dbo].[ErrorLog]
+GO
 DROP TABLE [dbo].[Dials]
 GO
 DROP TABLE [dbo].[Environments]
@@ -52,20 +58,13 @@ CREATE TABLE [dbo].[Messages](
 	[DeviceId]        [nvarchar](50)     NOT NULL,
 	[DeviceTimestamp] [datetime]         NOT NULL,
 	[MessageType]     [smallint]         NOT NULL,
+	[UtcStamp]        [datetime]         NOT NULL,
 	CONSTRAINT [PK_Messages] PRIMARY KEY CLUSTERED 
 	(
 		[MessageId] ASC
 	) 
 	WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-GO
-
-CREATE NONCLUSTERED INDEX [IX_Messages_MessageType] 
-ON [dbo].[Messages]
-(
-	[MessageType] ASC
-)
-WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
 
 CREATE NONCLUSTERED INDEX [IX_Messages_DeviceId] 
@@ -80,6 +79,21 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_Messages_MessageGUID]
 ON [dbo].[Messages]
 (
 	[MessageGUID] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Messages_MessageType] 
+ON [dbo].[Messages]
+(
+	[MessageType] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Messages_UtcStamp] ON [dbo].[Messages]
+(
+	[UtcStamp] ASC
 )
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
@@ -217,3 +231,26 @@ ADD CONSTRAINT [FK_Messages_UpdateFrequencies]
 ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
+
+CREATE TABLE [dbo].[ErrorLog](
+	[RowId]      [int] IDENTITY(1,1) NOT NULL,
+	[Timestamp]  [datetime]          NOT NULL,
+	[Message]    [nvarchar](max)     NOT NULL,
+	[IsRetested] [bit]               NOT NULL,
+	CONSTRAINT [PK_ErrorLog] PRIMARY KEY CLUSTERED 
+	(
+		[RowId] ASC
+	) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[ErrorLog] 
+ADD CONSTRAINT [DF_ErrorLog_Timestamp]
+DEFAULT (getdate()) FOR [Timestamp]
+GO
+
+ALTER TABLE [dbo].[ErrorLog]
+ADD CONSTRAINT [DF_ErrorLog_IsRetested]
+DEFAULT ((0)) FOR [IsRetested]
+GO
+
