@@ -15,19 +15,6 @@ if (process.env.USER === "node") {
   process.chdir("/var/node");
 }
 
-require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
-const express = require("express");
-const bodyParser = require("body-parser");
-const mssql = require("mssql");
-const iothub = require("./iothub.js");
-const html = require("./html.js");
-const device = require("./device.js");
-const log = require("./logging.js");
-
-var db = null;
-
 var stats = {
   messageCount: {},
   sendErrorCount: 0,
@@ -36,6 +23,31 @@ var stats = {
   ackCount: 0,
   restarts: 0
 };
+
+require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
+const express = require("express");
+const bodyParser = require("body-parser");
+const mssql = require("mssql");
+const log = require("./logging.js");
+const helpers = require("./helpers.js");
+const html = require("./html.js");
+
+// Restore stats before we hookup more events to process
+var data = fs.readFileSync(path.resolve(".", "logs/stats.json"), "utf8");
+if (data) {
+  stats = JSON.parse(data);
+  log.out("Restored stats from logs/stats.json");
+  stats.restarts += 1;
+} else {
+  log.err("Failed to load stats\n", err);
+}
+
+const iothub = require("./iothub.js")(stats.lastMessageTime);
+const device = require("./device.js");
+
+var db = null;
 
 function SaveAndExit() {
   log.out("\nNode is being terminated, saving stats\n", stats);
@@ -49,19 +61,10 @@ process.on("SIGTERM", SaveAndExit);
 // A Ctrl-C in the terminal when running locally should also be handled.
 process.on("SIGINT", SaveAndExit);
 
-// Restore stats before we hookup more events to process
-fs.readFile(path.resolve(".", "logs/stats.json"), "utf8", function(err, data) {
-  if (err) {
-    log.err("Failed to load stats\n", err);
-  } else {
-    stats = JSON.parse(data);
-    log.out("Restored stats from logs/stats.json");
-    stats.restarts += 1;
-  }
-})
-
 const app = express();
 
+// for linux server we want this
+app.set('trust proxy', 'loopback')
 // bodyParser is needed so we can get querystring parameters from req.query
 app.use(bodyParser.urlencoded({extended:true}));
 // It also decodes json in the body which we are not using yet but is
@@ -87,6 +90,8 @@ function EnumLogs() {
 // - a button to register new devices
 // - a list log files
 app.get("/", function(req, res) {
+  var isAdmin = helpers.isAdmin(req);
+
   iothub.listDevices(function (err, deviceList) {
     var table = [];
     table.push([
@@ -105,14 +110,19 @@ app.get("/", function(req, res) {
       ]);
     });
 
-    res.send(html.applyLayout(
-      html.renderTable(table) + "<br><br>" +
-      html.makeForm("/create-device",
+    var page =  html.renderTable(table) + "<br><br>";
+    if (isAdmin) {
+      page += html.makeForm("/create-device",
         html.makeTextInput("name", "Device Name:") +
-        html.makeSubmitButton("Create Device")) + "<br><br>" +
-      html.renderValue(stats) + "<br><br>" +
-      html.renderTable([["Logs"], [EnumLogs()]])
-    ));
+        html.makeSubmitButton("Create Device")) + "<br><br>";
+    }
+    page += html.renderValue(stats);
+
+    if (isAdmin) {
+       page += "<br><br>" + html.renderTable([["Logs"], [EnumLogs()]]);
+    }
+
+    res.send(html.applyLayout(page));
   });
 });
 
@@ -133,9 +143,11 @@ app.use('/device', device);
 iothub.on("message", function (msg) {
   stats.messageCount[msg.deviceId] = stats.messageCount[msg.deviceId] || 0;
   stats.messageCount[msg.deviceId] += 1;
+  stats.messageCount["total"] += 1;
 
   // format a zulu time string for MSSQL
   var timestamp = JSON.stringify(msg.datestamp).slice(1,-1);
+  stats.lastMessageTime = timestamp;
 
   if (msg.response) {
     switch(msg.response) {
@@ -151,6 +163,7 @@ iothub.on("message", function (msg) {
         if (err) {
           stats.sqlErrorCount += 1;
           log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+          SaveAndExit();
         } else {
           if (returnValue) {
             stats.sqlErrorCount += 1;
@@ -170,6 +183,7 @@ iothub.on("message", function (msg) {
         if (err) {
           stats.sqlErrorCount += 1;
           log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+          SaveAndExit();
         } else {
           if (returnValue) {
             stats.sqlErrorCount += 1;
@@ -196,6 +210,7 @@ iothub.on("message", function (msg) {
         if (err) {
           stats.sqlErrorCount += 1;
           log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+          SaveAndExit();
         } else {
           if (returnValue) {
             stats.sqlErrorCount += 1;
@@ -214,11 +229,16 @@ iothub.on("message", function (msg) {
 iothub.on("sendError", function (err) {
   stats.sendErrorCount += 1;
   log.err("sendError\n", err);
+
+  // Most likely reason is expired token. Exiting
+  // will cause us to restart and acquire a new token
+  SaveAndExit();
 });
 
 iothub.on("receiveError", function (err) {
   stats.receiveErrorCount += 1;
   log.err("receiveError\n", err);
+  SaveAndExit();
 });
 
 iothub.on("acknowledge", function (err) {

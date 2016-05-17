@@ -9,9 +9,10 @@
 
 const querystring = require("querystring");
 const express = require("express");
-const iothub = require("./iothub.js");
+const iothub = require("./iothub.js")();
 const html = require("./html.js");
 const log = require("./logging.js");
+const helpers = require("./helpers.js");
 
 var pending = {};
 
@@ -75,6 +76,7 @@ function renderDialog(id, cmd) {
 // the user clisks on a device link from the root page
 function renderDevicePage(req, res) {
   var id = req.query.id;
+  var isAdmin = helpers.isAdmin(req);
 
   iothub.getDevice(id, function (err, device) {
     if (err) {
@@ -82,20 +84,28 @@ function renderDevicePage(req, res) {
       return res.redirect("/");
     }
 
-    device.connectionString = iothub.getDeviceConnectionString(device);
+    device = Object.assign({}, device);
+
+    if (isAdmin) {
+      device.connectionString = iothub.getDeviceConnectionString(device);
+    } else {
+      delete device.authentication;
+    }
     var content = html.makeLink("/", "Back") +
       "<br><br>" +
       html.renderValue(device) +
       "<br><br>";
 
-    if (device.status === "enabled") {
-      content += makeDeviceLink(id, "disable") + ", ";
-    } else {
-      content += makeDeviceLink(id, "enable") + ", ";
-    }
-    content += makeDeviceLink(id, "delete");
-    if (device.connectionState === "Connected") {
-      content += ", " + makeDeviceLink(id, "connect");
+    if (isAdmin) {
+      if (device.status === "enabled") {
+        content += makeDeviceLink(id, "disable") + ", ";
+      } else {
+        content += makeDeviceLink(id, "enable") + ", ";
+      }
+      content += makeDeviceLink(id, "delete");
+      if (device.connectionState === "Connected") {
+        content += ", " + makeDeviceLink(id, "connect");
+      }
     }
 
     res.send(html.applyLayout(content));
@@ -289,28 +299,34 @@ function renderOutputPage(req, res) {
 // When the user comes to a /device page,
 // determine which on to render.
 router.use("/", function(req, res) {
-  switch(req.query.cmd) {
-  case "disable":
-    renderDisablePage(req, res);
-    break;
-  case "enable":
-    renderEnablePage(req, res);
-    break;
-  case "delete":
-    renderDeletePage(req, res);
-    break;
-  case "connect":
-    renderConnectPage(req, res);
-    break;
-  case "configure":
-    renderConfigurePage(req, res);
-    break;
-  case "output":
-    renderOutputPage(req, res);
-    break;
-  default:
+  var isAdmin = helpers.isAdmin(req);
+
+  if (isAdmin) {
+    switch(req.query.cmd) {
+    case "disable":
+      renderDisablePage(req, res);
+      break;
+    case "enable":
+      renderEnablePage(req, res);
+      break;
+    case "delete":
+      renderDeletePage(req, res);
+      break;
+    case "connect":
+      renderConnectPage(req, res);
+      break;
+    case "configure":
+      renderConfigurePage(req, res);
+      break;
+    case "output":
+      renderOutputPage(req, res);
+      break;
+    default:
+      renderDevicePage(req, res);
+      break;
+    }
+  } else {
     renderDevicePage(req, res);
-    break;
   }
 });
 
