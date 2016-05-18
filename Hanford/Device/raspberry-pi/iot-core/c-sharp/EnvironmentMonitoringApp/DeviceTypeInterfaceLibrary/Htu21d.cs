@@ -69,42 +69,45 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         /// <summary>
         /// Calculates the dew point temperature
         /// </summary>
-        public float DewPoint(float temperature)
+        public float DewPoint
         {
-            if (!this.available)
+            get
             {
-                return 0f;
+                if (!this.available)
+                {
+                    return 0f;
+                }
+
+                ushort rawTemperatureData = this.RawTemperature;
+                ushort rawHumidityData = this.RawHumidity;
+
+                double temperatureCelsius = ((175.72 * rawTemperatureData) / 65536) - 46.85;
+                double humidityRelative = ((125.0 * rawHumidityData) / 65536) - 6.0;
+
+                const double DewConstA = 8.1332;
+                const double DewConstB = 1762.39;
+                const double DewConstC = 235.66;
+
+                double paritalPressure;
+                double dewPoint;
+
+                // To calculate the dew point, the partial pressure must be determined first.
+                // See datasheet page 16 for details.
+                // Partial pressure = 10 ^ (A - (B / (Temp + C)))
+                paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
+                paritalPressure = System.Math.Pow(10, paritalPressure);
+
+                // Dew point is calculated using the partial pressure, humidity and temperature.
+                // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
+                // RH value. Therefore, we use the raw RH value straight from the sensor.
+                // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
+                dewPoint = humidityRelative * paritalPressure / 100;
+                dewPoint = System.Math.Log10(dewPoint) - DewConstA;
+                dewPoint = DewConstB / dewPoint;
+                dewPoint = -(dewPoint + DewConstC);
+
+                return Convert.ToSingle(dewPoint);
             }
-
-            ushort rawTemperatureData = this.RawTemperature;
-            ushort rawHumidityData = this.RawHumidity;
-
-            double temperatureCelsius = ((175.72 * rawTemperatureData) / 65536) - 46.85;
-            double humidityRelative = ((125.0 * rawHumidityData) / 65536) - 6.0;
-
-            const double DewConstA = 8.1332;
-            const double DewConstB = 1762.39;
-            const double DewConstC = 235.66;
-
-            double paritalPressure;
-            double dewPoint;
-
-            // To calculate the dew point, the partial pressure must be determined first.
-            // See datasheet page 16 for details.
-            // Partial pressure = 10 ^ (A - (B / (Temp + C)))
-            paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
-            paritalPressure = System.Math.Pow(10, paritalPressure);
-
-            // Dew point is calculated using the partial pressure, humidity and temperature.
-            // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
-            // RH value. Therefore, we use the raw RH value straight from the sensor.
-            // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
-            dewPoint = humidityRelative * paritalPressure / 100;
-            dewPoint = System.Math.Log10(dewPoint) - DewConstA;
-            dewPoint = DewConstB / dewPoint;
-            dewPoint = -(dewPoint + DewConstC);
-
-            return Convert.ToSingle(dewPoint);
         }
 
         /// <summary>
@@ -162,62 +165,65 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         /// </returns>
         private async Task<bool> BeginAsyncHelper()
         {
-            try
+            if (this.i2c == null)
             {
-                // Acquire the I2C device
-                // MSDN I2C Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.i2c.aspx
-                //
-                // Use the I2cDevice device selector to create an advanced query syntax string
-                // Use the Windows.Devices.Enumeration.DeviceInformation class to create a collection using the advanced query syntax string
-                // Take the device id of the first device in the collection
-
-                string advancedQuerySyntax = I2cDevice.GetDeviceSelector(this.i2cBusName);
-                DeviceInformationCollection deviceInformationCollection = await DeviceInformation.FindAllAsync(advancedQuerySyntax);
-                string deviceId = deviceInformationCollection[0].Id;
-
-                // Establish an I2C connection to the HTU21D
-                //
-                // Instantiate the I2cConnectionSettings using the device address of the HTU21D
-                // - Set the I2C bus speed of connection to fast mode
-                // - Set the I2C sharing mode of the connection to shared
-                //
-                // Instantiate the the HTU21D I2C device using the device id and the I2cConnectionSettings
-                I2cConnectionSettings htu21dConnection = new I2cConnectionSettings(Htu21d.Htu21dI2cAddress);
-                htu21dConnection.BusSpeed = I2cBusSpeed.FastMode;
-                htu21dConnection.SharingMode = I2cSharingMode.Shared;
-
-                this.i2c = await I2cDevice.FromIdAsync(deviceId, htu21dConnection);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Unhandled exception: " + e.ToString());
-            }
-            // Test to see if the I2C devices are available.
-            //
-            // If the I2C devices are not available, this is
-            // a good indicator the weather shield is either
-            // missing or configured incorrectly. Therefore we
-            // will disable the weather shield functionality to
-            // handle the failure case gracefully. This allows
-            // the invoking application to remain deployable
-            // across the Universal Windows Platform.
-            if (null == this.i2c)
-            {
-                this.available = false;
-                return this.available;
-            }
-            else
-            {
-                byte[] i2cTemperatureData = new byte[3];
-
                 try
                 {
-                    this.i2c.WriteRead(new byte[] { Htu21d.SampleTemperatureHold }, i2cTemperatureData);
-                    this.available = true;
+                    // Acquire the I2C device
+                    // MSDN I2C Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.i2c.aspx
+                    //
+                    // Use the I2cDevice device selector to create an advanced query syntax string
+                    // Use the Windows.Devices.Enumeration.DeviceInformation class to create a collection using the advanced query syntax string
+                    // Take the device id of the first device in the collection
+
+                    string advancedQuerySyntax = I2cDevice.GetDeviceSelector(this.i2cBusName);
+                    DeviceInformationCollection deviceInformationCollection = await DeviceInformation.FindAllAsync(advancedQuerySyntax);
+                    string deviceId = deviceInformationCollection[0].Id;
+
+                    // Establish an I2C connection to the HTU21D
+                    //
+                    // Instantiate the I2cConnectionSettings using the device address of the HTU21D
+                    // - Set the I2C bus speed of connection to fast mode
+                    // - Set the I2C sharing mode of the connection to shared
+                    //
+                    // Instantiate the the HTU21D I2C device using the device id and the I2cConnectionSettings
+                    I2cConnectionSettings htu21dConnection = new I2cConnectionSettings(Htu21d.Htu21dI2cAddress);
+                    htu21dConnection.BusSpeed = I2cBusSpeed.FastMode;
+                    htu21dConnection.SharingMode = I2cSharingMode.Shared;
+
+                    this.i2c = await I2cDevice.FromIdAsync(deviceId, htu21dConnection);
                 }
-                catch
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Unhandled exception: " + e.ToString());
+                }
+                // Test to see if the I2C devices are available.
+                //
+                // If the I2C devices are not available, this is
+                // a good indicator the weather shield is either
+                // missing or configured incorrectly. Therefore we
+                // will disable the weather shield functionality to
+                // handle the failure case gracefully. This allows
+                // the invoking application to remain deployable
+                // across the Universal Windows Platform.
+                if (null == this.i2c)
                 {
                     this.available = false;
+                    return this.available;
+                }
+                else
+                {
+                    byte[] i2cTemperatureData = new byte[3];
+
+                    try
+                    {
+                        this.i2c.WriteRead(new byte[] { Htu21d.SampleTemperatureHold }, i2cTemperatureData);
+                        this.available = true;
+                    }
+                    catch
+                    {
+                        this.available = false;
+                    }
                 }
             }           
 

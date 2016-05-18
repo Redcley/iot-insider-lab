@@ -140,80 +140,82 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
         /// </returns>
         private async Task<bool> BeginAsyncHelper()
         {
-            try
-            {
-                // Acquire the I2C device
-                // MSDN I2C Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.i2c.aspx
-                //
-                // Use the I2cDevice device selector to create an advanced query syntax string
-                // Use the Windows.Devices.Enumeration.DeviceInformation class to create a collection using the advanced query syntax string
-                // Take the device id of the first device in the collection
-
-                string advancedQuerySyntax = I2cDevice.GetDeviceSelector(this.i2cBusName);
-                DeviceInformationCollection deviceInformationCollection = await DeviceInformation.FindAllAsync(advancedQuerySyntax);
-                string deviceId = deviceInformationCollection[0].Id;
-
-                // Establish an I2C connection to the MPL3115A2
-                //
-                // Instantiate the I2cConnectionSettings using the device address of the MPL3115A2
-                // - Set the I2C bus speed of connection to fast mode
-                // - Set the I2C sharing mode of the connection to shared
-                //
-                // Instantiate the the MPL3115A2 I2C device using the device id and the I2cConnectionSettings
-                I2cConnectionSettings mpl3115a2Connection = new I2cConnectionSettings(Mpl3115a2I2cAddress);
-                mpl3115a2Connection.BusSpeed = I2cBusSpeed.FastMode;
-                mpl3115a2Connection.SharingMode = I2cSharingMode.Shared;
-
-                this.i2c = await I2cDevice.FromIdAsync(deviceId, mpl3115a2Connection);
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Unhandled exception: " + e.ToString());
-            }
-            // Test to see if the I2C devices are available.
-            //
-            // If the I2C devices are not available, this is
-            // a good indicator the weather shield is either
-            // missing or configured incorrectly. Therefore we
-            // will disable the weather shield functionality to
-            // handle the failure case gracefully. This allows
-            // the invoking application to remain deployable
-            // across the Universal Windows Platform.
-            //
-            // NOTE: For a more detailed description of the I2C
-            // transactions used for testing below, please
-            // refer to the "Raw___" functions provided below.
             if (null == this.i2c)
             {
-                this.available = false;
-                return this.available;
-            }
-            else
-            {
-                byte[] data = new byte[1];
-
                 try
                 {
-                    this.i2c.WriteRead(new byte[] { Mpl3115a2.ControlRegister1 }, data);
+                    // Acquire the I2C device
+                    // MSDN I2C Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.i2c.aspx
+                    //
+                    // Use the I2cDevice device selector to create an advanced query syntax string
+                    // Use the Windows.Devices.Enumeration.DeviceInformation class to create a collection using the advanced query syntax string
+                    // Take the device id of the first device in the collection
 
-                    // ensure SBYB (bit 0) is set to STANDBY
-                    data[0] &= 0xFE;
+                    string advancedQuerySyntax = I2cDevice.GetDeviceSelector(this.i2cBusName);
+                    DeviceInformationCollection deviceInformationCollection = await DeviceInformation.FindAllAsync(advancedQuerySyntax);
+                    string deviceId = deviceInformationCollection[0].Id;
 
-                    // ensure OST (bit 1) is set to initiate measurement
-                    data[0] |= 0x02;
-                    this.i2c.Write(new byte[] { Mpl3115a2.ControlRegister1, data[0] });
+                    // Establish an I2C connection to the MPL3115A2
+                    //
+                    // Instantiate the I2cConnectionSettings using the device address of the MPL3115A2
+                    // - Set the I2C bus speed of connection to fast mode
+                    // - Set the I2C sharing mode of the connection to shared
+                    //
+                    // Instantiate the the MPL3115A2 I2C device using the device id and the I2cConnectionSettings
+                    I2cConnectionSettings mpl3115a2Connection = new I2cConnectionSettings(Mpl3115a2I2cAddress);
+                    mpl3115a2Connection.BusSpeed = I2cBusSpeed.FastMode;
+                    mpl3115a2Connection.SharingMode = I2cSharingMode.Shared;
 
-                    this.available = true;
-
-                    this.i2c.WriteRead(new byte[] { 0x0C }, data);
-                    Debug.WriteLine("WhoAmI: " + data[0]);
+                    this.i2c = await I2cDevice.FromIdAsync(deviceId, mpl3115a2Connection);
                 }
-                catch
+                catch (Exception e)
+                {
+                    Debug.WriteLine("Unhandled exception: " + e.ToString());
+                }
+                // Test to see if the I2C devices are available.
+                //
+                // If the I2C devices are not available, this is
+                // a good indicator the weather shield is either
+                // missing or configured incorrectly. Therefore we
+                // will disable the weather shield functionality to
+                // handle the failure case gracefully. This allows
+                // the invoking application to remain deployable
+                // across the Universal Windows Platform.
+                //
+                // NOTE: For a more detailed description of the I2C
+                // transactions used for testing below, please
+                // refer to the "Raw___" functions provided below.
+                if (null == this.i2c)
                 {
                     this.available = false;
+                    return this.available;
+                }
+                else
+                {
+                    byte[] data = new byte[1];
+
+                    try
+                    {
+                        this.i2c.WriteRead(new byte[] { Mpl3115a2.ControlRegister1 }, data);
+
+                        // ensure SBYB (bit 0) is set to STANDBY
+                        data[0] &= 0xFE;
+
+                        // ensure OST (bit 1) is set to initiate measurement
+                        data[0] |= 0x02;
+                        this.i2c.Write(new byte[] { Mpl3115a2.ControlRegister1, data[0] });
+
+                        this.available = true;
+
+                        this.i2c.WriteRead(new byte[] { 0x0C }, data);
+                        Debug.WriteLine("WhoAmI: " + data[0]);
+                    }
+                    catch
+                    {
+                        this.available = false;
+                    }
                 }
             }
-
             return this.available;
         }
 
