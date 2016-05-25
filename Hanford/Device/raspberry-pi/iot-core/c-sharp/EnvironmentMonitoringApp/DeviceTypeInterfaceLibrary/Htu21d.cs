@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
-using DeviceTypeInterfaceLibrary;
+using Redcley.Sensors.I2C.Interfaces;
 
-namespace Microsoft.Maker.Devices.I2C.Htu21d
+namespace Redcley.Sensors.I2C.Htu21d
 {
     /// <summary>
     /// HTU21D Digital Relative Humidity sensor with Temperature IC
@@ -45,7 +45,7 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         private I2cDevice i2c;
 
         /// <summary>
-        /// Constructs Htu21d with I2C bus identified
+        /// Constructs Htu21d with the I2C bus identified
         /// </summary>
         /// <param name="i2cBusName">
         /// The bus name to provide to the enumerator
@@ -69,6 +69,9 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         /// <summary>
         /// Calculates the dew point temperature
         /// </summary>
+        /// <returns>
+        /// The Dew Point in Celcius (C)
+        /// </returns>
         public float DewPoint
         {
             get
@@ -165,7 +168,7 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         /// </returns>
         private async Task<bool> BeginAsyncHelper()
         {
-            if (this.i2c == null)
+            if (this.available == false)
             {
                 try
                 {

@@ -8,21 +8,22 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
 
-namespace I2CNeoPixelDriver
+namespace Redcley.Sensors.I2C.NeoPixelDriver
 {
+    public enum PixelColor
+    {
+        Red,
+        Orange,
+        Yellow,
+        Green,
+        Indigo,
+        Blue,
+        Purple,
+        Black
+    };
+
     public class PixelDriver
     {
-        public enum PixelColor
-        {
-            Red,
-            Orange,
-            Yellow,
-            Green,
-            Indigo,
-            Blue,
-            Purple,
-            Black
-        };
 
         public string Color
         {

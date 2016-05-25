@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Foundation;
+﻿using Windows.Foundation;
 
-namespace DeviceTypeInterfaceLibrary
+namespace Redcley.Sensors.I2C.Interfaces
 {
     public interface IBarometer
     {

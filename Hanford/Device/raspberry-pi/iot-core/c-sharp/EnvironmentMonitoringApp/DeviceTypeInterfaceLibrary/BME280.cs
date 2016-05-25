@@ -6,10 +6,14 @@ using System.Diagnostics;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
-using DeviceTypeInterfaceLibrary;
+using Redcley.Sensors.I2C.Interfaces;
 
-namespace Sensor.BME280
+namespace Redcley.Sensors.I2C.BME280
 {
+    /// <summary>
+    /// BME280 sensor interface over I2C
+    /// https://www.adafruit.com/products/2652
+    /// </summary>
     public class BME280_CalibrationData
     {
         //BME280 Registers
@@ -150,6 +154,7 @@ namespace Sensor.BME280
         private I2cDevice i2c = null;
         //Create new calibration data for the sensor
         private BME280_CalibrationData CalibrationData;
+        private bool available = false;
 
         // Value hold sensor operation parameters
         private byte int_mode = (byte)interface_mode_e.i2c;
@@ -160,6 +165,12 @@ namespace Sensor.BME280
         private byte osrs_t;
         private byte osrs_h;
 
+        /// <summary>
+        /// Constructs BME280 with the I2C bus identified
+        /// </summary>
+        /// <param name="i2cBusName">
+        /// The bus name to provide to the enumerator
+        /// </param>
         public BME280(string i2cBusName)
         {
             this.I2CControllerName = i2cBusName;
@@ -172,15 +183,189 @@ namespace Sensor.BME280
             this.osrs_h = (byte)oversampling_e.os1x;
         }
 
+        /// <summary>
+        /// Initialize the temerature device.
+        /// </summary>
+        /// <returns>
+        /// Async operation object.
+        /// </returns>
         public IAsyncOperation<bool> BeginAsync()
         {
             return this.BeginAsyncHelper().AsAsyncOperation<bool>();
         }
 
-        //Method to initialize the BME280 sensor
+        /// <summary>
+        /// Gets the current temperature
+        /// </summary>
+        /// <returns>
+        /// The temperature in Celcius (C)
+        /// </returns>
+        public float Temperature
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+                //Read the MSB, LSB and bits 7:4 (XLSB) of the temperature from the BME280 registers
+                byte tmsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_MSB);
+                byte tlsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_LSB);
+                byte txlsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_XLSB); // bits 7:4
+
+                //Combine the values into a 32-bit integer
+                int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
+
+                //Convert the raw value to the temperature in degC
+                double temp = BME280_compensate_T_double(t);
+
+                //Return the temperature as a float value
+                return (float)temp;
+            }
+        }
+
+        /// <summary>
+        /// Calculates the dew point temperature
+        /// </summary>
+        /// <returns>
+        /// The Dew Point in Celcius (C)
+        /// </returns>
+        public float DewPoint
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+                double temperatureCelsius = this.Temperature;
+                double humidityRelative = this.Humidity;
+
+                const double DewConstA = 8.1332;
+                const double DewConstB = 1762.39;
+                const double DewConstC = 235.66;
+
+                double paritalPressure;
+                double dewPoint;
+
+                // To calculate the dew point, the partial pressure must be determined first.
+                // See datasheet page 16 for details.
+                // Partial pressure = 10 ^ (A - (B / (Temp + C)))
+                paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
+                paritalPressure = System.Math.Pow(10, paritalPressure);
+
+                // Dew point is calculated using the partial pressure, humidity and temperature.
+                // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
+                // RH value. Therefore, we use the raw RH value straight from the sensor.
+                // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
+                dewPoint = humidityRelative * paritalPressure / 100;
+                dewPoint = System.Math.Log10(dewPoint) - DewConstA;
+                dewPoint = DewConstB / dewPoint;
+                dewPoint = -(dewPoint + DewConstC);
+
+                return Convert.ToSingle(dewPoint);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets pressure data
+        /// </summary>
+        /// <returns>
+        /// The pressure in Pascals (Pa)
+        /// </returns>
+        public float Pressure
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+                //Read the MSB, LSB and bits 7:4 (XLSB) of the pressure from the BME280 registers
+                byte pmsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_MSB);
+                byte plsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_LSB);
+                byte pxlsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_XLSB); // bits 7:4
+
+                //Combine the values into a 32-bit integer
+                int p = (pmsb << 12) + (plsb << 4) + (pxlsb >> 4);
+
+                //Convert the raw value to the pressure in Pa
+                long pres = BME280_compensate_P_Int64(p);
+
+                //Return the pressure as a float value
+                return ((float)pres) / 256;
+            }
+        }
+
+        /// <summary>
+        /// Gets the relative humidity value.
+        /// </summary>
+        /// <returns>
+        /// The relative humidity
+        /// </returns>
+        public float Humidity
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+                //Read the MSB and LSB of the humidity from the BME280 registers
+                byte hmsb = ReadByte((byte)eRegisters.BME280_REGISTER_HUMIDDATA_MSB);
+                byte hlsb = ReadByte((byte)eRegisters.BME280_REGISTER_HUMIDDATA_LSB);
+
+                //Combine the values into a 32-bit integer
+                int h = (hmsb << 8) + hlsb;
+
+                //Convert the raw value to the humidity in %
+                double humidity = BME280_compensate_H_double(h);
+
+                //Return the humidity as a float value
+                return (float)humidity;
+            }
+        }
+
+        /// <summary>
+        /// Gets the altitude data
+        /// </summary>
+        /// <returns>
+        /// Calculates the altitude in meters (m) using the US Standard Atmosphere 1976 (NASA) formula
+        /// </returns>
+        public float Altitude
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+                //Read the pressure first
+                float pressure = Pressure;
+                //Convert the pressure to Hectopascals(hPa)
+                pressure /= 100;
+
+                //Calculate and return the altitude using the international barometric formula
+                double altitude = 44330.0f * (1.0f - (float)Math.Pow((pressure / 101326), 0.1902632));
+
+                return Convert.ToSingle(altitude);
+            }
+        }
+
+
+        /// <summary>
+        /// Private helper to initialize the HTU21D device.
+        /// </summary>
+        /// <remarks>
+        /// Setup and instantiate the I2C device object for the HTU21D.
+        /// </remarks>
+        /// <returns>
+        /// Task object.
+        /// </returns>
         private async Task<bool> BeginAsyncHelper()
         {
-            if (this.i2c == null)
+            if (this.available == false)
             {
                 try
                 {
@@ -200,44 +385,50 @@ namespace Sensor.BME280
                     {
                         Debug.WriteLine("Device not found");
                     }
+
+
+                    byte[] readChipID = new byte[] { (byte)eRegisters.BME280_REGISTER_CHIPID };
+                    byte[] ReadBuffer = new byte[] { 0xFF };
+
+                    //Read the device signature
+                    i2c.WriteRead(readChipID, ReadBuffer);
+                    Debug.WriteLine("BME280 Signature: " + ReadBuffer[0].ToString());
+
+                    //Verify the device signature
+                    if (ReadBuffer[0] != BME280_Signature)
+                    {
+                        Debug.WriteLine("BME280::Begin Signature Mismatch.");
+                        return false;
+                    }
+
+                    //Read the coefficients table
+                    CalibrationData = ReadCoefficeints();
+
+                    //Set configuration registers
+                    WriteConfigRegister();
+                    WriteControlMeasurementRegister();
+                    WriteControlRegisterHumidity();
+
+                    //Set configuration registers again to ensure configuration of humidity
+                    WriteConfigRegister();
+                    WriteControlMeasurementRegister();
+                    WriteControlRegisterHumidity();
+
+                    //Dummy read temp to setup t_fine
+                    float test = Temperature;
                 }
                 catch (Exception e)
                 {
+                    //Currently seen exceptions include
+                    // - missing I2C device.
+                    // - No response from Slave (not connected).
+                    
                     Debug.WriteLine("Exception: " + e.Message + "\n" + e.StackTrace);
                     throw;
                 }
-
-                byte[] readChipID = new byte[] { (byte)eRegisters.BME280_REGISTER_CHIPID };
-                byte[] ReadBuffer = new byte[] { 0xFF };
-
-                //Read the device signature
-                i2c.WriteRead(readChipID, ReadBuffer);
-                Debug.WriteLine("BME280 Signature: " + ReadBuffer[0].ToString());
-
-                //Verify the device signature
-                if (ReadBuffer[0] != BME280_Signature)
-                {
-                    Debug.WriteLine("BME280::Begin Signature Mismatch.");
-                    return false;
-                }
-
-                //Read the coefficients table
-                CalibrationData = ReadCoefficeints();
-
-                //Set configuration registers
-                WriteConfigRegister();
-                WriteControlMeasurementRegister();
-                WriteControlRegisterHumidity();
-
-                //Set configuration registers again to ensure configuration of humidity
-                WriteConfigRegister();
-                WriteControlMeasurementRegister();
-                WriteControlRegisterHumidity();
-
-                //Dummy read temp to setup t_fine
-                float test = Temperature;
+                available = true;
             }
-            return true;
+            return available;
         }
 
 
@@ -417,114 +608,5 @@ namespace Sensor.BME280
             return var_H;
         }
 
-
-        public float Temperature
-        {
-            get
-            {
-                //Read the MSB, LSB and bits 7:4 (XLSB) of the temperature from the BME280 registers
-                byte tmsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_MSB);
-                byte tlsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_LSB);
-                byte txlsb = ReadByte((byte)eRegisters.BME280_REGISTER_TEMPDATA_XLSB); // bits 7:4
-
-                //Combine the values into a 32-bit integer
-                int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
-
-                //Convert the raw value to the temperature in degC
-                double temp = BME280_compensate_T_double(t);
-
-                //Return the temperature as a float value
-                return (float)temp;
-            }
-        }
-
-        public float DewPoint
-        {
-            get
-            {
-                double temperatureCelsius = this.Temperature;
-                double humidityRelative = this.Humidity;
-
-                const double DewConstA = 8.1332;
-                const double DewConstB = 1762.39;
-                const double DewConstC = 235.66;
-
-                double paritalPressure;
-                double dewPoint;
-
-                // To calculate the dew point, the partial pressure must be determined first.
-                // See datasheet page 16 for details.
-                // Partial pressure = 10 ^ (A - (B / (Temp + C)))
-                paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
-                paritalPressure = System.Math.Pow(10, paritalPressure);
-
-                // Dew point is calculated using the partial pressure, humidity and temperature.
-                // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
-                // RH value. Therefore, we use the raw RH value straight from the sensor.
-                // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
-                dewPoint = humidityRelative * paritalPressure / 100;
-                dewPoint = System.Math.Log10(dewPoint) - DewConstA;
-                dewPoint = DewConstB / dewPoint;
-                dewPoint = -(dewPoint + DewConstC);
-
-                return Convert.ToSingle(dewPoint);
-            }
-        }
-
-        public float Pressure
-        {
-            get
-            {
-                //Read the MSB, LSB and bits 7:4 (XLSB) of the pressure from the BME280 registers
-                byte pmsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_MSB);
-                byte plsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_LSB);
-                byte pxlsb = ReadByte((byte)eRegisters.BME280_REGISTER_PRESSUREDATA_XLSB); // bits 7:4
-
-                //Combine the values into a 32-bit integer
-                int p = (pmsb << 12) + (plsb << 4) + (pxlsb >> 4);
-
-                //Convert the raw value to the pressure in Pa
-                long pres = BME280_compensate_P_Int64(p);
-
-                //Return the pressure as a float value
-                return ((float)pres) / 256;
-            }
-        }
-
-        public float Humidity
-        {
-            get
-            {
-                //Read the MSB and LSB of the humidity from the BME280 registers
-                byte hmsb = ReadByte((byte)eRegisters.BME280_REGISTER_HUMIDDATA_MSB);
-                byte hlsb = ReadByte((byte)eRegisters.BME280_REGISTER_HUMIDDATA_LSB);
-
-                //Combine the values into a 32-bit integer
-                int h = (hmsb << 8) + hlsb;
-
-                //Convert the raw value to the humidity in %
-                double humidity = BME280_compensate_H_double(h);
-
-                //Return the humidity as a float value
-                return (float)humidity;
-            }
-        }
-
-        //Method to take the sea level pressure in Hectopascals(hPa) as a parameter and calculate the altitude using current pressure.
-        public float Altitude
-        {
-            get
-            {
-                //Read the pressure first
-                float pressure = Pressure;
-                //Convert the pressure to Hectopascals(hPa)
-                pressure /= 100;
-
-                //Calculate and return the altitude using the international barometric formula
-                double altitude = 44330.0f * (1.0f - (float)Math.Pow((pressure / 101326), 0.1902632));
-
-                return Convert.ToSingle(altitude);
-            }
-        }
     }
 }

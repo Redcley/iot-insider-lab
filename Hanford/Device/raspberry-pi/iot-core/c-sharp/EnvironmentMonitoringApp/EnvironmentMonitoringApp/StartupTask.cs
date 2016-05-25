@@ -34,7 +34,7 @@ namespace EnvironmentMonitoringApp
         private string configLocation = "C:\\config\\IoTDemoConfig.json";
         private JsonObject config;
 
-        private I2CNeoPixelDriver.PixelDriver.PixelColor color = I2CNeoPixelDriver.PixelDriver.PixelColor.Black;
+        private Redcley.Sensors.I2C.NeoPixelDriver.PixelColor color = Redcley.Sensors.I2C.NeoPixelDriver.PixelColor.Black;
         private int count = 0;
 
         DeviceClient client;
@@ -63,14 +63,12 @@ namespace EnvironmentMonitoringApp
             string device_connection_string = config.GetNamedString("connection_string");
             Debug.WriteLine(device_connection_string);
             
-            client = DeviceClient.CreateFromConnectionString(device_connection_string, Microsoft.Azure.Devices.Client.TransportType.Amqp);
-
             await weatherShield.BeginAsync();
+
+            client = DeviceClient.CreateFromConnectionString(device_connection_string, Microsoft.Azure.Devices.Client.TransportType.Amqp);
 
             i2cTimer = ThreadPoolTimer.CreatePeriodicTimer(PopulateWeatherData, TimeSpan.FromSeconds(i2cReadIntervalSeconds));
             HandleIncomingMessages(client);
-
-//            ledTimer = ThreadPoolTimer.CreatePeriodicTimer(LedDisplayUpdate, TimeSpan.FromMilliseconds(500));
         }
 
         private async void OnCanceled(IBackgroundTaskInstance sender, BackgroundTaskCancellationReason reason)
@@ -160,7 +158,6 @@ namespace EnvironmentMonitoringApp
                     {
                         if (json_message.GetNamedString("request").Equals("status"))
                         {
-                            await deviceClient.CompleteAsync(receivedMessage);
 
                             JsonObject response = new JsonObject();
                             response.Add("response", JsonValue.CreateStringValue("status"));
@@ -209,6 +206,8 @@ namespace EnvironmentMonitoringApp
 
                             Debug.WriteLine("New Message: " + messageData.ToString());
                             await deviceClient.SendEventAsync(m);
+                            await deviceClient.CompleteAsync(receivedMessage);
+
 
                         }
                         else if (json_message.GetNamedString("request").Equals("output"))
@@ -248,6 +247,7 @@ namespace EnvironmentMonitoringApp
                 if (hasMutex)
                 {
                     JsonObject environmentData = new JsonObject();
+                    environmentData.Add("response", JsonValue.CreateStringValue("environment"));
                     environmentData.Add("pressure", JsonValue.CreateNumberValue(weatherShield.Pressure));
                     environmentData.Add("temperature", JsonValue.CreateNumberValue(weatherShield.Temperature));
                     environmentData.Add("humidity", JsonValue.CreateNumberValue(weatherShield.Humidity));
@@ -256,7 +256,7 @@ namespace EnvironmentMonitoringApp
                     Message m = new Message(Encoding.UTF8.GetBytes(environmentData.Stringify()));
                     m.MessageId = Guid.NewGuid().ToString();
 
-                    client.SendEventAsync(m);
+                    await client.SendEventAsync(m);
                 }
             } catch (System.Exception e)
             {

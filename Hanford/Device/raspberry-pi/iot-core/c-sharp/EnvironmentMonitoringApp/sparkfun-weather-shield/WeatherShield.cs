@@ -1,23 +1,17 @@
-﻿using Microsoft.Maker.Devices.I2C.Htu21d;
-using Microsoft.Maker.Devices.I2C.Mpl3115a2;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Windows.Devices.Gpio;
 using Windows.Foundation;
-using I2CNeoPixelDriver;
-using Sensor.BME280;
-using DeviceTypeInterfaceLibrary;
+using Redcley.Sensors.I2C.NeoPixelDriver;
+using Redcley.Sensors.I2C.BME280;
+using Redcley.Sensors.I2C.Htu21d;
+using Redcley.Sensors.I2C.Mpl3115a2;
+using Redcley.Sensors.I2C.Interfaces;
 using Windows.Data.Json;
 
 namespace Microsoft.Maker.Sparkfun.WeatherShield
 {
     public sealed class WeatherShield
     {
-        /// <summary>
-        /// LED Control Pins
-        /// </summary>
-        private int statusLedBluePin;
-        private int statusLedGreenPin;
         private PixelDriver neoPixel;
         private BME280 bme280;
         private Htu21d htu21d;  // Humidity and temperature sensor

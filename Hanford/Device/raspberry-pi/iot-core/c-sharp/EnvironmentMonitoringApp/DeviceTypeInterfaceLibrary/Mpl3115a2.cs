@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
-using DeviceTypeInterfaceLibrary;
+using Redcley.Sensors.I2C.Interfaces;
 
-namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
+namespace Redcley.Sensors.I2C.Mpl3115a2
 {
     /// <summary>
     /// MPL3115A2 precision altimeter IC
@@ -114,6 +114,13 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
             }
         }
 
+
+        /// <summary>
+        /// Gets the current temperature
+        /// </summary>
+        /// <returns>
+        /// The temperature in Celcius (C)
+        /// </returns>
         public float Temperature
         {
             get
