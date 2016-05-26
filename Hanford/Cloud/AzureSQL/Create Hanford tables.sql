@@ -67,6 +67,11 @@ CREATE TABLE [dbo].[Messages](
 ) ON [PRIMARY]
 GO
 
+ALTER TABLE [dbo].[Messages]
+ADD CONSTRAINT [DF_Messages_UtcStamp]
+DEFAULT (getutcdate()) FOR [UtcStamp]
+GO
+
 CREATE NONCLUSTERED INDEX [IX_Messages_DeviceId] 
 ON [dbo].[Messages]
 (
@@ -236,7 +241,7 @@ CREATE TABLE [dbo].[ErrorLog](
 	[RowId]      [int] IDENTITY(1,1) NOT NULL,
 	[Timestamp]  [datetime]          NOT NULL,
 	[Message]    [nvarchar](max)     NOT NULL,
-	[IsRetested] [bit]               NOT NULL,
+	[Error]      [int]               NOT NULL,
 	CONSTRAINT [PK_ErrorLog] PRIMARY KEY CLUSTERED 
 	(
 		[RowId] ASC
@@ -248,9 +253,3 @@ ALTER TABLE [dbo].[ErrorLog]
 ADD CONSTRAINT [DF_ErrorLog_Timestamp]
 DEFAULT (getdate()) FOR [Timestamp]
 GO
-
-ALTER TABLE [dbo].[ErrorLog]
-ADD CONSTRAINT [DF_ErrorLog_IsRetested]
-DEFAULT ((0)) FOR [IsRetested]
-GO
-
