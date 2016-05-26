@@ -52,13 +52,13 @@ function IoTHub(lastMessageTime) {
 
   iotClient.open(function (err) {
     if (err) {
-      log.err("open\n", err);
+      log.err("open failed\n", err);
       failure = err;
       iotClient = null;
     } else {
       iotClient.getFeedbackReceiver(function (err, receiver) {
         if (err) {
-          log.err("getFeedbackReceiver\n", err);
+          log.err("getFeedbackReceiver failed\n", err);
           failure = err;
           iotClient.close();
           iotClient = null;

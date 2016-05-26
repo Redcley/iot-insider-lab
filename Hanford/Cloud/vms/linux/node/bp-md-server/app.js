@@ -15,15 +15,6 @@ if (process.env.USER === "node") {
   process.chdir("/var/node");
 }
 
-var stats = {
-  messageCount: {},
-  sendErrorCount: 0,
-  receiveErrorCount: 0,
-  sqlErrorCount: 0,
-  ackCount: 0,
-  restarts: 0
-};
-
 require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
@@ -33,33 +24,18 @@ const mssql = require("mssql");
 const log = require("./logging.js");
 const helpers = require("./helpers.js");
 const html = require("./html.js");
+const jqm = require("./jqm.js");
 
-// Restore stats before we hookup more events to process
-var data = fs.readFileSync(path.resolve(".", "logs/stats.json"), "utf8");
-if (data) {
-  stats = JSON.parse(data);
-  log.out("Restored stats from logs/stats.json");
-  stats.restarts += 1;
-} else {
-  log.err("Failed to load stats\n", err);
-}
-
-const iothub = require("./iothub.js")(stats.lastMessageTime);
+const iothub = require("./iothub.js")(helpers.getLastMessageTime());
 const device = require("./device.js");
 
 var db = null;
 
-function SaveAndExit() {
-  log.out("\nNode is being terminated, saving stats\n", stats);
-  fs.writeFileSync(path.resolve(".", "logs/stats.json"), JSON.stringify(stats), "utf8");
-  process.exit();
-};
-
 // kill and forever both send SIGTERM signals to the process.
-process.on("SIGTERM", SaveAndExit);
+process.on("SIGTERM", helpers.saveAndExit);
 
 // A Ctrl-C in the terminal when running locally should also be handled.
-process.on("SIGINT", SaveAndExit);
+process.on("SIGINT", helpers.saveAndExit);
 
 const app = express();
 
@@ -83,7 +59,43 @@ function EnumLogs() {
     result += html.makeLink("/logs/" + val, val) + "<br>";
   });
   return result;
-}
+};
+
+function renderMainPage(res, deviceList) {
+  var table = [];
+  table.push([
+    "Name",
+    "Status",
+    "Last Update",
+    "MessageCount"
+  ]);
+
+  deviceList.forEach(function (device) {
+    table.push([
+      html.makeLink(`/device?id=${device.deviceId}`, device.deviceId),
+      ((device.status === "enabled") ? device.connectionState : device.status),
+      device.lastActivityTime,
+      device.cloudToDeviceMessageCount,
+    ]);
+  });
+
+  // use single quotes so we don't have to
+  // escape the double quotes
+  var page = '<iframe width="800" height="600" ' +
+    'src="https://msit.powerbi.com/view?r=eyJrIjoiYzAwMTIwMzA' +
+    'tOTk2My00MzkwLWI5NGItNjViZDFiYWZlOTA0IiwidCI6IjcyZjk4OGJ' +
+    'mLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9" ' +
+    'frameborder="0" allowFullScreen="true"></iframe><br><br>';
+
+  page += html.renderTable(table) + "<br><br>";
+  page += html.makeForm("/create-device",
+    html.makeTextInput("name", "Device Name:") +
+    html.makeSubmitButton("Create Device")) + "<br><br>";
+  page += html.renderValue(helpers.getStats());
+  page += "<br><br>" + html.renderTable([["Logs"], [EnumLogs()]]);
+
+  res.send(html.applyLayout(page, 5));
+};
 
 // The root page of the web server displays
 // - a list of devices registered with IoTHub
@@ -93,36 +105,16 @@ app.get("/", function(req, res) {
   var isAdmin = helpers.isAdmin(req);
 
   iothub.listDevices(function (err, deviceList) {
-    var table = [];
-    table.push([
-      "Name",
-      "Status",
-      "Last Update",
-      "MessageCount"
-    ]);
-
-    deviceList.forEach(function (device) {
-      table.push([
-        html.makeLink(`/device?id=${device.deviceId}`, device.deviceId),
-        ((device.status === "enabled") ? device.connectionState : device.status),
-        device.lastActivityTime,
-        device.cloudToDeviceMessageCount,
-      ]);
-    });
-
-    var page =  html.renderTable(table) + "<br><br>";
-    if (isAdmin) {
-      page += html.makeForm("/create-device",
-        html.makeTextInput("name", "Device Name:") +
-        html.makeSubmitButton("Create Device")) + "<br><br>";
-    }
-    page += html.renderValue(stats);
-
-    if (isAdmin) {
-       page += "<br><br>" + html.renderTable([["Logs"], [EnumLogs()]]);
+    if (err) {
+      log.err("listDevices failed\n", err);
+      helpers.saveAndExit();
     }
 
-    res.send(html.applyLayout(page));
+    if (!isAdmin) {
+      jqm.renderMainPage(res, deviceList);
+    } else {
+      renderMainPage(res, deviceList);
+    }
   });
 });
 
@@ -137,139 +129,194 @@ app.post("/create-device", function(req, res) {
 
 app.use('/device', device);
 
+function DemoExcitement(msg) {
+  if (msg.deviceId !== "shen-lab1" && msg.deviceId !== "shen-lab2") {
+    return;
+  }
+
+  var analytics = helpers.getAnalytics(msg.deviceId);
+  if (analytics.temperature.length > 2) {
+    var lastTemp = analytics.temperature[analytics.temperature.length - 2];
+    var lastAvg = analytics.average[analytics.average.length - 2];
+    var temp = analytics.temperature[analytics.temperature.length - 1];
+    var avg = analytics.average[analytics.average.length - 1];
+
+    var color = null;
+    if ((lastTemp <= (lastAvg+5)) && (temp > (avg+5))) {
+      color = "red";
+    } else if ((lastTemp <= (lastAvg+3)) && (temp > (avg+3))) {
+      color = "green";
+    } else if ((lastTemp <= (lastAvg+1)) && (temp > (avg+1))) {
+      color = "blue";
+    } else if ((lastTemp >= (lastAvg+5)) && (temp < (avg+5))) {
+      color = "green";
+    } else if ((lastTemp >= (lastAvg+3)) && (temp < (avg+3))) {
+      color = "blue";
+    } else if ((lastTemp >= (lastAvg+1)) && (temp < (avg+1))) {
+      color = "off";
+    }
+
+    if (color) {
+      var id = (msg.deviceId === "shen-lab1") ? "shen-lab2" : "shen-lab1";
+      var power = (color === "off") ? false : true;
+      var cmd = {
+        request: "output",
+        lights: [
+          {
+            power: power,
+            color: color
+          }
+        ],
+        sound : {
+          play: false
+        }
+      };
+
+      if (!cmd.lights[0].power) {
+        delete cmd.lights[0].color;
+      }
+
+      iothub.sendToDevice(id, cmd, function (err, msgId) {
+        if (err) {
+          log.err("sendToDevice failed\n", err);
+        }
+      });
+    }
+  }
+};
+
+function ResetConnection() {
+  if (db) {
+    db.close();
+  }
+
+  var con = mssql.connect(process.env.SQL_CONNECTIONSTRING, function(err) {
+    if (err) {
+      log.err("connect\n", err);
+      ResetConnection();
+    }
+  });
+
+  con.on("error", function (err) {
+    helpers.incSQLErrorCount();
+    log.err("error\n", err);
+    ResetConnection();
+  })
+
+  db = con;
+};
+
 // This is the backend processing part of the code that
 // processes messages from the IoTHub and gets them into
 // the Azure SQL database.
 iothub.on("message", function (msg) {
-  stats.messageCount[msg.deviceId] = stats.messageCount[msg.deviceId] || 0;
-  stats.messageCount[msg.deviceId] += 1;
-  stats.messageCount["total"] += 1;
-
   // format a zulu time string for MSSQL
   var timestamp = JSON.stringify(msg.datestamp).slice(1,-1);
-  stats.lastMessageTime = timestamp;
 
-  if (msg.response) {
-    switch(msg.response) {
-    case "environment":
-      new mssql.Request(db)
-      .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-      .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-      .input("timestamp", mssql.NVarChar(50), timestamp)
-      .input("humidity", mssql.NVarChar(50), msg.humidity)
-      .input("pressure", mssql.NVarChar(50), msg.pressure)
-      .input("temperature", mssql.NVarChar(50), msg.temperature)
-      .execute("dbo.PersistEnvironment", function (err, recordsets, returnValue, rowsAffected) {
-        if (err) {
-          stats.sqlErrorCount += 1;
-          log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          SaveAndExit();
-        } else {
-          if (returnValue) {
-            stats.sqlErrorCount += 1;
-            log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          }
+  helpers.updateStats(msg);
+
+  DemoExcitement(msg);
+
+  switch(msg.response) {
+  case "environment":
+    new mssql.Request(db)
+    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
+    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
+    .input("timestamp", mssql.NVarChar(50), timestamp)
+    .input("humidity", mssql.NVarChar(50), msg.humidity)
+    .input("pressure", mssql.NVarChar(50), msg.pressure)
+    .input("temperature", mssql.NVarChar(50), msg.temperature)
+    .execute("dbo.PersistEnvironment", function (err, recordsets, returnValue, rowsAffected) {
+      if (err) {
+        helpers.incSQLErrorCount();
+        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+        ResetConnection();
+      } else {
+        if (returnValue) {
+          helpers.incSQLErrorCount();
+          log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
         }
-      });
-      break;
-    case "input":
-      new mssql.Request(db)
-      .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-      .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-      .input("timestamp", mssql.NVarChar(50), timestamp)
-      .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
-      .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
-      .execute("dbo.PersistInput", function (err, recordsets, returnValue, rowsAffected) {
-        if (err) {
-          stats.sqlErrorCount += 1;
-          log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          SaveAndExit();
-        } else {
-          if (returnValue) {
-            stats.sqlErrorCount += 1;
-            log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          }
+      }
+    });
+    break;
+  case "input":
+    new mssql.Request(db)
+    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
+    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
+    .input("timestamp", mssql.NVarChar(50), timestamp)
+    .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
+    .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
+    .execute("dbo.PersistInput", function (err, recordsets, returnValue, rowsAffected) {
+      if (err) {
+        helpers.incSQLErrorCount();
+        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+        ResetConnection();
+      } else {
+        if (returnValue) {
+          helpers.incSQLErrorCount();
+          log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
         }
-      });
-      break;
-    case "status":
-      new mssql.Request(db)
-      .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-      .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-      .input("timestamp", mssql.NVarChar(50), timestamp)
-      .input("humidity", mssql.NVarChar(50), msg.humidity)
-      .input("pressure", mssql.NVarChar(50), msg.pressure)
-      .input("temperature", mssql.NVarChar(50), msg.temperature)
-      .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
-      .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
-      .input("lights", mssql.NVarChar(1000), JSON.stringify(msg.lights))
-      .input("soundPlay", mssql.NVarChar(20), msg.sound.play.toString())
-      .input("soundName", mssql.NVarChar(50), msg.sound.play.name)
-      .input("updateFrequency", mssql.NVarChar(50), msg.environmentUpdateFrequency)
-      .execute("dbo.PersistStatus", function (err, recordsets, returnValue, rowsAffected) {
-        if (err) {
-          stats.sqlErrorCount += 1;
-          log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          SaveAndExit();
-        } else {
-          if (returnValue) {
-            stats.sqlErrorCount += 1;
-            log.err("execute failed\n", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-          }
+      }
+    });
+    break;
+  case "status":
+    new mssql.Request(db)
+    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
+    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
+    .input("timestamp", mssql.NVarChar(50), timestamp)
+    .input("humidity", mssql.NVarChar(50), msg.humidity)
+    .input("pressure", mssql.NVarChar(50), msg.pressure)
+    .input("temperature", mssql.NVarChar(50), msg.temperature)
+    .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
+    .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
+    .input("lights", mssql.NVarChar(1000), JSON.stringify(msg.lights))
+    .input("soundPlay", mssql.NVarChar(20), msg.sound.play.toString())
+    .input("soundName", mssql.NVarChar(50), msg.sound.play.name)
+    .input("updateFrequency", mssql.NVarChar(50), msg.environmentUpdateFrequency)
+    .execute("dbo.PersistStatus", function (err, recordsets, returnValue, rowsAffected) {
+      if (err) {
+        helpers.incSQLErrorCount();
+        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
+        ResetConnection();
+      } else {
+        if (returnValue) {
+          helpers.incSQLErrorCount();
+          log.err("execute failed\n", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
         }
-      });
-      break;
-    default:
-      log.err("Unrecognized message\n", msg);
-      break;
-    }
+      }
+    });
+    break;
+  default:
+    log.err("Unrecognized or badly formatted message\n", msg);
+    break;
   }
 });
 
 iothub.on("sendError", function (err) {
-  stats.sendErrorCount += 1;
+  helpers.incSendErrorCount();
   log.err("sendError\n", err);
 
   // Most likely reason is expired token. Exiting
   // will cause us to restart and acquire a new token
-  SaveAndExit();
+  helpers.saveAndExit();
 });
 
 iothub.on("receiveError", function (err) {
-  stats.receiveErrorCount += 1;
+  helpers.incReceiveErrorCount();
   log.err("receiveError\n", err);
-  SaveAndExit();
+  helpers.saveAndExit();
 });
 
-iothub.on("acknowledge", function (err) {
-  stats.ackCount += 1;
-  if (err) {
-    log.err("acknowledge\n", err);
-  }
+iothub.on("acknowledge", function (msg) {
+  helpers.incACKCount();
+  log.out("acknowledge\n", msg);
 });
 
 //
 // Before we start the server lets create our Azure SQL connection
 //
-function CreateConnection() {
-  var con = mssql.connect(process.env.SQL_CONNECTIONSTRING, function(err) {
-      if (err) {
-        log.err("connect\n", err);
-        db = CreateConnection();
-      }
-  });
 
-  con.on("error", function (err) {
-    stats.sqlErrorCount += 1;
-    log.err("error\n", err);
-    db.close();
-    db = CreateConnection();
-  })
-
-  return con;
-}
-
-db = CreateConnection();
+ResetConnection();
 
 const server = app.listen(4000, function() {
   log.out("\nExpress is listening to http://localhost:4000");
