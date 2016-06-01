@@ -1,0 +1,19 @@
+{
+  "name": "iot-device",
+  "version": "1.0.0",
+  "description": "a simple iot-device",
+  "main": "device.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SeanK",
+  "license": "ISC",
+  "dependencies": {
+    "azure-iot-common": "^1.0.4",
+    "azure-iot-device": "^1.0.4",
+    "azure-iot-device-amqp": "^1.0.4",
+    "dotenv": "^2.0.0",
+    "i2c-bus": "^1.0.3",
+    "uuid": "^2.0.2"
+  }
+}
