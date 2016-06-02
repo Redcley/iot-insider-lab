@@ -11,6 +11,8 @@
 
 DROP TABLE [dbo].[ErrorLog]
 GO
+DROP TABLE [dbo].[Environment10MinuteAvgs]
+GO
 DROP TABLE [dbo].[Dials]
 GO
 DROP TABLE [dbo].[Environments]
@@ -67,10 +69,24 @@ CREATE TABLE [dbo].[Messages](
 ) ON [PRIMARY]
 GO
 
+ALTER TABLE [dbo].[Messages]
+ADD CONSTRAINT [DF_Messages_UtcStamp]
+DEFAULT (getutcdate()) FOR [UtcStamp]
+GO
+
 CREATE NONCLUSTERED INDEX [IX_Messages_DeviceId] 
 ON [dbo].[Messages]
 (
 	[DeviceId] ASC
+)
+WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+
+CREATE NONCLUSTERED INDEX [IX_Messages_DeviceId_DeviceTimestamp] 
+ON [dbo].[Messages]
+(
+	[DeviceId] ASC,
+	[DeviceTimestamp] ASC
 )
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
@@ -232,11 +248,26 @@ ON UPDATE CASCADE
 ON DELETE CASCADE
 GO
 
+CREATE TABLE [dbo].[Environment10MinuteAvgs](
+	[DeviceId]       [nvarchar](50)  NOT NULL,
+	[Interval]       [datetime]      NOT NULL,
+	[AvgHumidity]    [decimal](4, 1) NOT NULL,
+	[AvgPressure]    [decimal](8, 1) NOT NULL,
+	[AvgTemperature] [decimal](4, 1) NOT NULL,
+	CONSTRAINT [PK_Environment10MinuteAvgs] PRIMARY KEY CLUSTERED 
+	(
+		[DeviceId] ASC,
+		[Interval] ASC
+	)
+	WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+)
+GO
+
 CREATE TABLE [dbo].[ErrorLog](
 	[RowId]      [int] IDENTITY(1,1) NOT NULL,
 	[Timestamp]  [datetime]          NOT NULL,
 	[Message]    [nvarchar](max)     NOT NULL,
-	[IsRetested] [bit]               NOT NULL,
+	[Error]      [int]               NOT NULL,
 	CONSTRAINT [PK_ErrorLog] PRIMARY KEY CLUSTERED 
 	(
 		[RowId] ASC
@@ -248,9 +279,3 @@ ALTER TABLE [dbo].[ErrorLog]
 ADD CONSTRAINT [DF_ErrorLog_Timestamp]
 DEFAULT (getdate()) FOR [Timestamp]
 GO
-
-ALTER TABLE [dbo].[ErrorLog]
-ADD CONSTRAINT [DF_ErrorLog_IsRetested]
-DEFAULT ((0)) FOR [IsRetested]
-GO
-
