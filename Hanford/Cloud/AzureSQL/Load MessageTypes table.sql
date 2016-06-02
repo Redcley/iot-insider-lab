@@ -1,6 +1,6 @@
 -- ================================================================
 -- Author:		Jan Machat (Redcley LLC)
--- Create date: 7 March 2016
+-- Create date: 7 April 2016
 -- Description:	Loads the MessageTypes table.
 -- Copyright © 2016 by Microsoft Corporation. All rights reserved.
 -- =================================================================
