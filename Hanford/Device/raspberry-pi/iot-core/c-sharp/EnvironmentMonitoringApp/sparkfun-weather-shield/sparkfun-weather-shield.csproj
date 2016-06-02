@@ -117,13 +117,13 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\htu21d\HTU21D.csproj">
-      <Project>{8c6d2ea6-a53f-4304-9db0-853bc15ca436}</Project>
-      <Name>HTU21D</Name>
+    <ProjectReference Include="..\DeviceTypeInterfaceLibrary\DeviceTypeInterfaceLibrary.csproj">
+      <Project>{b2cf5261-c686-4ec7-b2ad-5f46428a613e}</Project>
+      <Name>DeviceTypeInterfaceLibrary</Name>
     </ProjectReference>
-    <ProjectReference Include="..\mpl3115a2\MPL3115A2.csproj">
-      <Project>{037a02e7-f501-4cad-bf13-6bb1d9cebbec}</Project>
-      <Name>MPL3115A2</Name>
+    <ProjectReference Include="..\I2CNeoPixelDriver\I2CNeoPixelDriver.csproj">
+      <Project>{3bb859cf-0d37-4514-8917-75a49e8b677a}</Project>
+      <Name>I2CNeoPixelDriver</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

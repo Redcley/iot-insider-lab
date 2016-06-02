@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
+using DeviceTypeInterfaceLibrary;
 
 namespace Microsoft.Maker.Devices.I2C.Htu21d
 {
@@ -11,7 +12,7 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
     /// HTU21D Digital Relative Humidity sensor with Temperature IC
     /// http://cdn.sparkfun.com/datasheets/BreakoutBoards/HTU21D.pdf
     /// </summary>
-    public sealed class Htu21d
+    public sealed class Htu21d : IHumidity, ITemperature
     {
         /// <summary>
         /// Device I2C Bus
@@ -68,45 +69,42 @@ namespace Microsoft.Maker.Devices.I2C.Htu21d
         /// <summary>
         /// Calculates the dew point temperature
         /// </summary>
-        public float DewPoint
+        public float DewPoint(float temperature)
         {
-            get
+            if (!this.available)
             {
-                if (!this.available)
-                {
-                    return 0f;
-                }
-
-                ushort rawTemperatureData = this.RawTemperature;
-                ushort rawHumidityData = this.RawHumidity;
-
-                double temperatureCelsius = ((175.72 * rawTemperatureData) / 65536) - 46.85;
-                double humidityRelative = ((125.0 * rawHumidityData) / 65536) - 6.0;
-
-                const double DewConstA = 8.1332;
-                const double DewConstB = 1762.39;
-                const double DewConstC = 235.66;
-
-                double paritalPressure;
-                double dewPoint;
-
-                // To calculate the dew point, the partial pressure must be determined first.
-                // See datasheet page 16 for details.
-                // Partial pressure = 10 ^ (A - (B / (Temp + C)))
-                paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
-                paritalPressure = System.Math.Pow(10, paritalPressure);
-
-                // Dew point is calculated using the partial pressure, humidity and temperature.
-                // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
-                // RH value. Therefore, we use the raw RH value straight from the sensor.
-                // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
-                dewPoint = humidityRelative * paritalPressure / 100;
-                dewPoint = System.Math.Log10(dewPoint) - DewConstA;
-                dewPoint = DewConstB / dewPoint;
-                dewPoint = -(dewPoint + DewConstC);
-
-                return Convert.ToSingle(dewPoint);
+                return 0f;
             }
+
+            ushort rawTemperatureData = this.RawTemperature;
+            ushort rawHumidityData = this.RawHumidity;
+
+            double temperatureCelsius = ((175.72 * rawTemperatureData) / 65536) - 46.85;
+            double humidityRelative = ((125.0 * rawHumidityData) / 65536) - 6.0;
+
+            const double DewConstA = 8.1332;
+            const double DewConstB = 1762.39;
+            const double DewConstC = 235.66;
+
+            double paritalPressure;
+            double dewPoint;
+
+            // To calculate the dew point, the partial pressure must be determined first.
+            // See datasheet page 16 for details.
+            // Partial pressure = 10 ^ (A - (B / (Temp + C)))
+            paritalPressure = DewConstA - (DewConstB / (temperatureCelsius + DewConstC));
+            paritalPressure = System.Math.Pow(10, paritalPressure);
+
+            // Dew point is calculated using the partial pressure, humidity and temperature.
+            // The datasheet says "Ambient humidity in %RH, computed from HTU21D(F) sensor" on page 16 is doesn't say to use the temperature compensated
+            // RH value. Therefore, we use the raw RH value straight from the sensor.
+            // Dew point = -(C + B / (log(RH * PartialPress / 100) - A))
+            dewPoint = humidityRelative * paritalPressure / 100;
+            dewPoint = System.Math.Log10(dewPoint) - DewConstA;
+            dewPoint = DewConstB / dewPoint;
+            dewPoint = -(dewPoint + DewConstC);
+
+            return Convert.ToSingle(dewPoint);
         }
 
         /// <summary>

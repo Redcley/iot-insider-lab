@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 using Windows.Foundation;
+using DeviceTypeInterfaceLibrary;
 
 namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
 {
@@ -11,7 +12,7 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
     /// MPL3115A2 precision altimeter IC
     /// http://cache.freescale.com/files/sensors/doc/data_sheet/MPL3115A2.pdf
     /// </summary>
-    public sealed class Mpl3115a2
+    public sealed class Mpl3115a2 : IBarometer, ITemperature
     {
         /// <summary>
         /// Device I2C Bus
@@ -32,6 +33,8 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
         /// Control registers
         /// </summary>
         private const byte PressureDataOutMSB = 0x01;
+
+        private const byte TemperatureDataOutMSB = 0x04;
 
         /// <summary>
         /// Control Flags
@@ -108,6 +111,21 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
                 double pressurePascals = (rawPressureData >> 6) + (((rawPressureData >> 4) & 0x03) / 4.0);
 
                 return Convert.ToSingle(pressurePascals);
+            }
+        }
+
+        public float Temperature
+        {
+            get
+            {
+                if (!this.available)
+                {
+                    return 0f;
+                }
+
+                double temperature = this.RawTemperature;
+
+                return Convert.ToSingle(temperature);
             }
         }
 
@@ -244,6 +262,51 @@ namespace Microsoft.Maker.Devices.I2C.Mpl3115a2
                 pressure |= rawPressureData[2];
 
                 return pressure;
+            }
+        }
+
+        /// <summary>
+        /// Gets the raw pressure value from the IC.
+        /// </summary>
+        private double RawTemperature
+        {
+            get
+            {
+                double temperature = 0;
+                byte[] data = new byte[1];
+                byte[] rawTemperatureData = new byte[2];
+
+                // Request pressure data from the MPL3115A2
+                // MPL3115A2 datasheet: http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Pressure/MPL3115A2.pdf
+                //
+                // Update Control Register 1 Flags
+                // - Read data at CTRL_REG1 (0x26) on the MPL3115A2
+                // - Update the SBYB (bit 0) and OST (bit 1) flags to STANDBY and initiate measurement, respectively.
+                // -- SBYB flag (bit 0)
+                // --- off = Part is in STANDBY mode
+                // --- on = Part is ACTIVE
+                // -- OST flag (bit 1)
+                // --- off = auto-clear
+                // --- on = initiate measurement
+                // - Write the resulting value back to Control Register 1
+                this.i2c.WriteRead(new byte[] { Mpl3115a2.ControlRegister1 }, data);
+                data[0] &= 0xFE;  // ensure SBYB (bit 0) is set to STANDBY
+                data[0] |= 0x02;  // ensure OST (bit 1) is set to initiate measurement
+                this.i2c.Write(new byte[] { Mpl3115a2.ControlRegister1, data[0] });
+
+                // Wait 10ms to allow MPL3115A2 to process the pressure value
+                Task.Delay(10);
+
+                // Write the address of the register of the most significant byte for the pressure value, OUT_P_MSB (0x01)
+                // Read the three bytes returned by the MPL3115A2
+                // - byte 0 - MSB of the pressure
+                // - byte 1 - CSB of the pressure
+                // - byte 2 - LSB of the pressure
+                this.i2c.WriteRead(new byte[] { Mpl3115a2.TemperatureDataOutMSB }, rawTemperatureData);
+
+                // Reconstruct the result using all three bytes returned from the device
+                temperature = (rawTemperatureData[0]  + (rawTemperatureData[1] >> 4)/16.0);
+                return temperature;
             }
         }
     }
