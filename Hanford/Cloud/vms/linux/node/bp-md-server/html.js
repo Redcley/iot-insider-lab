@@ -10,8 +10,13 @@
 // Rather than use the template plugin of the day and
 // potentially make this sample harder to undeerstand,
 // instead, employ a minimal amount of html formatting.
-function applyLayout(body) {
-  return `<html><head><title>IoT Management Console</title></head><body>${body}</body></html>`;
+function applyLayout(body, refresh) {
+  var result = "<html><head><title>IoT Management Console</title>";
+  if (refresh) {
+    result += `<meta http-equiv="refresh" content="${refresh}">`;
+  }
+  result += `</head><body>${body}</body></html>`;
+  return result;
 };
 
 function makeTable(rows) {

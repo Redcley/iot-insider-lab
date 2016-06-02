@@ -38,23 +38,27 @@ var ehClient = null;
 var failure = null;
 
 //constructor
-function IoTHub() {
+function IoTHub(lastMessageTime) {
   var self = this;
-  var receiveAfterTime = Date.now() - 5000;
+  var timestamp = null;
 
   iotRegistry = iothub.Registry.fromConnectionString(connectionString);
   iotClient = iothub.Client.fromConnectionString(connectionString);
   ehClient = eventhub.Client.fromConnectionString(connectionString);
 
+  if (lastMessageTime) {
+    timestamp = new Date(lastMessageTime).getTime() - 5000;
+  }
+
   iotClient.open(function (err) {
     if (err) {
-      log.err("open\n", err);
+      log.err("open failed\n", err);
       failure = err;
       iotClient = null;
     } else {
       iotClient.getFeedbackReceiver(function (err, receiver) {
         if (err) {
-          log.err("getFeedbackReceiver\n", err);
+          log.err("getFeedbackReceiver failed\n", err);
           failure = err;
           iotClient.close();
           iotClient = null;
@@ -85,7 +89,7 @@ function IoTHub() {
       return ehClient.createReceiver(
         "$Default"
         , partitionId
-        , { "startAfterTime": receiveAfterTime }
+        , timestamp ? { "startAfterTime": timestamp } : null
       )
       .then(function (receiver) {
         receiver.on("errorReceived", function (err) {
@@ -206,11 +210,11 @@ IoTHub.prototype.getDeviceConnectionString = function (device) {
 // Since you cannot have multiple connections to the azure-iothub, we
 // need to manage a single global instance and return that if it has
 // already been created.
-function getInstance() {
+function getInstance(lastMessageTime) {
   if (global.iothub_instance === undefined) {
-    global.iothub_instance = new IoTHub();
+    global.iothub_instance = new IoTHub(lastMessageTime);
   }
   return global.iothub_instance;
 }
 
-module.exports = getInstance();
+module.exports = getInstance;

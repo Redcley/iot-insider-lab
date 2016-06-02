@@ -7,11 +7,12 @@
 // See LICENSE file in the project root for full license information.
 //
 
-const querystring = require("querystring");
 const express = require("express");
-const iothub = require("./iothub.js");
+const iothub = require("./iothub.js")();
 const html = require("./html.js");
+const jqm = require("./jqm.js");
 const log = require("./logging.js");
+const helpers = require("./helpers.js");
 
 var pending = {};
 
@@ -50,17 +51,9 @@ function resolvePending(msgId, ack, msg, res) {
   })
 };
 
-function deviceUri(id, cmd, confirm) {
-  var qp = { id: id };
-  if (cmd) qp.cmd = cmd;
-  if (confirm) qp.confirm = confirm;
-
-  return "/device?" + querystring.stringify(qp);
-};
-
 function makeDeviceLink(id, cmd, confirm, title) {
   title = title || ((!!cmd) ? cmd.charAt(0).toUpperCase() + cmd.slice(1) : id);
-  return html.makeLink(deviceUri(id, cmd, confirm), title);
+  return html.makeLink(helpers.getDeviceUri(id, cmd, confirm), title);
 }
 
 function renderDialog(id, cmd) {
@@ -68,37 +61,61 @@ function renderDialog(id, cmd) {
     html.makeRow(html.makeCol(`Are you sure you want to ${cmd} ${id}?`, 2)) +
     html.makeRow(
       html.makeCol(makeDeviceLink(id, cmd, true, "Confirm")) +
-      html.makeCol(html.makeLink(deviceUri(id), "Cancel"))));
+      html.makeCol(html.makeLink(helpers.getDeviceUri(id), "Cancel"))));
 }
+
+function renderDeviceJson(req, res) {
+  var id = req.query.id;
+
+  iothub.getDevice(id, function (err, device) {
+    if (err) {
+      log.err("getDevice failed\n", err);
+      return res.redirect("/");
+    }
+
+    device = Object.assign({}, device, { "analytics": helpers.getAnalytics(id)});
+
+    res.json(device);
+  });
+};
 
 // Renders the main management view of the device when
 // the user clisks on a device link from the root page
 function renderDevicePage(req, res) {
   var id = req.query.id;
+  var isAdmin = helpers.isAdmin(req);
 
   iothub.getDevice(id, function (err, device) {
     if (err) {
-      log.err("getDevice\n", err);
+      log.err("getDevice failed\n", err);
       return res.redirect("/");
     }
 
-    device.connectionString = iothub.getDeviceConnectionString(device);
-    var content = html.makeLink("/", "Back") +
-      "<br><br>" +
-      html.renderValue(device) +
-      "<br><br>";
+    device = Object.assign({}, device);
 
-    if (device.status === "enabled") {
-      content += makeDeviceLink(id, "disable") + ", ";
+    if (isAdmin) {
+      device.connectionString = iothub.getDeviceConnectionString(device);
+
+      var content = html.makeLink("/", "Back") +
+        "<br><br>" +
+        html.renderValue(device) +
+        "<br><br>";
+
+      if (device.status === "enabled") {
+        content += makeDeviceLink(id, "disable") + ", ";
+      } else {
+        content += makeDeviceLink(id, "enable") + ", ";
+      }
+      content += makeDeviceLink(id, "delete");
+      if (device.connectionState === "Connected") {
+        content += ", " + makeDeviceLink(id, "connect");
+      }
+
+      res.send(html.applyLayout(content));
     } else {
-      content += makeDeviceLink(id, "enable") + ", ";
+      delete device.authentication;
+      jqm.renderDevicePage(res, device);
     }
-    content += makeDeviceLink(id, "delete");
-    if (device.connectionState === "Connected") {
-      content += ", " + makeDeviceLink(id, "connect");
-    }
-
-    res.send(html.applyLayout(content));
   });
 };
 
@@ -110,9 +127,9 @@ function renderEnablePage(req, res) {
   if (req.query.confirm) {
     iothub.enableDevice(id, true, function (err) {
       if (err) {
-        console.err("Device renderEnablePage:", err.toString());
+        log.err("enableDevice failed\n", err);
       }
-      res.redirect(deviceUri(id));
+      res.redirect(helpers.getDeviceUri(id));
     });
   } else {
     res.send(html.applyLayout(renderDialog(id, "enable")));
@@ -127,9 +144,9 @@ function renderDisablePage(req, res) {
   if (req.query.confirm) {
     iothub.enableDevice(id, false, function (err) {
       if (err) {
-        console.err("Device renderEnablePage:", err.toString());
+        log.err("enableDevice failed\n", err);
       }
-      res.redirect(deviceUri(id));
+      res.redirect(helpers.getDeviceUri(id));
     });
   } else {
     res.send(html.applyLayout(renderDialog(id, "disable")));
@@ -144,7 +161,7 @@ function renderDeletePage(req, res) {
   if (req.query.confirm) {
     iothub.deleteDevice(id, function (err) {
       if (err) {
-        console.err("Device renderEnablePage:", err.toString());
+        log.err("deleteDevice failed\n", err);
       }
       res.redirect("/");
     });
@@ -163,19 +180,20 @@ function renderConnectPage(req, res) {
 
   iothub.sendToDevice(id, msg, function (err, msgId) {
     if (err) {
-      log.err("sendToDevice\n", err);
-      res.redirect(deviceUri(id));
+      log.err("sendToDevice failed\n", err);
+      res.redirect(helpers.getDeviceUri(id));
     } else {
       resolvePending(msgId, null, null, function (ack, msg) {
-        var content = html.makeLink(deviceUri(id), "Back") +
+        var content = html.makeLink(helpers.getDeviceUri(id), "Back") +
         "<br><br>" +
         html.renderValue(msg) +
         "<br><br>";
 
         var form = "";
         var inputs = "";
-        if (msg.lights.length || msg.sound) {
-          if (msg.lights.length) {
+        var hasLights = msg.lights || msg.lights.length;
+        if (hasLights || msg.sound) {
+          if (hasLights) {
             form = html.makeRow(html.makeCol("Change Display Output"))
             msg.lights.forEach(function(val, i) {
               inputs += html.makeChoice(`light${i}`, `Light #${i}:`, [
@@ -200,13 +218,13 @@ function renderConnectPage(req, res) {
             ]) + "<br>"));
           }
           form += html.makeRow(html.makeCol(html.makeSubmitButton("Set Output")));
-          content += html.makeForm(deviceUri(id, "output"), html.makeTable(form)) + "<br><br>";
+          content += html.makeForm(helpers.getDeviceUri(id, "output"), html.makeTable(form)) + "<br><br>";
         }
 
         form = html.makeRow(html.makeCol("Configure Device")) +
           html.makeRow(html.makeCol(html.makeTextInput("updateSecs", "Environment Updata Frequency:"))) +
           html.makeRow(html.makeCol(html.makeSubmitButton("Configure")));
-        content += html.makeForm(deviceUri(id, "configure"), html.makeTable(form));
+        content += html.makeForm(helpers.getDeviceUri(id, "configure"), html.makeTable(form));
 
         res.send(html.applyLayout(content));
       });
@@ -228,11 +246,11 @@ function renderConfigurePage(req, res) {
     msg.environmentUpdateFrequency = updateSecs;
     iothub.sendToDevice(id, msg, function (err, msgId) {
       if (err) {
-        log.err("sendToDevice\n", err);
-        res.redirect(deviceUri(id));
+        log.err("sendToDevice failed\n", err);
+        res.redirect(helpers.getDeviceUri(id));
       } else {
         resolvePending(msgId, null, {}, function (ack, msg) {
-          res.redirect(deviceUri(id, "connect"));
+          res.redirect(helpers.getDeviceUri(id, "connect"));
         });
       }
     });
@@ -276,11 +294,11 @@ function renderOutputPage(req, res) {
 
   iothub.sendToDevice(id, msg, function (err, msgId) {
     if (err) {
-      log.err("sendToDevice\n", err);
-      res.redirect(deviceUri(id));
+      log.err("sendToDevice failed\n", err);
+      res.redirect(helpers.getDeviceUri(id));
     } else {
       resolvePending(msgId, null, {}, function (ack, msg) {
-        res.redirect(deviceUri(id, "connect"));
+        res.redirect(helpers.getDeviceUri(id, "connect"));
       });
     }
   });
@@ -289,28 +307,41 @@ function renderOutputPage(req, res) {
 // When the user comes to a /device page,
 // determine which on to render.
 router.use("/", function(req, res) {
-  switch(req.query.cmd) {
-  case "disable":
-    renderDisablePage(req, res);
-    break;
-  case "enable":
-    renderEnablePage(req, res);
-    break;
-  case "delete":
-    renderDeletePage(req, res);
-    break;
-  case "connect":
-    renderConnectPage(req, res);
-    break;
-  case "configure":
-    renderConfigurePage(req, res);
-    break;
-  case "output":
-    renderOutputPage(req, res);
-    break;
-  default:
-    renderDevicePage(req, res);
-    break;
+  var isAdmin = helpers.isAdmin(req);
+
+  if (isAdmin) {
+    switch(req.query.cmd) {
+    case "disable":
+      renderDisablePage(req, res);
+      break;
+    case "enable":
+      renderEnablePage(req, res);
+      break;
+    case "delete":
+      renderDeletePage(req, res);
+      break;
+    case "connect":
+      renderConnectPage(req, res);
+      break;
+    case "configure":
+      renderConfigurePage(req, res);
+      break;
+    case "output":
+      renderOutputPage(req, res);
+      break;
+    case "json":
+      renderDeviceJson(req, res);
+      break;
+    default:
+      renderDevicePage(req, res);
+      break;
+    }
+  } else {
+    if (req.query.cmd === "json") {
+      renderDeviceJson(req, res);
+    } else {
+      renderDevicePage(req, res);
+    }
   }
 });
 
