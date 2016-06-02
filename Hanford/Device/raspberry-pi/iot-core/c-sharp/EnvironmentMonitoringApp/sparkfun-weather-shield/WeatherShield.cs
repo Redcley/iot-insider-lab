@@ -1,19 +1,25 @@
-﻿using Microsoft.Maker.Devices.I2C.Htu21d;
-using Microsoft.Maker.Devices.I2C.Mpl3115a2;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using Windows.Devices.Gpio;
 using Windows.Foundation;
+using Redcley.Sensors.I2C.NeoPixelDriver;
+using Redcley.Sensors.I2C.BME280;
+using Redcley.Sensors.I2C.Htu21d;
+using Redcley.Sensors.I2C.Mpl3115a2;
+using Redcley.Sensors.I2C.Interfaces;
+using Windows.Data.Json;
 
 namespace Microsoft.Maker.Sparkfun.WeatherShield
 {
     public sealed class WeatherShield
     {
-        /// <summary>
-        /// LED Control Pins
-        /// </summary>
-        private int statusLedBluePin;
-        private int statusLedGreenPin;
+        private PixelDriver neoPixel;
+        private BME280 bme280;
+        private Htu21d htu21d;  // Humidity and temperature sensor
+        private Mpl3115a2 mpl3115a2;  // Altitue, pressure and temperature sensor
+
+        private IHumidity humiditySensor;
+        private ITemperature temperatureSensor;
+        private IBarometer barometricSensor;
 
         /// <summary>
         /// Used to signal that the device is properly initialized and ready to use
@@ -26,8 +32,7 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         private bool enable = false;
 
         // Sensors
-        private Htu21d htu21d;  // Humidity and temperature sensor
-        private Mpl3115a2 mpl3115a2;  // Altitue, pressure and temperature sensor
+
 
         /// <summary>
         /// Constructs WeatherShield with I2C bus and status LEDs identified
@@ -35,26 +40,65 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         /// <param name="i2cBusName"></param>
         /// <param name="ledBluePin"></param>
         /// <param name="ledGreenPin"></param>
-        public WeatherShield (string i2cBusName, int ledBluePin, int ledGreenPin)
+        public WeatherShield (string i2cBusName, string jsonConfig)
         {
-            statusLedBluePin = ledBluePin;
-            statusLedGreenPin = ledGreenPin;
-            htu21d = new Htu21d(i2cBusName);
-            mpl3115a2 = new Mpl3115a2(i2cBusName);
-        }
+            JsonObject config = JsonValue.Parse(jsonConfig).GetObject();
 
-        /// <summary>
-        /// Read altitude data
-        /// </summary>
-        /// <returns>
-        /// Calculates the altitude in meters (m) using the US Standard Atmosphere 1976 (NASA) formula
-        /// </returns>
-        public float Altitude
-        {
-            get
+            if (config.ContainsKey("board_config"))
             {
-                if (!enable) { return 0f; }
-                return mpl3115a2.Altitude;
+                JsonObject hardware = config.GetNamedObject("board_config");
+
+                if ( hardware.ContainsKey("bme280") && (hardware.GetNamedBoolean("bme280") == true) )
+                {
+                    bme280 = new BME280(i2cBusName);
+                }
+                else
+                {
+                    if (hardware.ContainsKey("htu21d") && (hardware.GetNamedBoolean("htu21d") == true) )
+                    {
+                        htu21d = new Htu21d(i2cBusName);
+                    }
+
+                    if (hardware.ContainsKey("mpl3115a2") && (hardware.GetNamedBoolean("mpl3115a2") == true))
+                    {
+                        mpl3115a2 = new Mpl3115a2(i2cBusName);
+                    }
+                }
+
+                if (hardware.ContainsKey("neopixel") && (hardware.GetNamedBoolean("neopixel") == true))
+                    neoPixel = new PixelDriver(i2cBusName);
+
+
+            }
+            else
+            {
+                throw new ArgumentException("Supplied configuration string did not contain a Board Configuration");
+            }
+
+
+
+            if (bme280 != null)
+            {
+                humiditySensor = bme280;
+                temperatureSensor = bme280;
+                barometricSensor = bme280;
+            }
+            else
+            {
+                if (htu21d != null)
+                {
+                    humiditySensor = htu21d;
+                    temperatureSensor = htu21d;
+                }
+
+                if (mpl3115a2 != null)
+                {
+                    barometricSensor = mpl3115a2;
+                    if (temperatureSensor == null)
+                    {
+                        temperatureSensor = mpl3115a2;
+                    }
+                }
             }
         }
 
@@ -70,14 +114,19 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         }
 
         /// <summary>
-        /// Blue status LED on shield
+        /// Read altitude data
         /// </summary>
-        /// <remarks>
-        /// This object will be created in InitAsync(). The set method will
-        /// be marked private, because the object itself will not change, only
-        /// the value it drives to the pin.
-        /// </remarks>
-        public GpioPin BlueLedPin { get; private set; }
+        /// <returns>
+        /// Calculates the altitude in meters (m) using the US Standard Atmosphere 1976 (NASA) formula
+        /// </returns>
+        public float Altitude
+        {
+            get
+            {
+                if (barometricSensor != null) { return barometricSensor.Altitude; }
+                else return 0f;
+            }
+        }
 
         /// <summary>
         /// Read dew point data
@@ -90,29 +139,19 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         {
             get
             {
-                if (!enable) { return 0f; }
-                return htu21d.DewPoint;
+                if (humiditySensor != null) { return humiditySensor.DewPoint; }
+                else { return 0f; }
             }
         }
 
         /// <summary>
         /// The current state of the shield
         /// </summary>
-            public bool Enable
+        public bool Enable
         {
             get { return enable; }
             set { enable = (available && value); }
         }
-
-        /// <summary>
-        /// Green status LED on shield
-        /// </summary>
-        /// <remarks>
-        /// This object will be created in InitAsync(). The set method will
-        /// be marked private, because the object itself will not change, only
-        /// the value it drives to the pin.
-        /// </remarks>
-        public GpioPin GreenLedPin { get; private set; }
 
         /// <summary>
         /// Calculate relative humidity
@@ -124,8 +163,8 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         {
             get
             {
-                if (!enable) { return 0f; }
-                return htu21d.Humidity;
+                if (humiditySensor != null) return humiditySensor.Humidity;
+                else return 0f;
             }
         }
 
@@ -139,8 +178,8 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         {
             get
             {
-                if (!enable) { return 0f; }
-                return mpl3115a2.Pressure;
+                if (barometricSensor != null) return barometricSensor.Pressure;
+                else return 0f;
             }
         }
 
@@ -154,8 +193,38 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         {
             get
             {
-                if (!enable) { return 0f; }
-                return htu21d.Temperature;
+                if (temperatureSensor != null) return temperatureSensor.Temperature;
+                else return 0f;
+            }
+        }
+
+        public void SetColor(byte Red, byte Green, byte Blue)
+        {
+            if (neoPixel != null)
+                neoPixel.SetColor(Red, Green, Blue);
+        }
+
+        public void SetColor(string color)
+        {
+            if (neoPixel != null)
+                neoPixel.SetColor(color);
+        }
+
+        public string LedColor
+        {
+            get
+            {
+                if (neoPixel != null) return neoPixel.Color;
+                else return "black";
+            }
+        }
+
+        public bool LedEnabled
+        {
+            get
+            {
+                if (neoPixel != null) return neoPixel.Enabled;
+                else return false;
             }
         }
 
@@ -168,68 +237,10 @@ namespace Microsoft.Maker.Sparkfun.WeatherShield
         /// </remarks>
         private async Task<bool> BeginAsyncHelper()
         {
-            /*
-                * Acquire the GPIO controller
-                * MSDN GPIO Reference: https://msdn.microsoft.com/en-us/library/windows/apps/windows.devices.gpio.aspx
-                * 
-                * Get the default GpioController
-                */
-            GpioController gpio = GpioController.GetDefault();
-
-            /*
-                * Test to see if the GPIO controller is available.
-                *
-                * If the GPIO controller is not available, this is
-                * a good indicator the app has been deployed to a
-                * computing environment that is not capable of
-                * controlling the weather shield. Therefore we
-                * will disable the weather shield functionality to
-                * handle the failure case gracefully. This allows
-                * the invoking application to remain deployable
-                * across the Universal Windows Platform.
-                */
-            if (null == gpio)
-            {
-                available = false;
-                enable = false;
-                return false;
-            }
-
-            /*
-                * Initialize the blue LED and set to "off"
-                *
-                * Instantiate the blue LED pin object
-                * Write the GPIO pin value of low on the pin
-                * Set the GPIO pin drive mode to output
-                */
-            BlueLedPin = gpio.OpenPin(statusLedBluePin, GpioSharingMode.Exclusive);
-            BlueLedPin.Write(GpioPinValue.Low);
-            BlueLedPin.SetDriveMode(GpioPinDriveMode.Output);
-
-            /*
-                * Initialize the green LED and set to "off"
-                * 
-                * Instantiate the green LED pin object
-                * Write the GPIO pin value of low on the pin
-                * Set the GPIO pin drive mode to output
-                */
-            GreenLedPin = gpio.OpenPin(statusLedGreenPin, GpioSharingMode.Exclusive);
-            GreenLedPin.Write(GpioPinValue.Low);
-            GreenLedPin.SetDriveMode(GpioPinDriveMode.Output);
-
-            if (!await htu21d.BeginAsync())
-            {
-                available = false;
-                enable = false;
-                return false;
-            }
-
-            if (!await mpl3115a2.BeginAsync())
-            {
-                available = false;
-                enable = false;
-                return false;
-            }
+            if (null != humiditySensor) await humiditySensor.BeginAsync();
+            if (null != barometricSensor) await barometricSensor.BeginAsync();
+            if (null != temperatureSensor) await temperatureSensor.BeginAsync();
+            if (null != neoPixel) await neoPixel.BeginAsync();
 
             available = true;
             enable = true;
