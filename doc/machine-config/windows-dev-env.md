@@ -4,7 +4,7 @@ Configuration steps, scripts and tools i use on windows machines. Feel free to s
 
 ### Install Visual Studio, Azure SDK, etc
 
-Please install Visual Studio, Azure SDK, etc by this [here](https://github.com/Azure/azure-iot-sdks/blob/master/csharp/device/doc/devbox_setup.md).
+Please install Visual Studio, Azure SDK, etc using the [steps](https://github.com/Azure/azure-iot-sdks/blob/master/csharp/device/doc/devbox_setup.md).
 
 ### Setting up your development environment
 
@@ -81,7 +81,7 @@ Please install Visual Studio, Azure SDK, etc by this [here](https://github.com/A
 
   For Init.cmd.
 
-  If you installed Visual Studio 2013 and put the following,
+  If you installed Visual Studio 2013 put the following,
   ```
   @echo off
   set PATH=%PATH%;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\HashiCorp\Vagrant\bin;%APPDATA%\npm;%LOCALAPPDATA%\atom\bin;C:\Program Files (x86)\Microsoft VS Code\bin;%~dp0
@@ -91,7 +91,7 @@ Please install Visual Studio, Azure SDK, etc by this [here](https://github.com/A
   pushd "%USERPROFILE%\Development"
   ```
 
-  If you installed Visual Studio 2015 and put the following,
+  If you installed Visual Studio 2015 put the following,
   ```
   @echo off
   set PATH=%PATH%;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\HashiCorp\Vagrant\bin;%APPDATA%\npm;%LOCALAPPDATA%\atom\bin;C:\Program Files (x86)\Microsoft VS Code\bin;%~dp0
