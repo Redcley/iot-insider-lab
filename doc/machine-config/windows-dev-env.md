@@ -17,6 +17,7 @@ Please install Visual Studio, Azure SDK, etc using the [steps](https://github.co
     - repeat for file-types, find-selection, jsonlint, & sort-lines
   - Goto Atom | Preferences | Open Config Folder
     - Click config.cson and edit so it looks generally like this
+
       ```coffee
       "*":
         core: {}
@@ -32,6 +33,7 @@ Please install Visual Studio, Azure SDK, etc using the [steps](https://github.co
           showOnStartup: false
       ```
     - Click keymap.cson and append the following
+
       ```coffee
       '.editor':
         'ctrl-alt-up': 'editor:add-selection-above'
@@ -42,7 +44,7 @@ Please install Visual Studio, Azure SDK, etc using the [steps](https://github.co
         'alt-cmd-k': 'find-selection:find-next-casesensitive'
       ```
 4. Install [Visual Studio Code](https://code.visualstudio.com/Download)
-5. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads)
+5. Install [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [Hyper-V](hyper-v.md)
 6. Install [Vagrant](https://www.vagrantup.com/downloads.html)
 7. Install [Git](https://git-scm.com/)
 
