@@ -2,6 +2,10 @@
 
 Configuration steps, scripts and tools i use on windows machines. Feel free to skip any steps that don't work for you or add steps if you think something is missing.
 
+### Install Visual Studio, Azure SDK, etc
+
+Please install Visual Studio, Azure SDK, etc using the [steps](https://github.com/Azure/azure-iot-sdks/blob/master/csharp/device/doc/devbox_setup.md).
+
 ### Setting up your development environment
 
 1. Install [Chrome](https://www.google.com/chrome/)
@@ -75,8 +79,9 @@ Configuration steps, scripts and tools i use on windows machines. Feel free to s
   atom Bin\Init.cmd Bin\cmds.lst
   ```
 
-  For Init.cmd put the following
+  For Init.cmd.
 
+  If you installed Visual Studio 2013 put the following,
   ```
   @echo off
   set PATH=%PATH%;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\HashiCorp\Vagrant\bin;%APPDATA%\npm;%LOCALAPPDATA%\atom\bin;C:\Program Files (x86)\Microsoft VS Code\bin;%~dp0
@@ -86,6 +91,15 @@ Configuration steps, scripts and tools i use on windows machines. Feel free to s
   pushd "%USERPROFILE%\Development"
   ```
 
+  If you installed Visual Studio 2015 put the following,
+  ```
+  @echo off
+  set PATH=%PATH%;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\HashiCorp\Vagrant\bin;%APPDATA%\npm;%LOCALAPPDATA%\atom\bin;C:\Program Files (x86)\Microsoft VS Code\bin;%~dp0
+  set NODE_PATH=%APPDATA%\npm\node_modules
+  if exist "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\VsDevCmd.bat" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\Tools\VsDevCmd.bat"
+  alias -f "%USERPROFILE%\Bin\cmds.lst"
+  pushd "%USERPROFILE%\Development"
+  ```
   Copy alias.exe into %USERPROFILE%\Bin if you haven't already.
 
   For cmds.lst put the following
