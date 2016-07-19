@@ -102,6 +102,11 @@ Please install Visual Studio, Azure SDK, etc using the [steps](https://github.co
   alias -f "%USERPROFILE%\Bin\cmds.lst"
   pushd "%USERPROFILE%\Development"
   ```
+  
+  If you installed Hyper-V instead of VirtualBox add the following
+  ```
+  set VAGRANT_DEFAULT_PROVIDER=hyperv
+  ```
   Copy alias.exe into %USERPROFILE%\Bin if you haven't already.
 
   For cmds.lst put the following
