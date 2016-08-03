@@ -1,0 +1,18 @@
+{
+  "name": "DeviceSim",
+  "version": "1.0.0",
+  "description": "a simple iot-device",
+  "main": "device.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "SeanK",
+  "license": "MIT",
+  "dependencies": {
+    "azure-iot-common": "^1.0.11",
+    "azure-iot-device": "^1.0.11",
+    "azure-iot-device-http": "^1.0.12",
+    "dotenv": "^2.0.0",
+    "uuid": "^2.0.2"
+  }
+}
