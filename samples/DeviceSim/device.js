@@ -11,6 +11,10 @@ const log = require("./logging.js");
 var client = Client.fromConnectionString(process.env.IOT_DEVICE_CONNECTIONSTRING, Protocol);
 
 var minCadence = 24*60*60;
+var messageCadence = 5*60;
+var messageCurrent = 0;
+
+var messageQueue = [];
 
 var cache = [
   0, // temperatureBoard
@@ -83,22 +87,29 @@ var tags = [
 // }
 function sendMessage(index, timestamp) {
   var msg = {
-    timestamp: timestamp.toJSON(),
+    timestamp: timestamp.valueOf(),
     tag: tags[index].tag,
     value: cache[tags[index].index]
   };
 
   var message = new Message(JSON.stringify(msg));
-  message.messageId = uuid.v4();
+  //BUGBUG client lib does not include messageId for batched messages
+  //message.messageId = uuid.v4();
+  messageQueue.push(message);
+};
 
-  client.sendEvent(message, function (err, result) {
+function flushMessageQueue() {
+  var q = messageQueue;
+  messageQueue = [];
+
+  client.sendEventBatch(messageQueue, function (err, result) {
     if (err) {
       log.err("send error:", err);
     } else {
-      log.out("sent message:", msg);
+      log.out("sent message:", q);
     }
   });
-};
+}
 
 function initSimulation() {
   var i;
@@ -191,6 +202,12 @@ function loop() {
       sendMessage(i, timestamp);
       tags[i].current = 0;
     }
+  }
+
+  messageCurrent += minCadence;
+  if (messageCurrent >= messageCadence || messageQueue.length > 450) {
+    messageCurrent = 0;
+    flushMessageQueue();
   }
 };
 
