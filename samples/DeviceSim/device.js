@@ -87,7 +87,7 @@ var tags = [
 // }
 function sendMessage(index, timestamp) {
   var msg = {
-    timestamp: timestamp.valueOf()/1000,
+    timestamp: (timestamp.valueOf()/1000)-949392000, // convert to seconds and subtract seconds from 1/1/1970 - 1/1/2000
     tag: tags[index].tag,
     value: cache[tags[index].index]
   };
