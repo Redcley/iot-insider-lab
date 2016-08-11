@@ -87,7 +87,7 @@ var tags = [
 // }
 function sendMessage(index, timestamp) {
   var msg = {
-    timestamp: timestamp.valueOf(),
+    timestamp: timestamp.valueOf()/1000,
     tag: tags[index].tag,
     value: cache[tags[index].index]
   };
