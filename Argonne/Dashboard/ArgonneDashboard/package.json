@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "name": "asp.net",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.5.8",
+    "gulp-typescript": "^2.13.6",
+    "systemjs": "0.19.24",
+    "gulp-concat": "~2.6.0"
+  },
+  "devDependencies": {
+    "gulp": "~3.9.1",
+    "del": "~2.2.2"
+  }
+}
