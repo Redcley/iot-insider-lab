@@ -7,3 +7,5 @@ logs/
 .env
 Argonne/Dashboard/ArgonneDashboard/wwwroot/lib/
 *.user
+*.suo
+Argonne/Dashboard/ArgonneDashboard/project.fragment.lock.json
