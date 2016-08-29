@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Argonne.Common.Interfaces;
+using Argonne.Common.Repositories;
 
 namespace ArgonneDashboard
 {
@@ -39,6 +41,11 @@ namespace ArgonneDashboard
         {
             // Add framework services.
             services.AddApplicationInsightsTelemetry(Configuration);
+
+
+            // todo: add the sql server instance
+            //https://blogs.msdn.microsoft.com/webdev/2016/03/28/dependency-injection-in-asp-net-core/
+            services.AddSingleton(typeof(IArgonneRepository), typeof(ArgonneAzureRepository));
 
             services.AddMvc();
 
