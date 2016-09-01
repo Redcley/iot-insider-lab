@@ -2,7 +2,13 @@
   <h2 class="techs-h2">
     Cooked with all these awesome technologies:
   </h2>
+    <div class="collection">
+        <a href="#!" class="collection-item">Alan<span class="badge">1</span></a>
+        <a href="#!" class="collection-item">Alan<span class="new badge">4</span></a>
+        <a href="#!" class="collection-item">Alan</a>
+        <a href="#!" class="collection-item">Alan<span class="badge">14</span></a>
+    </div>
   <div class="techs">
-    <fountain-tech ng-repeat="tech in $ctrl.techs" tech="tech"></fountain-tech>
+    <fountain-tech *ngFor="let tech of techs" [tech]="tech"></fountain-tech>
   </div>
 </div>

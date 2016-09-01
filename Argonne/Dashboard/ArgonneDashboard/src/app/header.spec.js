@@ -1,19 +1,15 @@
-import angular from 'angular';
-import 'angular-mocks';
-import {header} from './header.js';
+import 'zone.js/dist/zone';
+import 'zone.js/dist/async-test';
+import {HeaderComponent} from './header';
+import {async, inject, TestComponentBuilder} from '@angular/core/testing';
 
 describe('header component', () => {
-  beforeEach(() => {
-    angular
-      .module('fountainHeader', ['src/app/header.html'])
-      .component('fountainHeader', header);
-    angular.mock.module('fountainHeader');
-  });
-
-  it('should render \'Fountain Generator\'', angular.mock.inject(($rootScope, $compile) => {
-    const element = $compile('<fountain-header></fountain-header>')($rootScope);
-    $rootScope.$digest();
-    const header = element.find('a');
-    expect(header.html().trim()).toEqual('Fountain Generator');
-  }));
+  it('should render \'Fountain Generator\'', async(inject([TestComponentBuilder], tcb => {
+    tcb.createAsync(HeaderComponent)
+      .then(fixture => {
+        fixture.detectChanges();
+        const header = fixture.nativeElement;
+        expect(header.querySelector('a').textContent.trim()).toBe('Fountain Generator');
+      });
+  })));
 });

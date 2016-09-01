@@ -1,18 +1,21 @@
-import angular from 'angular';
+import 'reflect-metadata';
+import 'zone.js';
+import 'jquery';
+import 'materialize-css';
 
-import {techsModule} from './app/techs/index.js';
-import 'angular-ui-router';
-import routesConfig from './routes.js';
+import {bootstrap} from '@angular/platform-browser-dynamic';
 
-import {main} from './app/main.js';
-import {header} from './app/header.js';
-import {title} from './app/title.js';
-import {footer} from './app/footer.js';
+import 'materialize-css/dist/css/materialize.css';
+import './index.scss';
 
-angular
-  .module('app', [techsModule, 'ui.router'])
-  .config(routesConfig)
-  .component('app', main)
-  .component('fountainHeader', header)
-  .component('fountainTitle', title)
-  .component('fountainFooter', footer);
+import {provideRouter} from '@angular/router';
+import {enableProdMode} from '@angular/core';
+import {routes, RootComponent} from './routes';
+
+if (process.env.NODE_ENV === 'production') {
+  enableProdMode();
+}
+
+bootstrap(RootComponent, [
+  provideRouter(routes)
+]);

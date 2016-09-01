@@ -1,6 +1,21 @@
-import angular from 'angular';
-import 'angular-mocks';
-import {techs} from './techs.js';
+import 'zone.js/dist/zone';
+import 'zone.js/dist/async-test';
+import {MockBackend} from '@angular/http/testing';
+import {Http, BaseRequestOptions, Response, ResponseOptions} from '@angular/http';
+import {Component, Input, provide} from '@angular/core';
+import {TechsComponent} from './techs';
+import {TechComponent} from './tech';
+import {inject, async, TestComponentBuilder, addProviders} from '@angular/core/testing';
+
+import {Observable} from 'rxjs/Rx';
+
+@Component({
+  selector: 'fountain-tech',
+  template: ''
+})
+class MockComponent {
+  @Input() tech;
+}
 
 const techsJson = [
   {
@@ -27,18 +42,51 @@ const techsJson = [
 ];
 
 describe('techs component', () => {
-  beforeEach(() => {
-    angular
-      .module('fountainTechs', ['src/app/techs/techs.html'])
-      .component('fountainTechs', techs);
-    angular.mock.module('fountainTechs');
+  describe('techs component methods', () => {
+    beforeEach(() => {
+      addProviders([
+        TechsComponent,
+        MockBackend,
+        BaseRequestOptions,
+        provide(Http, {
+          useFactory: (backend, defaultOptions) => new Http(backend, defaultOptions),
+          deps: [MockBackend, BaseRequestOptions]
+        })
+      ]);
+    });
+
+    it('should get techs', inject([MockBackend, TechsComponent], (mockBackend, techs) => {
+      let conn;
+      const response = new Response(new ResponseOptions({body: techsJson}));
+      mockBackend.connections.subscribe(connection => {
+        conn = connection;
+      });
+      techs.getTechs().subscribe(jsonObject => {
+        techs.techs = jsonObject;
+      });
+      conn.mockRespond(response);
+      expect(techs.techs.length).toBe(3);
+      mockBackend.verifyNoPendingRequests();
+    }));
   });
-  it('should render 3 elements <fountain-tech>', angular.mock.inject(($rootScope, $compile, $httpBackend) => {
-    $httpBackend.when('GET', 'src/app/techs/techs.json').respond(techsJson);
-    const element = $compile('<fountain-techs></fountain-techs>')($rootScope);
-    $httpBackend.flush();
-    $rootScope.$digest();
-    const techs = element.find('fountain-tech');
-    expect(techs.length).toEqual(3);
-  }));
+
+  describe('techs component rendering', () => {
+    beforeEach(() => {
+      TechsComponent.prototype.getTechs = function getTechs() {
+        const response = new Response(new ResponseOptions({body: techsJson}));
+        return Observable.of(response).map(response => response.json());
+      };
+    });
+
+    it('should mock the techs and render 3 elements <tech>', async(inject([TestComponentBuilder], tcb => {
+      return tcb
+        .overrideDirective(TechsComponent, TechComponent, MockComponent)
+        .createAsync(TechsComponent)
+        .then(fixture => {
+          fixture.detectChanges();
+          const techs = fixture.nativeElement;
+          expect(techs.querySelectorAll('fountain-tech').length).toBe(3);
+        });
+    })));
+  });
 });

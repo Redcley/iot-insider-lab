@@ -1,27 +1,22 @@
-import angular from 'angular';
-import 'angular-mocks';
-import {tech} from './tech.js';
+import 'zone.js/dist/zone';
+import 'zone.js/dist/async-test';
+import {TechComponent} from './tech';
+import {inject, async, TestComponentBuilder} from '@angular/core/testing';
 
 describe('tech component', () => {
-  beforeEach(() => {
-    angular
-      .module('fountainTech', ['src/app/techs/tech.html'])
-      .component('fountainTech', tech);
-    angular.mock.module('fountainTech');
-  });
-
-  it('should render Gulp', angular.mock.inject(($rootScope, $compile) => {
-    const $scope = $rootScope.$new();
-    $scope.fixture = {
-      key: 'gulp',
-      title: 'Gulp',
-      logo: 'http://fountainjs.io/assets/imgs/gulp.png',
-      text1: 'The streaming build system',
-      text2: 'Automate and enhance your workflow'
-    };
-    const element = $compile('<fountain-tech tech="fixture"></fountain-tech>')($scope);
-    $scope.$digest();
-    const tech = element.find('h3');
-    expect(tech.html().trim()).toEqual('Gulp');
-  }));
+  it('should render Gulp', async(inject([TestComponentBuilder], tcb => {
+    tcb.createAsync(TechComponent)
+      .then(fixture => {
+        fixture.componentInstance.tech = {
+          key: 'gulp',
+          title: 'Gulp',
+          logo: 'http://fountainjs.io/assets/imgs/gulp.png',
+          text1: 'The streaming build system',
+          text2: 'Automate and enhance your workflow'
+        };
+        fixture.detectChanges();
+        const tech = fixture.nativeElement;
+        expect(tech.querySelector('h3').textContent.trim()).toBe('Gulp');
+      });
+  })));
 });
