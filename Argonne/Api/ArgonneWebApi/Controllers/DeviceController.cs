@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ArgonneWebApi.Models.Datastore;
 using ArgonneWebApi.Models.Dto;
+using ArgonneWebApi.Models.Validation;
 using ArgonneWebApi.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +57,13 @@ namespace ArgonneWebApi.Controllers
                 return BadRequest();
             }
 
+            var validator = new DeviceValidator();
+            var validationResults = validator.Validate(item);
+            if(!validationResults.IsValid)
+            {
+                return BadRequest(validationResults.Errors);
+            }
+
             item.DeviceId = Guid.NewGuid();
 
             await deviceRepository.Add(mapper.Map<DeviceDto, Devices>(item)).ConfigureAwait(false);
@@ -79,6 +87,13 @@ namespace ArgonneWebApi.Controllers
             if (updatedRecord == null)
             {
                 return BadRequest();
+            }
+
+            var validator = new DeviceValidator();
+            var validationResults = validator.Validate(updatedRecord);
+            if (!validationResults.IsValid)
+            {
+                return BadRequest(validationResults.Errors);
             }
 
             var existingRecord = await deviceRepository.GetSingle(item => item.DeviceId == idGuid).ConfigureAwait(false);

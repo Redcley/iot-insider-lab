@@ -27,7 +27,8 @@
         "Newtonsoft.Json": "9.0.1",
         "Microsoft.AspNetCore.Diagnostics": "1.0.0",
         "AutoMapper": "5.1.1",
-        "AutoMapper.Extensions.Microsoft.DependencyInjection": "1.1.0"
+        "AutoMapper.Extensions.Microsoft.DependencyInjection": "1.1.0",
+        "FluentValidation": "6.4.0-beta3"
     },
 
     "tools": {
