@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Http;
 using ArgonneWebApi.Models.Datastore;
 using ArgonneWebApi.Models.Mapping;
 using AutoMapper;
+using Swashbuckle.Swagger.Model;
+using Microsoft.Extensions.PlatformAbstractions;
 
 namespace ArgonneWebApi
 {
@@ -41,6 +43,29 @@ namespace ArgonneWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.ConfigureSwaggerGen(options =>
+            {
+                options.SingleApiVersion(new Info
+                {
+                    Version = "v1",
+                    Title = "Argonne API",
+                    Description = "REST services for Project Argonne",
+                    TermsOfService = "See Microsoft IOT Lab TOS",
+                    Contact = new Contact { Name = "Microsoft IOT Lab", Email = "", Url = "https://azure.microsoft.com/en-us/suites/iot-suite/" },
+                    License = new License { Name = "Use under Microsoft IOT Lab licensing", Url = "https://azure.microsoft.com/en-us/suites/iot-suite/" }
+                });
+
+                //Determine base path for the application.
+                var basePath = PlatformServices.Default.Application.ApplicationBasePath;
+
+                //Set the comments path for the swagger json and ui.
+                options.IncludeXmlComments(basePath + "\\ArgonneWebApi.xml");
+            });
+
+
+            // Inject an implementation of ISwaggerProvider with defaulted settings applied
+            services.AddSwaggerGen();
+
             services.AddAutoMapper();
 
             // Add framework services.
@@ -73,6 +98,13 @@ namespace ArgonneWebApi
                 builder.AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod());
+
+            // Enable middleware to serve generated Swagger as a JSON endpoint
+            app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui assets (HTML, JS, CSS etc.)
+            app.UseSwaggerUi();
+
 
             //TODO: top level exception handler should log to application insights? Using Serilog?
 
