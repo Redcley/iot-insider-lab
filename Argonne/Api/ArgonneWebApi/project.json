@@ -29,7 +29,8 @@
         "AutoMapper": "5.1.1",
         "AutoMapper.Extensions.Microsoft.DependencyInjection": "1.1.0",
         "FluentValidation": "6.4.0-beta3",
-        "Swashbuckle": "6.0.0-beta902"
+        "Swashbuckle": "6.0.0-beta902",
+        "Serilog.Sinks.ApplicationInsights": "2.1.0"
     },
 
     "tools": {
@@ -49,7 +50,8 @@
     "buildOptions": {
         "emitEntryPoint": true,
         "preserveCompilationContext": true,
-        "xmlDoc": true
+        "xmlDoc": true,
+        "nowarn": [ "1591" ]
     },
 
     "runtimeOptions": {

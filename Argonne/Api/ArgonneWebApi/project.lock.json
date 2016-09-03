@@ -2241,6 +2241,41 @@
           }
         }
       },
+      "Serilog/2.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.0.1",
+          "System.Collections": "4.0.11",
+          "System.Dynamic.Runtime": "4.0.11",
+          "System.Globalization": "4.0.11",
+          "System.Linq": "4.1.0",
+          "System.Reflection": "4.1.0",
+          "System.Reflection.Extensions": "4.0.1",
+          "System.Runtime": "4.1.0",
+          "System.Runtime.Extensions": "4.1.0",
+          "System.Text.RegularExpressions": "4.1.0",
+          "System.Threading": "4.0.11"
+        },
+        "compile": {
+          "lib/netstandard1.3/Serilog.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/Serilog.dll": {}
+        }
+      },
+      "Serilog.Sinks.ApplicationInsights/2.1.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.ApplicationInsights": "2.0.0",
+          "Serilog": "2.0.0"
+        },
+        "compile": {
+          "lib/netstandard1.3/Serilog.Sinks.ApplicationInsights.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard1.3/Serilog.Sinks.ApplicationInsights.dll": {}
+        }
+      },
       "Swashbuckle/6.0.0-beta902": {
         "type": "package",
         "dependencies": {
@@ -6184,6 +6219,32 @@
         "runtime.win7-x86.runtime.native.System.Data.SqlClient.sni.4.0.1.nupkg.sha512",
         "runtime.win7-x86.runtime.native.System.Data.SqlClient.sni.nuspec",
         "runtimes/win7-x86/native/sni.dll"
+      ]
+    },
+    "Serilog/2.0.0": {
+      "sha512": "PKR/FMxfHOhX1p3Qs54Uv9dJEC09sI91cVz39Jt/2f/BpCYHTt9F1RpogSJTFU9xxW6j9FHd+P7aBcC0qMeuqg==",
+      "type": "package",
+      "path": "Serilog/2.0.0",
+      "files": [
+        "Serilog.2.0.0.nupkg.sha512",
+        "Serilog.nuspec",
+        "lib/net45/Serilog.dll",
+        "lib/net45/Serilog.xml",
+        "lib/netstandard1.0/Serilog.dll",
+        "lib/netstandard1.0/Serilog.xml",
+        "lib/netstandard1.3/Serilog.dll",
+        "lib/netstandard1.3/Serilog.xml"
+      ]
+    },
+    "Serilog.Sinks.ApplicationInsights/2.1.0": {
+      "sha512": "0RGwwnVlekIAc4dQkgwHKN9S9HtilZ+KNEK2oaYOMUzxgPd+C+W37rmzX2D6AAo1Oztj2//FW3gfStSbGm/2sw==",
+      "type": "package",
+      "path": "Serilog.Sinks.ApplicationInsights/2.1.0",
+      "files": [
+        "Serilog.Sinks.ApplicationInsights.2.1.0.nupkg.sha512",
+        "Serilog.Sinks.ApplicationInsights.nuspec",
+        "lib/net45/Serilog.Sinks.ApplicationInsights.dll",
+        "lib/netstandard1.3/Serilog.Sinks.ApplicationInsights.dll"
       ]
     },
     "Swashbuckle/6.0.0-beta902": {
@@ -10901,6 +10962,7 @@
       "Microsoft.Extensions.Options.ConfigurationExtensions >= 1.0.0",
       "Microsoft.NETCore.App >= 1.0.0",
       "Newtonsoft.Json >= 9.0.1",
+      "Serilog.Sinks.ApplicationInsights >= 2.1.0",
       "Swashbuckle >= 6.0.0-beta902"
     ],
     ".NETCoreApp,Version=v1.0": []

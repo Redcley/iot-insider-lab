@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
+//Disable all XML Comment warnings in this file
+#pragma warning disable 1591
+
 namespace ArgonneWebApi.Models.Datastore
 {
     public partial class Campaigns

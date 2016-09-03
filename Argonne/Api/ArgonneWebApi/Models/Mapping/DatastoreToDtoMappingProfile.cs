@@ -11,6 +11,10 @@ namespace ArgonneWebApi.Models.Mapping
         protected override void Configure()
         {
             CreateMap<Devices, DeviceDto>();
+            CreateMap<Campaigns, CampaignDto>();
+            CreateMap<Ads, AdDto>();
+            CreateMap<Impressions, ImpressionDto>();
+            CreateMap<FacesForImpressions, FaceForImpressionDto>();
         }
     }
 }
