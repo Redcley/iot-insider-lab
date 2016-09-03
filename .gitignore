@@ -9,3 +9,4 @@ Argonne/Dashboard/ArgonneDashboard/wwwroot/lib/
 *.user
 *.suo
 Argonne/Dashboard/ArgonneDashboard/project.fragment.lock.json
+/Argonne/Api/.vs
