@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ArgonneWebApi.Models.Dto;
+﻿using ArgonneWebApi.Models.Dto;
 using FluentValidation;
 
 namespace ArgonneWebApi.Models.Validation
