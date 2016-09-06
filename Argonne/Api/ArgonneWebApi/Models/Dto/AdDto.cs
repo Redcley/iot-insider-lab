@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArgonneWebApi.Models.Dto
 {
@@ -14,10 +15,12 @@ namespace ArgonneWebApi.Models.Dto
         /// <summary>
         /// User friendly name for an ad
         /// </summary>
+        [Required]
         public string AdName { get; set; }
         /// <summary>
         /// Url for ad media
         /// </summary>
+        [Required]
         public string Url { get; set; }
     }
 }

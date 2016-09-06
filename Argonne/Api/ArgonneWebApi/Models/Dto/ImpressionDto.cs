@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArgonneWebApi.Models.Dto
 {
@@ -14,6 +15,7 @@ namespace ArgonneWebApi.Models.Dto
         /// <summary>
         /// The device where the impression occurred
         /// </summary>
+        [Required]
         public Guid DeviceId { get; set; }
         /// <summary>
         /// Cognitive services message id
@@ -22,6 +24,7 @@ namespace ArgonneWebApi.Models.Dto
         /// <summary>
         /// Ad being displayed at time of impression
         /// </summary>
+        [Required]
         public Guid DisplayedAdId { get; set; }
         /// <summary>
         /// Timestamp from device at time of impression

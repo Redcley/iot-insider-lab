@@ -31,6 +31,24 @@ namespace ArgonneWebApi.Models.Mapping
                         if (null == dst.PostalCode)
                             dst.PostalCode = string.Empty;
                     });
+
+            CreateMap<CampaignDto, Campaigns>()
+                .AfterMap((src, dst) =>
+                {
+                    if (null == dst.CampaignName)
+                        dst.CampaignName = string.Empty;
+                });
+
+            CreateMap<AdDto, Ads>()
+                .AfterMap((src, dst) =>
+                {
+                    if (null == dst.AdName)
+                        dst.AdName = string.Empty;
+                });
+
+            CreateMap<ImpressionDto, Impressions>();
+            CreateMap<AdInCampaignDto, AdsForCampaigns>();
+            CreateMap<FaceForImpressionDto, FacesForImpressions>();
         }
     }
 }

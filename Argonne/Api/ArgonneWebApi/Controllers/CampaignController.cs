@@ -178,5 +178,40 @@ namespace ArgonneWebApi.Controllers
 
             return Ok();
         }
+
+        #region relationships
+        /// <summary>
+        /// Get all ads for a campaign
+        /// </summary>
+        /// <param name="id">unique identifier for a campaign</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("{id}/Ads")]
+        //[HttpGet("{id}", Name = "GetAds")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AdsForCampaigns>), 200)]
+        public async Task<IActionResult> GetAds(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(id, out idGuid))
+            {
+                return BadRequest();
+            }
+
+
+            var campaign = await repository.GetSingle(item => item.CampaignId == idGuid);
+            if (null == campaign)
+                return NotFound();
+            var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(campaign.AdsForCampaigns);
+            return new OkObjectResult(result);
+        }
+        #endregion
     }
 }

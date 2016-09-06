@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArgonneWebApi.Models.Dto
 {
@@ -14,6 +15,7 @@ namespace ArgonneWebApi.Models.Dto
         /// <summary>
         /// Name of Campaign
         /// </summary>
+        [Required]
         public string CampaignName { get; set; }
     }
 }
