@@ -23,6 +23,10 @@ namespace ArgonneWebApi.Models.Dto
         [Required]
         public string DeviceName { get; set; }
         /// <summary>
+        /// Current Campaign assigned to device
+        /// </summary>
+        public Guid? CampaignId { get; set; }
+        /// <summary>
         /// Device location, Address line 1
         /// </summary>
         public string Address { get; set; }

@@ -13,7 +13,6 @@ namespace ArgonneWebApi.Controllers
     /// <summary>
     /// Administrator API for Devices
     /// </summary>
-    [Route("api/admin/[controller]")]
     [Produces("application/json")]
     public class DeviceController : Controller
     {
@@ -36,6 +35,7 @@ namespace ArgonneWebApi.Controllers
         /// </summary>
         /// <response code="200">Success</response>
         [HttpGet]
+        [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(IEnumerable<DeviceDto>), 200)]
         public async Task<IActionResult> GetAll()
         {
@@ -52,7 +52,8 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [HttpGet("{id}", Name = "GetDevice")]
+        [HttpGet]
+        [Route("api/admin/[controller]/{id}", Name="GetDevice")]
         [ProducesResponseType(typeof(DeviceDto), 200)]
         public async Task<IActionResult> Get(string id)
         {
@@ -84,6 +85,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="201">Created</response>
         /// <response code="400">Invalid Model</response>
         [HttpPost]
+        [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(DeviceDto), 201)]
         public async Task<IActionResult> Create([FromBody]DeviceDto item)
         {
@@ -119,7 +121,8 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id or Model</response>
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("api/admin/[controller]/{id}")]
         public async Task<IActionResult> Update(string id, [FromBody]DeviceDto updatedRecord)
         {
             if (string.IsNullOrEmpty(id))
@@ -162,7 +165,8 @@ namespace ArgonneWebApi.Controllers
         /// </remarks>
         /// <response code="200">Success</response>
         /// <response code="400">Invalid Id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("api/admin/[controller]/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id))

@@ -15,6 +15,7 @@ namespace ArgonneWebApi.Models.Datastore
 
         public long ImpressionId { get; set; }
         public Guid DeviceId { get; set; }
+        public Guid CampaignId { get; set; }
         public Guid MessageId { get; set; }
         public Guid DisplayedAdId { get; set; }
         public DateTime DeviceTimestamp { get; set; }
@@ -23,5 +24,6 @@ namespace ArgonneWebApi.Models.Datastore
         public virtual ICollection<FacesForImpressions> FacesForImpressions { get; set; }
         public virtual Devices Device { get; set; }
         public virtual Ads DisplayedAd { get; set; }
+        public virtual Campaigns Campaign { get; set; }
     }
 }

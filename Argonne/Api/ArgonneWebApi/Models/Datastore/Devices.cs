@@ -11,11 +11,11 @@ namespace ArgonneWebApi.Models.Datastore
     {
         public Devices()
         {
-            CampaignsForDevices = new HashSet<CampaignsForDevices>();
             Impressions = new HashSet<Impressions>();
         }
 
         public Guid DeviceId { get; set; }
+        public Guid? CampaignId { get; set; }
         public string PrimaryKey { get; set; }
         public string DeviceName { get; set; }
         public string Address { get; set; }
@@ -26,7 +26,8 @@ namespace ArgonneWebApi.Models.Datastore
         public string PostalCode { get; set; }
 
         public virtual BiasesForDevices BiasesForDevices { get; set; }
-        public virtual ICollection<CampaignsForDevices> CampaignsForDevices { get; set; }
         public virtual ICollection<Impressions> Impressions { get; set; }
+
+        public virtual Campaigns CurrentCampaign { get; set; }
     }
 }

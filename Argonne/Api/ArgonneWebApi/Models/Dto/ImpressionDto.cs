@@ -27,6 +27,11 @@ namespace ArgonneWebApi.Models.Dto
         [Required]
         public Guid DisplayedAdId { get; set; }
         /// <summary>
+        /// Campaign of Ad being displayed at time of impression
+        /// </summary>
+        [Required]
+        public Guid CampaignId { get; set; }
+        /// <summary>
         /// Timestamp from device at time of impression
         /// </summary>
         public DateTime DeviceTimestamp { get; set; }

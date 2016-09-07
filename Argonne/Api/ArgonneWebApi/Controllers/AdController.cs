@@ -13,22 +13,24 @@ namespace ArgonneWebApi.Controllers
     /// <summary>
     /// Administrator API for Ads
     /// </summary>
-    [Route("api/admin/[controller]")]
     [Produces("application/json")]
     public class AdController : Controller
     {
         private IEntityRepository<Ads> repository;
+        private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
         private IMapper mapper;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="repo"></param>
+        /// <param name="adCampRepo"></param>
         /// <param name="entityMapper"></param>
-        public AdController(IEntityRepository<Ads> repo, IMapper entityMapper)
+        public AdController(IEntityRepository<Ads> repo, IEntityRepository<AdsForCampaigns> adCampRepo, IMapper entityMapper)
         {
             repository = repo;
             mapper = entityMapper;
+            adForCampaignRepository = adCampRepo;
         }
 
         /// <summary>
@@ -36,6 +38,7 @@ namespace ArgonneWebApi.Controllers
         /// </summary>
         /// <response code="200">Success</response>
         [HttpGet]
+        [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(IEnumerable<AdDto>), 200)]
         public async Task<IActionResult> GetAll()
         {
@@ -52,7 +55,8 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [HttpGet("{id}", Name = "GetAd")]
+        [HttpGet]
+        [Route("api/admin/[controller]/{id}", Name = "GetAd")]
         [ProducesResponseType(typeof(AdDto), 200)]
         public async Task<IActionResult> Get(string id)
         {
@@ -84,6 +88,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="201">Created</response>
         /// <response code="400">Invalid Model</response>
         [HttpPost]
+        [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(AdDto), 201)]
         public async Task<IActionResult> Create([FromBody]AdDto item)
         {
@@ -119,7 +124,8 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id or Model</response>
-        [HttpPut("{id}")]
+        [HttpPut]
+        [Route("api/admin/[controller]/{id}")]
         public async Task<IActionResult> Update(string id, [FromBody]AdDto updatedRecord)
         {
             if (string.IsNullOrEmpty(id))
@@ -162,7 +168,8 @@ namespace ArgonneWebApi.Controllers
         /// </remarks>
         /// <response code="200">Success</response>
         /// <response code="400">Invalid Id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("api/admin/[controller]/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -178,5 +185,40 @@ namespace ArgonneWebApi.Controllers
 
             return Ok();
         }
+
+        #region relationships
+        /// <summary>
+        /// Get all campaigns an ad is in
+        /// </summary>
+        /// <param name="id">unique identifier for an ad</param>
+        /// <remarks>
+        /// The relationship between Ad and Campaign is read-only from the Ad API.
+        /// For create/update/delete operations see the Campaign API.
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{id}/campaigns")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AdInCampaignDto>), 200)]
+        public async Task<IActionResult> GetCampaigns(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(id, out idGuid))
+            {
+                return BadRequest();
+            }
+
+
+            var relations = await adForCampaignRepository.FindBy(item => item.AdId == idGuid);
+            if (null == relations)
+                return NotFound();
+            var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(relations);
+            return new OkObjectResult(result);
+        }
+        #endregion
     }
 }
