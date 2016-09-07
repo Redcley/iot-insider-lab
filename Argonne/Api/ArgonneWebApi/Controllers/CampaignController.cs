@@ -208,6 +208,42 @@ namespace ArgonneWebApi.Controllers
         }
 
         /// <summary>
+        /// Get ad in a campaign
+        /// </summary>
+        /// <param name="id">unique identifier for a campaign</param>
+        /// <param name="adid">unique identifier for an ad</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// AdId must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{id}/Ads/{adid}", Name = "GetAdInCampaign")]
+        [HttpGet]
+        [ProducesResponseType(typeof(AdInCampaignDto), 200)]
+        public async Task<IActionResult> GetAdInCampaign(string id, string adid)
+        {
+            if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(adid))
+                return BadRequest();
+
+            Guid idGuid;
+            Guid adidGuid;
+            if (!Guid.TryParse(id, out idGuid) || !Guid.TryParse(adid, out adidGuid))
+            {
+                return BadRequest();
+            }
+
+
+            var adInCampaign = await adForCampaignRepository.GetSingle(item => item.CampaignId == idGuid && item.AdId == adidGuid);
+            if (null == adInCampaign)
+                return NotFound();
+
+            var result = mapper.Map<AdsForCampaigns, AdInCampaignDto>(adInCampaign);
+            return new OkObjectResult(result);
+        }
+
+        /// <summary>
         /// Add an Ad to a Campaign
         /// </summary>
         /// <remarks>
@@ -234,7 +270,7 @@ namespace ArgonneWebApi.Controllers
 
             await adForCampaignRepository.Add(mapper.Map<AdInCampaignDto, AdsForCampaigns>(item)).ConfigureAwait(false);
 
-            return CreatedAtRoute("GetAds", new { Controller = "Campaign", id = item.CampaignId }, item);
+            return CreatedAtRoute("GetAdInCampaign", new { Controller = "Campaign", id = item.CampaignId, adid = item.AdId }, item);
         }
 
         /// <summary>
