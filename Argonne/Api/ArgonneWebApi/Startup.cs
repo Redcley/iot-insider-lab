@@ -76,6 +76,11 @@ namespace ArgonneWebApi
 
             services.AddScoped<IEntityRepository<Devices>, EntityRepository<Devices>>();
             services.AddScoped<IEntityRepository<Campaigns>, EntityRepository<Campaigns>>();
+            services.AddScoped<IEntityRepository<Ads>, EntityRepository<Ads>>();
+            services.AddScoped<IEntityRepository<Impressions>, EntityRepository<Impressions>>();
+            services.AddScoped<IEntityRepository<AdsForCampaigns>, EntityRepository<AdsForCampaigns>>();
+            services.AddScoped<IEntityRepository<CampaignsForDevices>, EntityRepository<CampaignsForDevices>>();
+            services.AddScoped<IEntityRepository<FacesForImpressions>, EntityRepository<FacesForImpressions>>();
 
             // Automapper Configuration
             AutoMapperConfiguration.Configure();

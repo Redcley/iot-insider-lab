@@ -13,11 +13,12 @@ namespace ArgonneWebApi.Controllers
     /// <summary>
     /// Administrator API for Campaigns
     /// </summary>
-    [Route("api/admin/[controller]")]
+    //[Route("api/admin/[controller]")]
     [Produces("application/json")]
     public class CampaignController : Controller
     {
         private IEntityRepository<Campaigns> repository;
+        private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
         private IMapper mapper;
 
         /// <summary>
@@ -25,16 +26,18 @@ namespace ArgonneWebApi.Controllers
         /// </summary>
         /// <param name="repo"></param>
         /// <param name="entityMapper"></param>
-        public CampaignController(IEntityRepository<Campaigns> repo, IMapper entityMapper)
+        public CampaignController(IEntityRepository<Campaigns> repo, IEntityRepository<AdsForCampaigns> adCampRepo, IMapper entityMapper)
         {
             repository = repo;
             mapper = entityMapper;
+            adForCampaignRepository = adCampRepo;
         }
 
         /// <summary>
         /// Get all campaigns
         /// </summary>
         /// <response code="200">Success</response>
+        [Route("api/admin/[controller]")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CampaignDto>), 200)]
         public async Task<IActionResult> GetAll()
@@ -52,7 +55,9 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [HttpGet("{id}", Name = "GetCampaign")]
+        //[HttpGet("{id}", Name = "GetCampaign")]
+        [HttpGet]
+        [Route("api/admin/[controller]/{id}")]
         [ProducesResponseType(typeof(CampaignDto), 200)]
         public async Task<IActionResult> Get(string id)
         {
@@ -84,6 +89,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="201">Created</response>
         /// <response code="400">Invalid Model</response>
         [HttpPost]
+        [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(CampaignDto), 201)]
         public async Task<IActionResult> Create([FromBody]CampaignDto item)
         {
@@ -111,42 +117,32 @@ namespace ArgonneWebApi.Controllers
         /// <summary>
         /// Modify an existing Campaign
         /// </summary>
-        /// <param name="id">unique identifier for a Campaign</param>
         /// <param name="updatedRecord">modified Campaign model</param>
         /// <remarks>
-        /// Id must be a valid GUID
+        /// Campaign Id must be a valid GUID
         /// </remarks>
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id or Model</response>
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, [FromBody]CampaignDto updatedRecord)
+        [HttpPut]
+        [Route("api/admin/[controller]")]
+        public async Task<IActionResult> Update([FromBody]CampaignDto updatedRecord)
         {
-            if (string.IsNullOrEmpty(id))
-                return BadRequest();
-
-            Guid idGuid;
-            if (!Guid.TryParse(id, out idGuid))
-            {
-                return BadRequest();
-            }
-
             if (updatedRecord == null)
             {
                 return BadRequest();
             }
 
-            var validator = new CampaignValidator();
+            var validator = new CampaignValidator(true);
             var validationResults = validator.Validate(updatedRecord);
             if (!validationResults.IsValid)
             {
                 return BadRequest(validationResults.Errors);
             }
 
-            var existingRecord = await repository.GetSingle(item => item.CampaignId == idGuid).ConfigureAwait(false);
+            var existingRecord = await repository.GetSingle(item => item.CampaignId == updatedRecord.CampaignId).ConfigureAwait(false);
             if (null == existingRecord)
                 return NotFound();
-            updatedRecord.CampaignId = idGuid;
 
             mapper.Map<CampaignDto, Campaigns>(updatedRecord, existingRecord);
             await repository.Update(existingRecord).ConfigureAwait(false);
@@ -162,7 +158,8 @@ namespace ArgonneWebApi.Controllers
         /// </remarks>
         /// <response code="200">Success</response>
         /// <response code="400">Invalid Id</response>
-        [HttpDelete("{id}")]
+        [HttpDelete]
+        [Route("api/admin/[controller]/{id}")]
         public async Task<IActionResult> Delete(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -190,10 +187,10 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [Route("{id}/Ads")]
+        [Route("api/admin/[controller]/{id}/Ads")]
         //[HttpGet("{id}", Name = "GetAds")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<AdsForCampaigns>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<AdInCampaignDto>), 200)]
         public async Task<IActionResult> GetAds(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -206,11 +203,41 @@ namespace ArgonneWebApi.Controllers
             }
 
 
-            var campaign = await repository.GetSingle(item => item.CampaignId == idGuid);
-            if (null == campaign)
+            var relations = await adForCampaignRepository.FindBy(item => item.CampaignId == idGuid);
+            if (null == relations)
                 return NotFound();
-            var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(campaign.AdsForCampaigns);
+            var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(relations);
             return new OkObjectResult(result);
+        }
+
+        /// <summary>
+        /// Add an Ad to a Campaign
+        /// </summary>
+        /// <remarks>
+        /// Id field does not need to be supplied, it is ignored. The unique identifier for the Campaign will be generated by the system.
+        /// </remarks>
+        /// <response code="201">Created</response>
+        /// <response code="400">Invalid Model</response>
+        [Route("api/admin/[controller]/{id}/Ads")]
+        [HttpPost]
+        [ProducesResponseType(typeof(AdInCampaignDto), 201)]
+        public async Task<IActionResult> AddAdToCampaign([FromBody]AdInCampaignDto item)
+        {
+            if (item == null)
+            {
+                return BadRequest();
+            }
+
+            var validator = new AdInCampaignValidator();
+            var validationResults = validator.Validate(item);
+            if (!validationResults.IsValid)
+            {
+                return BadRequest(validationResults.Errors);
+            }
+
+            await adForCampaignRepository.Add(mapper.Map<AdInCampaignDto, AdsForCampaigns>(item)).ConfigureAwait(false);
+
+            return CreatedAtRoute("{Id}/Ads", new { Controller = "Campaign", id = item.CampaignId }, item);
         }
         #endregion
     }
