@@ -13,7 +13,6 @@ namespace ArgonneWebApi.Controllers
     /// <summary>
     /// Administrator API for Campaigns
     /// </summary>
-    //[Route("api/admin/[controller]")]
     [Produces("application/json")]
     public class CampaignController : Controller
     {
@@ -55,9 +54,8 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        //[HttpGet("{id}", Name = "GetCampaign")]
         [HttpGet]
-        [Route("api/admin/[controller]/{id}")]
+        [Route("api/admin/[controller]/{id}", Name="GetCampaign")]
         [ProducesResponseType(typeof(CampaignDto), 200)]
         public async Task<IActionResult> Get(string id)
         {
@@ -187,8 +185,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [Route("api/admin/[controller]/{id}/Ads")]
-        //[HttpGet("{id}", Name = "GetAds")]
+        [Route("api/admin/[controller]/{id}/Ads", Name = "GetAds")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<AdInCampaignDto>), 200)]
         public async Task<IActionResult> GetAds(string id)
@@ -237,7 +234,45 @@ namespace ArgonneWebApi.Controllers
 
             await adForCampaignRepository.Add(mapper.Map<AdInCampaignDto, AdsForCampaigns>(item)).ConfigureAwait(false);
 
-            return CreatedAtRoute("{Id}/Ads", new { Controller = "Campaign", id = item.CampaignId }, item);
+            return CreatedAtRoute("GetAds", new { Controller = "Campaign", id = item.CampaignId }, item);
+        }
+
+        /// <summary>
+        /// Modify properties of an existing Campaign to Ad relationship
+        /// </summary>
+        /// <param name="updatedRecord">modified model</param>
+        /// <remarks>
+        /// Campaign Id must be a valid GUID.
+        /// Ad Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id or Model</response>
+        [HttpPut]
+        [Route("api/admin/[controller]/{id}/Ads")]
+        public async Task<IActionResult> UpdateAdInCampaign([FromBody]AdInCampaignDto updatedRecord)
+        {
+            if (updatedRecord == null)
+            {
+                return BadRequest();
+            }
+
+            var validator = new AdInCampaignValidator();
+            var validationResults = validator.Validate(updatedRecord);
+            if (!validationResults.IsValid)
+            {
+                return BadRequest(validationResults.Errors);
+            }
+
+            var existingRecord = await adForCampaignRepository.GetSingle(
+                item => item.CampaignId == updatedRecord.CampaignId && item.AdId == updatedRecord.AdId).ConfigureAwait(false);
+
+            if (null == existingRecord)
+                return NotFound();
+
+            mapper.Map<AdInCampaignDto, AdsForCampaigns>(updatedRecord, existingRecord);
+            await adForCampaignRepository.Update(existingRecord).ConfigureAwait(false);
+            return Ok();
         }
         #endregion
     }
