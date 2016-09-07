@@ -1,5 +1,7 @@
 'use strict';
-const i2c = require("i2c-bus");
+// Change this one flag to toggle between real and fake device
+const FAKE = true;
+const i2c = FAKE ? null : require("i2c-bus");
 const util = require('util');
 const EventEmitter = require('events');
 
@@ -14,6 +16,13 @@ var MPL3115A2_temperature = 0;
 var MPL3115A2_pressure = 0;
 var HTU21D_temperature = 0;
 var HTU21D_humidity = 0;
+
+if (FAKE) {
+  MPL3115A2_temperature = 50.0;
+  MPL3115A2_pressure = 101000.0;
+  HTU21D_temperature = 22.22;
+  HTU21D_humidity = 50.0;
+}
 
 //Helpers
 const ADDR1 = 0x60;
@@ -93,8 +102,15 @@ function Hardware() {};
 util.inherits(Hardware, EventEmitter);
 
 Hardware.prototype.getEnvironment = function() {
-  readMPL3115A2();
-  readHTU21D();
+  if (FAKE) {
+    HTU21D_humidity += ((Math.random() * 2) - 1);
+    MPL3115A2_pressure += ((Math.random() * 2) - 1);
+    HTU21D_temperature += ((Math.random() * 2) - 1);
+    MPL3115A2_temperature += ((Math.random() * 2) - 1);
+  } else {
+    readMPL3115A2();
+    readHTU21D();
+  }
 
   return {
     "humidity": HTU21D_humidity,
@@ -173,7 +189,7 @@ module.exports = new Hardware();
 
 // change to true to generate fake input
 // and enable fake output
-if (false) {
+if (FAKE) {
   // Temporary State data
   lights = [
     "off",
