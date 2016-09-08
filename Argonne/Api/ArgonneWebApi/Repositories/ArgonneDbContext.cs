@@ -187,6 +187,13 @@ namespace ArgonneWebApi.Repositories
                 entity.HasIndex(e => e.Age)
                     .HasName("IX_FacesForImpressions_Age");
 
+                entity.HasIndex(e => e.FaceId)
+                    .HasName("IX_FacesForImpressions_FaceId");
+
+                entity.Property(e => e.FaceId)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
                 entity.Property(e => e.Gender)
                     .IsRequired()
                     .HasMaxLength(12);

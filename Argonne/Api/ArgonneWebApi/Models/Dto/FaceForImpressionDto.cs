@@ -3,6 +3,7 @@
     public partial class FaceForImpressionDto
     {
         public long ImpressionId { get; set; }
+        public string FaceId { get; set; }
         public short Sequence { get; set; }
         public short Age { get; set; }
         public string Gender { get; set; }

@@ -6,6 +6,7 @@ namespace ArgonneWebApi.Models.Datastore
     public partial class FacesForImpressions
     {
         public long ImpressionId { get; set; }
+        public string FaceId { get; set; }
         public short Sequence { get; set; }
         public short Age { get; set; }
         public string Gender { get; set; }
