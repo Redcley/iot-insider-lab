@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArgonneWebApi.Models.Datastore;
 using ArgonneWebApi.Models.Dto;
@@ -18,6 +19,7 @@ namespace ArgonneWebApi.Controllers
     {
         private IEntityRepository<Ads> repository;
         private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
+        private IEntityRepository<Impressions> impressionRepository;
         private IMapper mapper;
 
 
@@ -27,11 +29,14 @@ namespace ArgonneWebApi.Controllers
         /// <param name="repo"></param>
         /// <param name="adCampRepo"></param>
         /// <param name="entityMapper"></param>
-        public AdController(IEntityRepository<Ads> repo, IEntityRepository<AdsForCampaigns> adCampRepo, IMapper entityMapper)
+        public AdController(IEntityRepository<Ads> repo, IEntityRepository<AdsForCampaigns> adCampRepo,
+            IEntityRepository<Impressions> impRepo, 
+            IMapper entityMapper)
         {
             repository = repo;
             mapper = entityMapper;
             adForCampaignRepository = adCampRepo;
+            impressionRepository = impRepo;
         }
 
         /// <summary>
@@ -188,7 +193,7 @@ namespace ArgonneWebApi.Controllers
             return Ok();
         }
 
-        #region relationships
+        #region relationship - campaigns
         /// <summary>
         /// Get all campaigns an ad is in
         /// </summary>
@@ -220,6 +225,90 @@ namespace ArgonneWebApi.Controllers
             if (null == relations)
                 return NotFound();
             var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(relations);
+            return new OkObjectResult(result);
+        }
+        #endregion
+        #region relationship - Impression
+        /// <summary>
+        /// Get All Impressions for an ad
+        /// </summary>
+        /// <param name="adid">unique identifier for an ad</param>
+        /// <param name="pager">paging settings</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{adid}/Impressions", Name = "GetImpressionsForAd")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
+        public async Task<IActionResult> GetImpressions(string adid, [FromQuery]PagerDto pager)
+        {
+            if (string.IsNullOrEmpty(adid))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(adid, out idGuid))
+            {
+                return BadRequest("invalid ad id");
+            }
+
+            var relations = await impressionRepository.FindBy(item => item.DisplayedAdId == idGuid,
+                Pager.FromPagerDto(pager), item => item.FacesForImpressions);
+
+            if (null == relations)
+                return new StatusCodeResult(500);
+
+            var result = mapper.Map<IEnumerable<Impressions>, IEnumerable<ImpressionDto>>(relations);
+            return new OkObjectResult(result);
+        }
+
+        /// <summary>
+        /// Get All Impressions for a campaign
+        /// </summary>
+        /// <param name="adid">unique identifier for a campaign</param>
+        /// <param name="after">timestamp for start of series</param>
+        /// <param name="pager">paging settings</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{adid}/Impressions/After", Name = "GetImpressionsForAdAfter")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
+        public async Task<IActionResult> GetImpressionsAfter(string adid, [FromQuery]PagerDto pager, [FromQuery]DateTime? after = null)
+        {
+            if (string.IsNullOrEmpty(adid))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(adid, out idGuid))
+            {
+                return BadRequest("invalid ad id");
+            }
+
+            Expression<Func<Impressions, bool>> predicate = item => item.DisplayedAdId == idGuid;
+            if (null != after)
+            {
+                predicate = item => item.DisplayedAdId == idGuid && item.InsertTimestamp > after;
+            }
+
+            var sorter = new Order<Impressions, DateTime>
+            {
+                OrderByDirection = Order<Impressions, DateTime>.Direction.Descending,
+                KeySelector = item => item.InsertTimestamp
+            };
+
+            var relations = await impressionRepository.FindByOrdered(predicate,
+                Pager.FromPagerDto(pager), sorter, item => item.FacesForImpressions);
+
+            if (null == relations)
+                return new StatusCodeResult(500);
+
+            var result = mapper.Map<IEnumerable<Impressions>, IEnumerable<ImpressionDto>>(relations);
             return new OkObjectResult(result);
         }
         #endregion

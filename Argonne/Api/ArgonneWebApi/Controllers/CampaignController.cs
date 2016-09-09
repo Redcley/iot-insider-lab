@@ -488,7 +488,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [Route("api/admin/[controller]/{campaignid}/Impressions", Name = "GetImpressions")]
+        [Route("api/admin/[controller]/{campaignid}/Impressions", Name = "GetImpressionsForCampaign")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
         public async Task<IActionResult> GetImpressions(string campaignid, [FromQuery]PagerDto pager)
@@ -524,7 +524,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [Route("api/admin/[controller]/{campaignid}/Impressions/After", Name = "GetImpressionsAfter")]
+        [Route("api/admin/[controller]/{campaignid}/Impressions/After", Name = "GetImpressionsForCampaignAfter")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
         public async Task<IActionResult> GetImpressionsAfter(string campaignid, [FromQuery]PagerDto pager, [FromQuery]DateTime? after = null)
