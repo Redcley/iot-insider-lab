@@ -20,33 +20,29 @@ namespace ArgonneWebApi.Repositories
             _context = context;
         }
         #endregion
-        public async Task<IEnumerable<T>> GetAll()
+
+        public async Task<IEnumerable<T>> GetAll(Pager pager)
         {
-            return await _context.Set<T>().ToListAsync<T>().ConfigureAwait(false);
+            return await _context.Set<T>().Page(pager).ToListAsync<T>().ConfigureAwait(false);
         }
 
         public async Task<int> Count()
         {
             return await _context.Set<T>().CountAsync().ConfigureAwait(false);
         }
-        public async Task<IEnumerable<T>> AllIncluding(params Expression<Func<T, object>>[] includeProperties)
+        public async Task<IEnumerable<T>> AllIncluding(Pager pager, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = _context.Set<T>();
             foreach (var includeProperty in includeProperties)
             {
                 query = query.Include(includeProperty);
             }
-            return await query.ToListAsync().ConfigureAwait(false);
+            return await query.Page(pager).ToListAsync().ConfigureAwait(false);
         }
-
-        //public T GetSingle(int id)
-        //{
-        //    return _context.Set<T>().FirstOrDefault(x => x.Id == id);
-        //}
 
         public async Task<T> GetSingle(Expression<Func<T, bool>> predicate)
         {
-            return await _context.Set<T>().FirstOrDefaultAsync(predicate).ConfigureAwait(false);
+            return await _context.Set<T>().Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
         public async Task<T> GetSingle(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
@@ -60,12 +56,18 @@ namespace ArgonneWebApi.Repositories
             return await query.Where(predicate).FirstOrDefaultAsync().ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate)
+        public async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate, Pager pager)
         {
-            return await _context.Set<T>().Where(predicate).ToListAsync().ConfigureAwait(false);
+            return await _context.Set<T>().Where(predicate).Page(pager).ToListAsync().ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
+
+//        public async Task<IEnumerable<T>> FindByOrdered<TKey>(Expression<Func<T, bool>> predicate, Pager pager, Order<T, TKey> order)
+//        {
+//            return await _context.Set<T>().Where(predicate).Page(pager).Sort(order).ToListAsync().ConfigureAwait(false);
+//        }
+
+        public async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate, Pager pager, params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<T> query = _context.Set<T>();
             foreach (var includeProperty in includeProperties)
@@ -73,7 +75,18 @@ namespace ArgonneWebApi.Repositories
                 query = query.Include(includeProperty);
             }
 
-            return await query.Where(predicate).ToListAsync().ConfigureAwait(false);
+            return await query.Where(predicate).Page(pager).ToListAsync().ConfigureAwait(false);
+        }
+
+        public async Task<IEnumerable<T>> FindByOrdered<TKey>(Expression<Func<T, bool>> predicate, Pager pager, Order<T, TKey> order, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.Where(predicate).Page(pager).Sort(order).ToListAsync().ConfigureAwait(false);
         }
 
         public async Task Add(T entity)

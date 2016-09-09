@@ -20,6 +20,7 @@ namespace ArgonneWebApi.Controllers
         private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
         private IMapper mapper;
 
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -36,13 +37,14 @@ namespace ArgonneWebApi.Controllers
         /// <summary>
         /// Get all Ads
         /// </summary>
+        /// <param name="pager">paging settings</param>
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(IEnumerable<AdDto>), 200)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]PagerDto pager)
         {
-            return new OkObjectResult(mapper.Map<IEnumerable<Ads>, IEnumerable<AdDto>>(await repository.GetAll().ConfigureAwait(false)));
+            return new OkObjectResult(mapper.Map<IEnumerable<Ads>, IEnumerable<AdDto>>(await repository.GetAll(Pager.FromPagerDto(pager)).ConfigureAwait(false)));
         }
 
         /// <summary>
@@ -191,6 +193,7 @@ namespace ArgonneWebApi.Controllers
         /// Get all campaigns an ad is in
         /// </summary>
         /// <param name="id">unique identifier for an ad</param>
+        /// <param name="pager"></param>
         /// <remarks>
         /// The relationship between Ad and Campaign is read-only from the Ad API.
         /// For create/update/delete operations see the Campaign API.
@@ -201,7 +204,7 @@ namespace ArgonneWebApi.Controllers
         [Route("api/admin/[controller]/{id}/campaigns")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<AdInCampaignDto>), 200)]
-        public async Task<IActionResult> GetCampaigns(string id)
+        public async Task<IActionResult> GetCampaigns(string id, [FromQuery]PagerDto pager)
         {
             if (string.IsNullOrEmpty(id))
                 return BadRequest();
@@ -213,7 +216,7 @@ namespace ArgonneWebApi.Controllers
             }
 
 
-            var relations = await adForCampaignRepository.FindBy(item => item.AdId == idGuid);
+            var relations = await adForCampaignRepository.FindBy(item => item.AdId == idGuid, Pager.FromPagerDto(pager));
             if (null == relations)
                 return NotFound();
             var result = mapper.Map<IEnumerable<AdsForCampaigns>, IEnumerable<AdInCampaignDto>>(relations);

@@ -18,6 +18,7 @@ namespace ArgonneWebApi.Controllers
     {
         private IEntityRepository<Devices> deviceRepository;
         private IMapper mapper;
+        private const int DefaultPageSize = 100;
 
         /// <summary>
         /// Constructor
@@ -33,13 +34,14 @@ namespace ArgonneWebApi.Controllers
         /// <summary>
         /// Get all devices
         /// </summary>
+        /// <param name="pager">paging settings</param>
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("api/admin/[controller]")]
         [ProducesResponseType(typeof(IEnumerable<DeviceDto>), 200)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]PagerDto pager)
         {
-            return new OkObjectResult(mapper.Map<IEnumerable<Devices>, IEnumerable<DeviceDto>>(await deviceRepository.GetAll().ConfigureAwait(false)));
+            return new OkObjectResult(mapper.Map<IEnumerable<Devices>, IEnumerable<DeviceDto>>(await deviceRepository.GetAll(Pager.FromPagerDto(pager)).ConfigureAwait(false)));
         }
 
         /// <summary>

@@ -54,5 +54,17 @@ namespace ArgonneWebApi.Models.Dto
         /// </summary>
 
         public string PostalCode { get; set; }
+        /// <summary>
+        /// Operating hours start time for the device
+        /// </summary>
+        public DateTime? ActiveFrom { get; set; }
+        /// <summary>
+        /// Operating hours end time for the device
+        /// </summary>
+        public DateTime? ActiveTo { get; set; }
+        /// <summary>
+        /// Timezone of device
+        /// </summary>
+        public string Timezone { get; set; }
     }
 }
