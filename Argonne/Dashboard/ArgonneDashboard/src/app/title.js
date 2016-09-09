@@ -1,3 +1,7 @@
-export const title = {
-  templateUrl: 'src/app/title.html'
-};
+import {Component} from '@angular/core';
+
+@Component({
+  selector: 'fountain-title',
+  template: require('./title.html')
+})
+export class TitleComponent {}

@@ -11,15 +11,13 @@
 const path = require('path');
 const gutil = require('gulp-util');
 
-exports.ngModule = 'app';
-
 /**
  *  The main paths of your project handle these with care
  */
 exports.paths = {
   src: 'src',
-  dist: 'dist',
-  tmp: '.tmp',
+  dist: 'wwwroot',
+  tmp: 'wwwroot',
   e2e: 'e2e',
   tasks: 'gulp_tasks'
 };

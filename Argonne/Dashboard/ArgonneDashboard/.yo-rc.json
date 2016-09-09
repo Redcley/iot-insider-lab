@@ -1,21 +1,21 @@
 {
-  "generator-fountain-angular1": {
+  "generator-fountain-angular2": {
     "version": "0.7.2",
     "props": {
-      "framework": "angular1",
-      "modules": "systemjs",
+      "framework": "angular2",
+      "modules": "webpack",
       "js": "babel",
       "ci": [],
       "css": "scss",
-      "resolved": "c:\\nvm\\v6.4.0\\node_modules\\generator-fountain-webapp\\node_modules\\generator-fountain-angular1\\generators\\app\\index.js",
-      "namespace": "fountain-angular1",
+      "resolved": "c:\\nvm\\v6.5.0\\node_modules\\generator-fountain-webapp\\node_modules\\generator-fountain-angular2\\generators\\app\\index.js",
+      "namespace": "fountain-angular2",
       "argv": {
         "remain": [],
         "cooked": [],
         "original": []
       },
       "sample": "techs",
-      "router": "uirouter"
+      "router": "router"
     }
   }
 }

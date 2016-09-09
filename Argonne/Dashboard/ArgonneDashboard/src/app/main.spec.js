@@ -1,21 +1,49 @@
-import angular from 'angular';
-import 'angular-mocks';
-import {main} from './main.js';
+import 'zone.js/dist/zone';
+import 'zone.js/dist/async-test';
+import {Component} from '@angular/core';
+import {MainComponent} from './main';
+import {TechsComponent} from './techs/techs';
+import {FooterComponent} from './footer';
+import {HeaderComponent} from './header';
+import {TitleComponent} from './title';
+import {inject, async, TestComponentBuilder} from '@angular/core/testing';
+
+@Component({
+  selector: 'fountain-techs',
+  template: ''
+})
+class MockTechsComponent {}
+@Component({
+  selector: 'fountain-ooter',
+  template: ''
+})
+class MockFooterComponent {}
+@Component({
+  selector: 'fountain-header',
+  template: ''
+})
+class MockHeaderComponent {}
+@Component({
+  selector: 'fountain-title',
+  template: ''
+})
+class MockTitleComponent {}
 
 describe('main component', () => {
-  beforeEach(() => {
-    angular
-      .module('app', ['src/app/main.html'])
-      .component('app', main);
-    angular.mock.module('app');
-  });
-
-  it('should render the header, title, techs and footer', angular.mock.inject(($rootScope, $compile) => {
-    const element = $compile('<app>Loading...</app>')($rootScope);
-    $rootScope.$digest();
-    expect(element.find('fountain-header').length).toEqual(1);
-    expect(element.find('fountain-title').length).toEqual(1);
-    expect(element.find('fountain-techs').length).toEqual(1);
-    expect(element.find('fountain-footer').length).toEqual(1);
-  }));
+  it('should render the header, title, techs and footer', async(inject([TestComponentBuilder], tcb => {
+    tcb
+      .overrideDirective(MainComponent, TechsComponent, MockTechsComponent)
+      .overrideDirective(MainComponent, FooterComponent, MockFooterComponent)
+      .overrideDirective(MainComponent, HeaderComponent, MockHeaderComponent)
+      .overrideDirective(MainComponent, TitleComponent, MockTitleComponent)
+      .createAsync(MainComponent)
+      .then(fixture => {
+        fixture.detectChanges();
+        const main = fixture.nativeElement;
+        expect(main.querySelector('fountain-header')).toBeDefined();
+        expect(main.querySelector('fountain-title')).toBeDefined();
+        expect(main.querySelector('fountain-techs')).toBeDefined();
+        expect(main.querySelector('fountain-footer')).toBeDefined();
+      });
+  })));
 });

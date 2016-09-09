@@ -20,7 +20,8 @@ namespace ArgonneDashboard.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return Redirect("/index.html");
+            //return View();
         }
 
         public IActionResult About()

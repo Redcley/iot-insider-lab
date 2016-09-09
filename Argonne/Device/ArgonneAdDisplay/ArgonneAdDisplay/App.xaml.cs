@@ -1,35 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Threading;
+using ArgonneAdDisplay.Views;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
+using System.Diagnostics;
+using ServiceHelpers;
+using IntelligentKioskSample;
 
 namespace ArgonneAdDisplay
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
-    sealed partial class App : Application
+    sealed partial class App
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
         public App()
         {
-            this.InitializeComponent();
-            this.Suspending += OnSuspending;
+            InitializeComponent();
+            Suspending += OnSuspending;
         }
 
         /// <summary>
@@ -39,18 +30,41 @@ namespace ArgonneAdDisplay
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
-                this.DebugSettings.EnableFrameRateCounter = true;
+                DebugSettings.EnableFrameRateCounter = true;
             }
 #endif
+
             Frame rootFrame = Window.Current.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
             if (rootFrame == null)
             {
+                // propogate settings to the core library
+                SettingsHelper.Instance.SettingsChanged += (target, args) =>
+                {
+                    EmotionServiceHelper.ApiKey = SettingsHelper.Instance.EmotionApiKey;
+                    FaceServiceHelper.ApiKey = SettingsHelper.Instance.FaceApiKey;
+                    BingSearchHelper.SearchApiKey = SettingsHelper.Instance.BingSearchApiKey;
+                    BingSearchHelper.AutoSuggestionApiKey = SettingsHelper.Instance.BingAutoSuggestionApiKey;
+                    TextAnalyticsHelper.ApiKey = SettingsHelper.Instance.TextAnalyticsKey;
+                    ImageAnalyzer.PeopleGroupsUserDataFilter = SettingsHelper.Instance.WorkspaceKey;
+                    FaceListManager.FaceListsUserDataFilter = SettingsHelper.Instance.WorkspaceKey;
+                    CoreUtil.MinDetectableFaceCoveragePercentage = SettingsHelper.Instance.MinDetectableFaceCoveragePercentage;
+                };
+
+                // callbacks for core library
+                FaceServiceHelper.Throttled = () => ShowThrottlingToast("Face");
+                EmotionServiceHelper.Throttled = () => ShowThrottlingToast("Emotion");
+                ErrorTrackingHelper.TrackException = (ex, msg) => LogException(ex, msg);
+                ErrorTrackingHelper.GenericApiCallExceptionHandler = Util.GenericApiCallExceptionHandler;
+
+                SettingsHelper.Instance.Initialize();
+
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
 
@@ -65,18 +79,26 @@ namespace ArgonneAdDisplay
                 Window.Current.Content = rootFrame;
             }
 
-            if (e.PrelaunchActivated == false)
+            if (rootFrame.Content == null)
             {
-                if (rootFrame.Content == null)
-                {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
-                }
-                // Ensure the current window is active
-                Window.Current.Activate();
+                // When the navigation stack isn't restored navigate to the first page,
+                // configuring the new page by passing required information as a navigation
+                // parameter
+                //rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                rootFrame.Navigate(typeof(AdImpressionView), e.Arguments);
             }
+            // Ensure the current window is active
+            Window.Current.Activate();
+            DispatcherHelper.Initialize();
+
+            Messenger.Default.Register<NotificationMessageAction<string>>(
+                this,
+                HandleNotificationMessage);
+        }
+
+        private void HandleNotificationMessage(NotificationMessageAction<string> message)
+        {
+            message.Execute("Success (from App.xaml.cs)!");
         }
 
         /// <summary>
@@ -101,6 +123,23 @@ namespace ArgonneAdDisplay
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
+        }
+
+        private static void ShowThrottlingToast(string api)
+        {
+            ToastTemplateType toastTemplate = ToastTemplateType.ToastText02;
+            XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(toastTemplate);
+            XmlNodeList toastTextElements = toastXml.GetElementsByTagName("text");
+            toastTextElements[0].AppendChild(toastXml.CreateTextNode("Intelligent Kiosk"));
+            toastTextElements[1].AppendChild(toastXml.CreateTextNode("The " + api + " API is throttling your requests. Consider upgrading to a Premium Key."));
+
+            ToastNotification toast = new ToastNotification(toastXml);
+            ToastNotificationManager.CreateToastNotifier().Show(toast);
+        }
+
+        private static void LogException(Exception ex, string message)
+        {
+            Debug.WriteLine("Error detected! Exception: \"{0}\", More info: \"{1}\".", ex.Message, message);
         }
     }
 }

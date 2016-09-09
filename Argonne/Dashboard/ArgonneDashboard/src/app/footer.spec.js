@@ -1,19 +1,15 @@
-import angular from 'angular';
-import 'angular-mocks';
-import {footer} from './footer.js';
+import 'zone.js/dist/zone';
+import 'zone.js/dist/async-test';
+import {FooterComponent} from './footer';
+import {inject, async, TestComponentBuilder} from '@angular/core/testing';
 
 describe('footer component', () => {
-  beforeEach(() => {
-    angular
-      .module('fountainFooter', ['src/app/footer.html'])
-      .component('fountainFooter', footer);
-    angular.mock.module('fountainFooter');
-  });
-
-  it('should render \'FountainJS team\'', angular.mock.inject(($rootScope, $compile) => {
-    const element = $compile('<fountain-footer></fountain-footer>')($rootScope);
-    $rootScope.$digest();
-    const footer = element.find('a');
-    expect(footer.html().trim()).toEqual('FountainJS team');
-  }));
+  it('should render \'FountainJS team\'', async(inject([TestComponentBuilder], tcb => {
+    tcb.createAsync(FooterComponent)
+      .then(fixture => {
+        fixture.detectChanges();
+        const footer = fixture.nativeElement;
+        expect(footer.querySelector('a').textContent.trim()).toBe('FountainJS team');
+      });
+  })));
 });

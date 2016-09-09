@@ -1,13 +1,18 @@
-export default routesConfig;
+import {Component} from '@angular/core';
+import {ROUTER_DIRECTIVES} from '@angular/router';
+import {MainComponent} from './app/main';
 
-/** @ngInject */
-function routesConfig($stateProvider, $urlRouterProvider, $locationProvider) {
-  $locationProvider.html5Mode(true).hashPrefix('!');
-  $urlRouterProvider.otherwise('/');
-
-  $stateProvider
-    .state('app', {
-      url: '/',
-      component: 'app'
-    });
+@Component({
+  selector: 'fountain-root',
+  template: '<router-outlet></router-outlet>',
+  directives: [ROUTER_DIRECTIVES]
+})
+export class RootComponent {
 }
+
+export const routes = [
+  {
+    path: '',
+    component: MainComponent
+  }
+];
