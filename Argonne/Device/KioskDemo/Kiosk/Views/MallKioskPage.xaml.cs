@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using Microsoft.ProjectOxford.Common;
 using IntelligentKioskSample.MallKioskPageConfig;
 using IntelligentKioskSample.Controls;
+using Windows.Data.Json;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -29,7 +30,18 @@ namespace IntelligentKioskSample.Views
         private MallKioskDemoSettings kioskSettings;
         private Recommendation currentRecommendation;
         public ObservableCollection<EmotionExpressionCapture> EmotionFaces { get; set; } = new ObservableCollection<EmotionExpressionCapture>();
+        private IoTHubHelper iothub;
 
+        private String adurl = null;
+
+
+        public void HandleCommandMessage(JsonObject message)
+        {
+            // Process the JSON and update the view URI
+            if ( /*JSON has new URI object*/ ) {
+                this.webView.NavigateToString(adurl);
+            }
+        }
         public MallKioskPage()
         {
             this.InitializeComponent();

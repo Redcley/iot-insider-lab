@@ -156,6 +156,12 @@ namespace IntelligentKioskSample
                 this.CameraName = value.ToString();
             }
 
+            value = ApplicationData.Current.RoamingSettings.Values["IoTConnectionString"];
+            if (value != null)
+            {
+                this.IoTConnectionString = value.ToString();
+            }
+
             value = ApplicationData.Current.RoamingSettings.Values["MinDetectableFaceCoveragePercentage"];
             if (value != null)
             {
@@ -289,6 +295,17 @@ namespace IntelligentKioskSample
             {
                 this.cameraName = value;
                 this.OnSettingChanged("CameraName", value);
+            }
+        }
+
+        private string iotConnectionString = string.Empty;
+        public string IoTConnectionString
+        {
+            get { return iotConnectionString;  }
+            set
+            {
+                this.iotConnectionString = value;
+                this.OnSettingChanged("IoTConnectionString", value);
             }
         }
 
