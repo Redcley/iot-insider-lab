@@ -13,9 +13,11 @@ namespace ArgonneWebApi.Models.Mapping
             CreateMap<Devices, DeviceDto>();
             CreateMap<Campaigns, CampaignDto>();
             CreateMap<Ads, AdDto>();
-            CreateMap<Impressions, ImpressionDto>();
+            
             CreateMap<FacesForImpressions, FaceForImpressionDto>();
             CreateMap<AdsForCampaigns, AdInCampaignDto>();
+
+            CreateMap<Impressions, ImpressionDto>().ForMember(dest => dest.Faces, opt => opt.MapFrom(src => src.FacesForImpressions));
         }
     }
 }

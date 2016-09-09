@@ -19,6 +19,7 @@ namespace ArgonneWebApi.Controllers
         private IEntityRepository<Campaigns> repository;
         private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
         private IEntityRepository<Devices> deviceRepository;
+        private IEntityRepository<Impressions> impressionRepository;
         private IMapper mapper;
 
         /// <summary>
@@ -30,14 +31,16 @@ namespace ArgonneWebApi.Controllers
         public CampaignController(IEntityRepository<Campaigns> repo, 
             IEntityRepository<AdsForCampaigns> adCampRepo,
             IEntityRepository<Devices> devRepo,
+            IEntityRepository<Impressions> impRepo,
             IMapper entityMapper)
         {
             repository = repo;
             mapper = entityMapper;
             adForCampaignRepository = adCampRepo;
             deviceRepository = devRepo;
+            impressionRepository = impRepo;
         }
-
+        #region Campaign CRUD
         /// <summary>
         /// Get all campaigns
         /// </summary>
@@ -179,7 +182,7 @@ namespace ArgonneWebApi.Controllers
 
             return Ok();
         }
-
+        #endregion
         #region relationship - Ad
         /// <summary>
         /// Get all ads for a campaign
@@ -466,6 +469,40 @@ namespace ArgonneWebApi.Controllers
             return Ok();
         }
         #endregion
+        #region relationship - Impression
+        /// <summary>
+        /// Get all Devices for a campaign
+        /// </summary>
+        /// <param name="campaignid">unique identifier for a campaign</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{campaignid}/Impressions", Name = "GetImpressions")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
+        public async Task<IActionResult> GetImpressions(string campaignid)
+        {
+            if (string.IsNullOrEmpty(campaignid))
+                return BadRequest();
 
+            Guid idGuid;
+            if (!Guid.TryParse(campaignid, out idGuid))
+            {
+                return BadRequest("invalid campaign id");
+            }
+
+
+            var relations = await impressionRepository.FindBy(item => item.CampaignId == idGuid, item => item.FacesForImpressions);
+            if (null == relations)
+                return new StatusCodeResult(500);
+
+            var result = mapper.Map<IEnumerable<Impressions>, IEnumerable<ImpressionDto>>(relations);
+            return new OkObjectResult(result);
+        }
+
+        #endregion
     }
 }

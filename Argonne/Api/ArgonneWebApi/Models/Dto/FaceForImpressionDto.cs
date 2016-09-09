@@ -15,5 +15,6 @@
         public decimal? ScoreNeutral { get; set; }
         public decimal? ScoreSadness { get; set; }
         public decimal? ScoreSurprise { get; set; }
+
     }
 }

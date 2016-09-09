@@ -14,6 +14,7 @@ namespace ArgonneWebApi.Repositories
         Task<T> GetSingle(Expression<Func<T, bool>> predicate);
         Task<T> GetSingle(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
         Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
         Task Add(T entity);
         Task Update(T entity);
         Task Delete(T entity);

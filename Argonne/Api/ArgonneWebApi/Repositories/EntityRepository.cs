@@ -65,6 +65,17 @@ namespace ArgonneWebApi.Repositories
             return await _context.Set<T>().Where(predicate).ToListAsync().ConfigureAwait(false);
         }
 
+        public async Task<IEnumerable<T>> FindBy(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return await query.Where(predicate).ToListAsync().ConfigureAwait(false);
+        }
+
         public async Task Add(T entity)
         {
             EntityEntry dbEntityEntry = _context.Entry<T>(entity);
