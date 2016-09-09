@@ -93,26 +93,6 @@ namespace ArgonneWebApi.Repositories
                     .HasMaxLength(100);
             });
 
-//            modelBuilder.Entity<CampaignsForDevices>(entity =>
-//            {
-//                entity.HasKey(e => new { e.DeviceId, e.CampaignId, e.Timestamp })
-//                    .HasName("PK_CampaignsForDevices");
-//
-//                entity.Property(e => e.Timestamp)
-//                    .HasColumnType("datetime")
-//                    .HasDefaultValueSql("getdate()");
-//
-//                entity.HasOne(d => d.Campaign)
-//                    .WithMany(p => p.CampaignsForDevices)
-//                    .HasForeignKey(d => d.CampaignId)
-//                    .HasConstraintName("FK_CampaignsForDevices_Campaigns");
-//
-//                entity.HasOne(d => d.Device)
-//                    .WithMany(p => p.CampaignsForDevices)
-//                    .HasForeignKey(d => d.DeviceId)
-//                    .HasConstraintName("FK_CampaignsForDevices_Devices");
-//            });
-
             modelBuilder.Entity<Devices>(entity =>
             {
                 entity.HasKey(e => e.DeviceId)
@@ -120,7 +100,7 @@ namespace ArgonneWebApi.Repositories
 
                 entity.HasOne(d => d.CurrentCampaign)
                     .WithMany(p => p.Devices)
-                    .HasForeignKey(d => d.CampaignId)
+                    .HasForeignKey(d => d.AssignedCampaignId)
                     .HasConstraintName("FK_Devices_Campaigns");
 
                 entity.HasIndex(e => e.PostalCode)

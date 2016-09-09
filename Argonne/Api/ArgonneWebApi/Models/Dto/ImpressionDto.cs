@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace ArgonneWebApi.Models.Dto
@@ -39,5 +41,9 @@ namespace ArgonneWebApi.Models.Dto
         /// Timestamp from Argonne system when impression is recorded
         /// </summary>
         public DateTime InsertTimestamp { get; set; }
+        /// <summary>
+        /// Faces detected in an impression
+        /// </summary>
+        public IEnumerable<FaceForImpressionDto> Faces { get; set; }
     }
 }

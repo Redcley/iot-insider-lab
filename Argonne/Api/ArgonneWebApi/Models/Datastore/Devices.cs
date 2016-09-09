@@ -15,7 +15,7 @@ namespace ArgonneWebApi.Models.Datastore
         }
 
         public Guid DeviceId { get; set; }
-        public Guid? CampaignId { get; set; }
+        public Guid? AssignedCampaignId { get; set; }
         public string PrimaryKey { get; set; }
         public string DeviceName { get; set; }
         public string Address { get; set; }

@@ -46,9 +46,11 @@ namespace ArgonneWebApi.Models.Mapping
                         dst.AdName = string.Empty;
                 });
 
-            CreateMap<ImpressionDto, Impressions>();
+            
             CreateMap<AdInCampaignDto, AdsForCampaigns>();
             CreateMap<FaceForImpressionDto, FacesForImpressions>();
+
+            CreateMap<ImpressionDto, Impressions>().ForMember(dest => dest.FacesForImpressions, opt => opt.MapFrom(src => src.Faces));
         }
     }
 }
