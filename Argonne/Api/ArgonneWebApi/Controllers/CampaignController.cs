@@ -374,7 +374,7 @@ namespace ArgonneWebApi.Controllers
             }
 
 
-            var relations = await deviceRepository.FindBy(item => item.CampaignId == idGuid);
+            var relations = await deviceRepository.FindBy(item => item.AssignedCampaignId == idGuid);
             if (null == relations)
                 return new StatusCodeResult(500);
 
@@ -422,7 +422,7 @@ namespace ArgonneWebApi.Controllers
                 return NotFound("campaign not found");
             }
 
-            device.CampaignId = campaign.CampaignId;
+            device.AssignedCampaignId = campaign.CampaignId;
 
             await deviceRepository.Update(device).ConfigureAwait(false);
 
@@ -461,7 +461,7 @@ namespace ArgonneWebApi.Controllers
                 return NotFound();//"device not found");
             }
 
-            device.CampaignId = null;
+            device.AssignedCampaignId = null;
             await deviceRepository.Update(device).ConfigureAwait(false);
             return Ok();
         }
