@@ -82,7 +82,7 @@ namespace ArgonneAdDisplay.Views
         }
 
         private void StartProcessingLoop()
-        {            
+        {
             this.isProcessingLoopInProgress = true;
 
             if (this.processingLoopTask == null || this.processingLoopTask.Status != TaskStatus.Running)
@@ -96,7 +96,7 @@ namespace ArgonneAdDisplay.Views
         {
             var campaigns = await apiClient.ApiAdminCampaignGetAsync();
 
-            if(campaigns == null || campaigns.Count == 0)
+            if (campaigns == null || campaigns.Count == 0)
             {
                 // TODO: Error handling here when can't find campaign
                 return;
@@ -108,11 +108,13 @@ namespace ArgonneAdDisplay.Views
             // now get the adds            
             this.currentCampaignAds = await apiClient.ApiAdminCampaignByCampaignidAdsGetAsync(this.currentCampaign.CampaignId);
 
-            if(currentCampaignAds == null || currentCampaignAds.Count == 0)
+            if (currentCampaignAds == null || currentCampaignAds.Count == 0)
             {
                 // TODO: Error handling here when can't find any ads
                 return;
             }
+
+            // now get the ads in the campaign            
 
             while (this.isProcessingLoopInProgress)
             {
@@ -185,7 +187,7 @@ namespace ArgonneAdDisplay.Views
                 impressionSet.CampaignId = currentCampaign.CampaignId;
                 impressionSet.DeviceId = DEBUG_DEVICE_ID;
                 impressionSet.DeviceTimestamp = DateTime.Now;
-                impressionSet.DisplayedAdId = currentCampaignAds[0].AdId;                
+                impressionSet.DisplayedAdId = currentCampaignAds[0].AdId;
                 //impressionSet.ImpressionId = ;
                 impressionSet.MessageId = Guid.NewGuid().ToString();
 
@@ -233,7 +235,15 @@ namespace ArgonneAdDisplay.Views
                     }
                 }
 
-                var jsonSerializerSettings = new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver(), NullValueHandling = NullValueHandling.Ignore };
+                var jsonSerializerSettings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DateFormatHandling = DateFormatHandling.IsoDateFormat,
+                    DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                    DateFormatString = "yyyy-MM-ddTHH:mm:ss.fffZ"
+
+                };
 
                 var messageContent = Newtonsoft.Json.JsonConvert.SerializeObject(impressionSet, jsonSerializerSettings);
 

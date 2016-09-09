@@ -11,6 +11,15 @@ namespace ArgonneAdDisplay.Model
 {
     public partial class ImpressionResultset : ImpressionDto
     {
+        public string Timestamp
+        {
+            get
+            {
+                //return this.DeviceTimestamp.Value.UtcDateTime;
+                return this.DeviceTimestamp != null ? this.DeviceTimestamp.Value.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ") : string.Empty;
+            }
+        }
+
         public IList<ImpressionFace> Faces { get; set; }
 
         public string MessageType { get; set; }
