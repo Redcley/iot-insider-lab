@@ -139,6 +139,15 @@ namespace ArgonneWebApi.Repositories
                 entity.Property(e => e.StateProvince)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(e => e.ActiveFrom)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.ActiveTo)
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Timezone)
+                    .HasMaxLength(3);
             });
 
             modelBuilder.Entity<ErrorLog>(entity =>

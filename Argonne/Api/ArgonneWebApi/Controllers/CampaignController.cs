@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArgonneWebApi.Models.Datastore;
 using ArgonneWebApi.Models.Dto;
@@ -27,6 +28,8 @@ namespace ArgonneWebApi.Controllers
         /// </summary>
         /// <param name="repo"></param>
         /// <param name="adCampRepo"></param>
+        /// <param name="devRepo"></param>
+        /// <param name="impRepo"></param>
         /// <param name="entityMapper"></param>
         public CampaignController(IEntityRepository<Campaigns> repo, 
             IEntityRepository<AdsForCampaigns> adCampRepo,
@@ -44,13 +47,14 @@ namespace ArgonneWebApi.Controllers
         /// <summary>
         /// Get all campaigns
         /// </summary>
+        /// <param name="pager">paging settings</param>
         /// <response code="200">Success</response>
         [Route("api/admin/[controller]")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<CampaignDto>), 200)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]PagerDto pager)
         {
-            return new OkObjectResult(mapper.Map<IEnumerable<Campaigns>, IEnumerable<CampaignDto>>(await repository.GetAll().ConfigureAwait(false)));
+            return new OkObjectResult(mapper.Map<IEnumerable<Campaigns>, IEnumerable<CampaignDto>>(await repository.GetAll(Pager.FromPagerDto(pager)).ConfigureAwait(false)));
         }
 
         /// <summary>
@@ -151,7 +155,7 @@ namespace ArgonneWebApi.Controllers
             if (null == existingRecord)
                 return NotFound();
 
-            mapper.Map<CampaignDto, Campaigns>(updatedRecord, existingRecord);
+            mapper.Map(updatedRecord, existingRecord);
             await repository.Update(existingRecord).ConfigureAwait(false);
             return Ok();
         }
@@ -209,7 +213,7 @@ namespace ArgonneWebApi.Controllers
             }
 
 
-            var relations = await adForCampaignRepository.FindBy(item => item.CampaignId == idGuid);
+            var relations = await adForCampaignRepository.FindBy(item => item.CampaignId == idGuid, Pager.Default);
             if (null == relations)
                 return new StatusCodeResult(500);
 
@@ -316,7 +320,7 @@ namespace ArgonneWebApi.Controllers
             if (null == existingRecord)
                 return NotFound();
 
-            mapper.Map<AdInCampaignDto, AdsForCampaigns>(updatedRecord, existingRecord);
+            mapper.Map(updatedRecord, existingRecord);
             await adForCampaignRepository.Update(existingRecord).ConfigureAwait(false);
             return Ok();
         }
@@ -377,7 +381,7 @@ namespace ArgonneWebApi.Controllers
             }
 
 
-            var relations = await deviceRepository.FindBy(item => item.AssignedCampaignId == idGuid);
+            var relations = await deviceRepository.FindBy(item => item.AssignedCampaignId == idGuid, Pager.Default);
             if (null == relations)
                 return new StatusCodeResult(500);
 
@@ -470,20 +474,24 @@ namespace ArgonneWebApi.Controllers
         }
         #endregion
         #region relationship - Impression
+
+
+
         /// <summary>
-        /// Get all Devices for a campaign
+        /// Get All Impressions for a campaign
         /// </summary>
         /// <param name="campaignid">unique identifier for a campaign</param>
+        /// <param name="pager">paging settings</param>
         /// <remarks>
         /// Id must be a valid GUID
         /// </remarks>
         /// <response code="200">Success</response>
         /// <response code="404">Not Found</response>
         /// <response code="400">Invalid Id</response>
-        [Route("api/admin/[controller]/{campaignid}/Impressions", Name = "GetImpressions")]
+        [Route("api/admin/[controller]/{campaignid}/Impressions", Name = "GetImpressionsForCampaign")]
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
-        public async Task<IActionResult> GetImpressions(string campaignid)
+        public async Task<IActionResult> GetImpressions(string campaignid, [FromQuery]PagerDto pager)
         {
             if (string.IsNullOrEmpty(campaignid))
                 return BadRequest();
@@ -494,8 +502,9 @@ namespace ArgonneWebApi.Controllers
                 return BadRequest("invalid campaign id");
             }
 
+            var relations = await impressionRepository.FindBy(item => item.CampaignId == idGuid,
+                Pager.FromPagerDto(pager), item => item.FacesForImpressions);
 
-            var relations = await impressionRepository.FindBy(item => item.CampaignId == idGuid, item => item.FacesForImpressions);
             if (null == relations)
                 return new StatusCodeResult(500);
 
@@ -503,6 +512,53 @@ namespace ArgonneWebApi.Controllers
             return new OkObjectResult(result);
         }
 
+        /// <summary>
+        /// Get All Impressions for a campaign
+        /// </summary>
+        /// <param name="campaignid">unique identifier for a campaign</param>
+        /// <param name="after">timestamp for start of series</param>
+        /// <param name="pager">paging settings</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{campaignid}/Impressions/After", Name = "GetImpressionsForCampaignAfter")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ImpressionDto>), 200)]
+        public async Task<IActionResult> GetImpressionsAfter(string campaignid, [FromQuery]PagerDto pager, [FromQuery]DateTime? after = null)
+        {
+            if (string.IsNullOrEmpty(campaignid))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(campaignid, out idGuid))
+            {
+                return BadRequest("invalid campaign id");
+            }
+
+            Expression<Func<Impressions, bool>> predicate = item => item.CampaignId == idGuid;
+            if (null != after)
+            {
+                predicate = item => item.CampaignId == idGuid && item.InsertTimestamp > after;
+            }
+
+            var sorter = new Order<Impressions, DateTime>
+            {
+                OrderByDirection = Order<Impressions, DateTime>.Direction.Descending,
+                KeySelector = item => item.InsertTimestamp
+            };
+
+            var relations = await impressionRepository.FindByOrdered(predicate,
+                Pager.FromPagerDto(pager), sorter, item => item.FacesForImpressions);
+
+            if (null == relations)
+                return new StatusCodeResult(500);
+
+            var result = mapper.Map<IEnumerable<Impressions>, IEnumerable<ImpressionDto>>(relations);
+            return new OkObjectResult(result);
+        }
         #endregion
     }
 }

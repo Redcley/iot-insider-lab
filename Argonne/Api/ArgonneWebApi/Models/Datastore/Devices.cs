@@ -24,6 +24,9 @@ namespace ArgonneWebApi.Models.Datastore
         public string City { get; set; }
         public string StateProvince { get; set; }
         public string PostalCode { get; set; }
+        public DateTime? ActiveFrom { get; set; }
+        public DateTime? ActiveTo { get; set; }
+        public string Timezone { get; set; }
 
         public virtual BiasesForDevices BiasesForDevices { get; set; }
         public virtual ICollection<Impressions> Impressions { get; set; }
