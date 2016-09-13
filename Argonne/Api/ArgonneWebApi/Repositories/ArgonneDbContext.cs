@@ -1,4 +1,5 @@
 ﻿using ArgonneWebApi.Models.Datastore;
+using ArgonneWebApi.Models.Dto;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -246,6 +247,11 @@ namespace ArgonneWebApi.Repositories
                     .WithMany(p => p.Impressions)
                     .HasForeignKey(d => d.CampaignId)
                     .HasConstraintName("FK_Impressions_Campaigns");
+            });
+
+            modelBuilder.Entity<CampaignEmotion>(entity =>
+            {
+                entity.HasKey(e => e.CampaignId);
             });
         }
 

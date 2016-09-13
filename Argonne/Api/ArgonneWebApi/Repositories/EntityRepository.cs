@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace ArgonneWebApi.Repositories
 {
-    public class EntityRepository<T> : IEntityRepository<T>
+    public class EntityRepository<T> : IEntityRepository<T>, IArgonneQueryContext
             where T : class, new()
     {
 
@@ -119,5 +120,14 @@ namespace ArgonneWebApi.Repositories
             }
             await _context.SaveChangesAsync().ConfigureAwait(false);
         }
+
+        #region sprocs direct call
+
+        public async Task<IEnumerable<TResult>> Query<TResult>(string query, params object[] parameters) 
+            where TResult:class
+        {
+            return await _context.Set<TResult>().FromSql(query, parameters).ToListAsync().ConfigureAwait(false);
+        }
+        #endregion
     }
 }

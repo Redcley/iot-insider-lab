@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ArgonneWebApi.Models.Datastore;
@@ -21,6 +22,7 @@ namespace ArgonneWebApi.Controllers
         private IEntityRepository<AdsForCampaigns> adForCampaignRepository;
         private IEntityRepository<Devices> deviceRepository;
         private IEntityRepository<Impressions> impressionRepository;
+        private IArgonneQueryContext queryContext;
         private IMapper mapper;
 
         /// <summary>
@@ -35,6 +37,7 @@ namespace ArgonneWebApi.Controllers
             IEntityRepository<AdsForCampaigns> adCampRepo,
             IEntityRepository<Devices> devRepo,
             IEntityRepository<Impressions> impRepo,
+            IArgonneQueryContext query,
             IMapper entityMapper)
         {
             repository = repo;
@@ -42,6 +45,7 @@ namespace ArgonneWebApi.Controllers
             adForCampaignRepository = adCampRepo;
             deviceRepository = devRepo;
             impressionRepository = impRepo;
+            queryContext = query;
         }
         #region Campaign CRUD
         /// <summary>
@@ -474,9 +478,6 @@ namespace ArgonneWebApi.Controllers
         }
         #endregion
         #region relationship - Impression
-
-
-
         /// <summary>
         /// Get All Impressions for a campaign
         /// </summary>
@@ -559,6 +560,54 @@ namespace ArgonneWebApi.Controllers
             var result = mapper.Map<IEnumerable<Impressions>, IEnumerable<ImpressionDto>>(relations);
             return new OkObjectResult(result);
         }
+        #endregion
+        #region relationship - Emotion
+        /// <summary>
+        /// Get the highest scoring (average) emotion for a campaign during an interval of time
+        /// </summary>
+        /// <param name="campaignid">unique identifier for a campaign</param>
+        /// <param name="pager">paging settings</param>
+        /// <param name="start">timestamp for start of series</param>
+        /// <param name="end">timestamp for end of series</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{campaignid}/emotions/strongest", Name = "GetHighestEmotionForCampaign")]
+        [HttpGet]
+        [ProducesResponseType(typeof(string), 200)]
+        public async Task<IActionResult> GetHighestScoringEmotion(string campaignid, 
+            [FromQuery]PagerDto pager,
+            [FromQuery]DateTime? start = null, 
+            [FromQuery]DateTime? end = null)
+        {
+            if (string.IsNullOrEmpty(campaignid))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(campaignid, out idGuid))
+            {
+                return BadRequest("invalid campaign id");
+            }
+
+            //if start and end are not supplied then treat as "for all time"
+            if(null == start)
+                start = DateTime.UtcNow - TimeSpan.FromDays(365*10);
+
+            if(null == end)
+                end = DateTime.UtcNow + TimeSpan.FromDays(1);
+
+            var campaignIdParam = new SqlParameter("@CampaignId", idGuid);
+            var startDateParam = new SqlParameter("@dateFrom", start);
+            var endDateParam = new SqlParameter("@dateTo", end);
+
+            var result = await queryContext.Query<CampaignEmotion>("GetHighestAverageScoresForCampaigns @CampaignId,@dateFrom,@dateTo", campaignIdParam,
+                startDateParam, endDateParam).ConfigureAwait(false);
+            return new OkObjectResult(result);
+        }
+
         #endregion
     }
 }
