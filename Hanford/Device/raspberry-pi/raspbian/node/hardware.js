@@ -1,4 +1,12 @@
 'use strict';
+
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 const i2c = require("i2c-bus");
 const util = require('util');
 const EventEmitter = require('events');
