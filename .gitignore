@@ -10,3 +10,4 @@ Argonne/Dashboard/ArgonneDashboard/wwwroot/lib/
 *.suo
 Argonne/Dashboard/ArgonneDashboard/project.fragment.lock.json
 /Argonne/Api/.vs
+/Argonne/Api/ArgonneWebApi/Properties/PublishProfiles
