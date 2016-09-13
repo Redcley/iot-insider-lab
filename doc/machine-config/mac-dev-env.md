@@ -71,7 +71,7 @@ Configuration steps, scripts and tools i use on mac machines. Feel free to skip 
   # configure git
   $ git config --global user.name "Your Name Here"
   $ git config --global user.email your_email@example.com
-  $ git config --global push.default simple
+  $ git config --global core.autocrlf true
   $ git config --global color.ui auto
   $ git config --global push.default simple
 
