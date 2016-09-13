@@ -215,8 +215,12 @@ function ResetConnection() {
 // processes messages from the IoTHub and gets them into
 // the Azure SQL database.
 iothub.on("message", function (msg) {
+
+  // all messages must have these properties
+  var valid = !!msg.messageId && !!msg.deviceId && !!msg.datestamp;
+
   // format a zulu time string for MSSQL
-  var timestamp = JSON.stringify(msg.datestamp).slice(1,-1);
+  msg.datestamp = JSON.stringify(msg.datestamp).slice(1,-1);
 
   helpers.updateStats(msg);
 
@@ -224,76 +228,38 @@ iothub.on("message", function (msg) {
 
   switch(msg.response) {
   case "environment":
-    new mssql.Request(db)
-    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-    .input("timestamp", mssql.NVarChar(50), timestamp)
-    .input("humidity", mssql.NVarChar(50), msg.humidity)
-    .input("pressure", mssql.NVarChar(50), msg.pressure)
-    .input("temperature", mssql.NVarChar(50), msg.temperature)
-    .execute("dbo.PersistEnvironment", function (err, recordsets, returnValue, rowsAffected) {
-      if (err) {
-        helpers.incSQLErrorCount();
-        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        ResetConnection();
-      } else {
-        if (returnValue) {
-          helpers.incSQLErrorCount();
-          log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        }
-      }
-    });
+    valid = valid && !!msg.humidity && !!msg.pressure && !!msg.temperature;
     break;
   case "input":
-    new mssql.Request(db)
-    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-    .input("timestamp", mssql.NVarChar(50), timestamp)
-    .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
-    .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
-    .execute("dbo.PersistInput", function (err, recordsets, returnValue, rowsAffected) {
-      if (err) {
-        helpers.incSQLErrorCount();
-        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        ResetConnection();
-      } else {
-        if (returnValue) {
-          helpers.incSQLErrorCount();
-          log.err("execute failed", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        }
-      }
-    });
+    valid = valid && !!msg.dials && !!msg.switches;
     break;
   case "status":
-    new mssql.Request(db)
-    .input("messageGUID", mssql.NVarChar(50), msg.messageId)
-    .input("deviceId", mssql.NVarChar(50), msg.deviceId)
-    .input("timestamp", mssql.NVarChar(50), timestamp)
-    .input("humidity", mssql.NVarChar(50), msg.humidity)
-    .input("pressure", mssql.NVarChar(50), msg.pressure)
-    .input("temperature", mssql.NVarChar(50), msg.temperature)
-    .input("dials", mssql.NVarChar(1000), JSON.stringify(msg.dials))
-    .input("switches", mssql.NVarChar(1000), JSON.stringify(msg.switches))
-    .input("lights", mssql.NVarChar(1000), JSON.stringify(msg.lights))
-    .input("soundPlay", mssql.NVarChar(20), msg.sound.play.toString())
-    .input("soundName", mssql.NVarChar(50), msg.sound.play.name)
-    .input("updateFrequency", mssql.NVarChar(50), msg.environmentUpdateFrequency)
-    .execute("dbo.PersistStatus", function (err, recordsets, returnValue, rowsAffected) {
-      if (err) {
-        helpers.incSQLErrorCount();
-        log.err("execute failed\n", err, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        ResetConnection();
-      } else {
-        if (returnValue) {
-          helpers.incSQLErrorCount();
-          log.err("execute failed\n", returnValue, "\nfor message\n", msg, "\nwith timestamp", timestamp);
-        }
-      }
-    });
+    valid = valid && !!msg.humidity && !!msg.pressure && !!msg.temperature &&
+      !!msg.dials && !!msg.switches && !!msg.lights && !!msg.sound.play &&
+      !!msg.sound.play.name && !!msg.environmentUpdateFrequency;
     break;
   default:
-    log.err("Unrecognized or badly formatted message\n", msg);
+    valid = false;
     break;
+  }
+
+  if (valid) {
+    new mssql.Request(db)
+      .input("message", mssql.NVarChar(mssql.MAX), JSON.stringify(msg))
+      .execute("dbo.Persist", function (err, recordsets, returnValue, rowsAffected) {
+        if (err) {
+          helpers.incSQLErrorCount();
+          log.err("execute failed\n", err, "\nfor message\n", msg);
+          ResetConnection();
+        } else {
+          if (returnValue) {
+            helpers.incSQLErrorCount();
+            log.err("execute failed\n", returnValue, "\nfor message\n", msg);
+          }
+        }
+      });
+  } else {
+    log.err("Unrecognized or badly formatted message\n", msg);
   }
 });
 
