@@ -163,6 +163,7 @@ Please install Visual Studio, Azure SDK, etc using the [steps](https://github.co
   git config --global user.name "Your Name Here"
   git config --global user.email "your_email@example.com"
   git config --global core.editor "atom --wait"
+  git config --global core.autocrlf true
   git config --global color.ui auto
   git config --global push.default simple
   git config --global alias.lga "log --graph --oneline --all --decorate"
