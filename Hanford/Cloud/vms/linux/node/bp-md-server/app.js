@@ -130,7 +130,8 @@ app.post("/create-device", function(req, res) {
 app.use('/device', device);
 
 function DemoExcitement(msg) {
-  if (msg.deviceId !== "shen-lab1" && msg.deviceId !== "shen-lab2") {
+  if (msg.deviceId !== "shen-lab1" && msg.deviceId !== "shen-lab2" &&
+    msg.deviceId !== "redmond-lab1" && msg.deviceId !== "redmond-lab2") {
     return;
   }
 
@@ -157,7 +158,11 @@ function DemoExcitement(msg) {
     }
 
     if (color) {
-      var id = (msg.deviceId === "shen-lab1") ? "shen-lab2" : "shen-lab1";
+      var id = "shen-lab1";
+      if (msg.deviceId === "shen-lab1") id = "shen-lab2";
+      if (msg.deviceId === "redmond-lab1") id = "redmond-lab2";
+      if (msg.deviceId === "redmond-lab2") id = "redmond-lab1";
+
       var power = (color === "off") ? false : true;
       var cmd = {
         request: "output",
