@@ -4,9 +4,15 @@ module.exports = function () {
   return {
     server: {
       baseDir: [
-        conf.paths.tmp,
-        conf.paths.src
-      ]
+        conf.paths.src,
+        conf.paths.tmp
+      ],
+      routes: {
+        '/jspm_packages': 'jspm_packages',
+        '/jspm.config.js': 'jspm.config.js',
+        '/jspm.browser.js': 'jspm.browser.js',
+        '/src': 'src'
+      }
     },
     open: false
   };

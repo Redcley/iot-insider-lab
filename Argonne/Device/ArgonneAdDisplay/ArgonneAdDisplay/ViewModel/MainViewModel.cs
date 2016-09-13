@@ -27,6 +27,14 @@ namespace ArgonneAdDisplay.ViewModel
         private RelayCommand _showDialogCommand;
         private string _welcomeTitle = string.Empty;
 
+        public CampaignViewModel CurrentCampaign
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<CampaignViewModel>();
+            }
+        }
+
         public string Clock
         {
             get
@@ -153,7 +161,7 @@ namespace ArgonneAdDisplay.ViewModel
             {
                 var item = await _dataService.GetData();
                 _originalTitle = item.Title;
-                WelcomeTitle = item.Title;
+                WelcomeTitle = item.Title;                
             }
             catch (Exception ex)
             {
@@ -161,5 +169,6 @@ namespace ArgonneAdDisplay.ViewModel
                 WelcomeTitle = ex.Message;
             }
         }
+        
     }
 }

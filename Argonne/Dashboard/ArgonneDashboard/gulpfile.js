@@ -1,5 +1,3 @@
-/// <binding ProjectOpened='serve' />
-
 const gulp = require('gulp');
 const HubRegistry = require('gulp-hub');
 const browserSync = require('browser-sync');
@@ -12,12 +10,10 @@ const hub = new HubRegistry([conf.path.tasks('*.js')]);
 // Tell gulp to use the tasks just loaded
 gulp.registry(hub);
 
-gulp.task('build', gulp.series(gulp.parallel('other', 'webpack:dist')));
-gulp.task('build:dev', gulp.series(gulp.parallel('other', 'webpack:dev')));
-gulp.task('serve:dev', gulp.series('webpack:watch', 'watch'));
+gulp.task('build', gulp.series('partials', gulp.parallel('systemjs', 'systemjs:html', 'styles', 'other'), 'build'));
 gulp.task('test', gulp.series('karma:single-run'));
 gulp.task('test:auto', gulp.series('karma:auto-run'));
-gulp.task('serve', gulp.series('webpack:watch', 'watch', 'browsersync'));
+gulp.task('serve', gulp.series(gulp.parallel('scripts', 'styles'), 'watch', 'browsersync'));
 gulp.task('serve:dist', gulp.series('default', 'browsersync:dist'));
 gulp.task('default', gulp.series('clean', 'build'));
 gulp.task('watch', watch);
@@ -28,6 +24,11 @@ function reloadBrowserSync(cb) {
 }
 
 function watch(done) {
-  gulp.watch(conf.path.src('app/**/*.html'), reloadBrowserSync);
+  gulp.watch(conf.path.src('**/*.html'), reloadBrowserSync);
+  gulp.watch([
+    conf.path.src('**/*.scss'),
+    conf.path.src('**/*.css')
+  ], gulp.series('styles'));
+  gulp.watch(conf.path.src('**/*.js'), gulp.series('scripts'));
   done();
 }

@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
     xmlns:ctl="using:IntelligentKioskSample.Controls"
     MinWidth="1024" MinHeight="800"
+    DataContext="{Binding Main, Source={StaticResource Locator}}"
     mc:Ignorable="d">
 
     <Grid x:Name="MainGrid" 
@@ -23,12 +24,12 @@
             <TextBlock Text="IoT Insider Lab Demo" HorizontalAlignment="Center" FontFamily="Segoe UI Light"  Style="{StaticResource SubtitleTextBlockStyle}" FontStyle="Italic"/>
         </StackPanel>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" DataContext="{Binding CurrentCampaign}">
             <ctl:CameraControl x:Name="cameraControl" Visibility="Collapsed" />
 
-            <WebView Source="https://youtu.be/YZb4htYQyS4" Name="addView"/>
+            <WebView Source="{Binding CurrentAd.Url}" Name="addView"/>
 
-            <!--<TextBlock x:Name="debugText" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
+            <TextBlock x:Name="debugText" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Grid>
 
         <!--<Grid Grid.Row="2">

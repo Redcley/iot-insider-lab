@@ -79,6 +79,8 @@ namespace ArgonneAdDisplay
                 Window.Current.Content = rootFrame;
             }
 
+            DispatcherHelper.Initialize();
+
             if (rootFrame.Content == null)
             {
                 // When the navigation stack isn't restored navigate to the first page,
@@ -89,7 +91,7 @@ namespace ArgonneAdDisplay
             }
             // Ensure the current window is active
             Window.Current.Activate();
-            DispatcherHelper.Initialize();
+            
 
             Messenger.Default.Register<NotificationMessageAction<string>>(
                 this,

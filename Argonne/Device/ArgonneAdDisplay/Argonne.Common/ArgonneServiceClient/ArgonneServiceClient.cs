@@ -40,14 +40,14 @@ namespace Argonne.Common.ArgonneService
             get { return this._credentials; }
             set { this._credentials = value; }
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the ArgonneServiceClient class.
-        /// </summary>
+        /// </summary>        
         public ArgonneServiceClient()
             : base()
         {
-            this._baseUri = new Uri("http://localhost/");
+            this._baseUri = new Uri("http://localhost:44685/");
         }
         
         /// <summary>
@@ -60,7 +60,7 @@ namespace Argonne.Common.ArgonneService
         public ArgonneServiceClient(params DelegatingHandler[] handlers)
             : base(handlers)
         {
-            this._baseUri = new Uri("http://localhost/");
+            this._baseUri = new Uri("http://localhost:44685/");
         }
         
         /// <summary>
@@ -76,7 +76,7 @@ namespace Argonne.Common.ArgonneService
         public ArgonneServiceClient(HttpClientHandler rootHandler, params DelegatingHandler[] handlers)
             : base(rootHandler, handlers)
         {
-            this._baseUri = new Uri("http://localhost/");
+            this._baseUri = new Uri("http://localhost:44685/");
         }
         
         /// <summary>

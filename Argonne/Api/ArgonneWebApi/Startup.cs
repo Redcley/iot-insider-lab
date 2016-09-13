@@ -86,7 +86,24 @@ namespace ArgonneWebApi
             AutoMapperConfiguration.Configure();
 
             // Enable Cors
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                //options.AddPolicy("DefaultPolicy", builder => builder.WithHeaders("Access-Control-Allow-Origin"));
+                //options.DefaultPolicyName = "DefaultPolicy";
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin();
+                    });
+
+                options.AddPolicy("AllowAllMethods",
+                    builder =>
+                    {
+                        builder.WithOrigins("*")
+                               .AllowAnyMethod();
+                    });
+            });
+
             // Add framework services.
             services.AddMvc().AddJsonOptions(a => a.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver());
         }

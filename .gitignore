@@ -10,3 +10,5 @@ Argonne/Dashboard/ArgonneDashboard/wwwroot/lib/
 *.suo
 Argonne/Dashboard/ArgonneDashboard/project.fragment.lock.json
 /Argonne/Api/.vs
+Argonne/Dashboard/ArgonneDashboard/jspm_packages/npm/
+Argonne/Dashboard/ArgonneDashboard/jspm_packages/github/

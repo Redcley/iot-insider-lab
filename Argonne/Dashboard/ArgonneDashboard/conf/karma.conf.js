@@ -10,35 +10,34 @@ module.exports = function (config) {
       outputDir: 'test-reports'
     },
     browsers: [
-      'Chrome'
+      'PhantomJS'
     ],
     frameworks: [
-      'jasmine'
-    ],
-    files: [
-      'node_modules/es6-shim/es6-shim.js',
-      conf.path.src('index.spec.js')
+      'jasmine',
+      'jspm'
     ],
     preprocessors: {
-      [conf.path.src('index.spec.js')]: [
-        'webpack'
+      [conf.path.src('**/*.html')]: [
+        'ng-html2js'
       ]
     },
-    reporters: ['progress', 'coverage'],
-    coverageReporter: {
-      type: 'html',
-      dir: 'coverage/'
-    },
-    webpack: require('./webpack-test.conf'),
-    webpackMiddleware: {
-      noInfo: true
+    ngHtml2JsPreprocessor: {},
+    jspm: {
+      loadFiles: [
+        conf.path.src('app/**/*.js'),
+        conf.path.src('**/*.html')
+      ],
+      config: 'jspm.config.js',
+      browser: 'jspm.test.js'
     },
     plugins: [
       require('karma-jasmine'),
       require('karma-junit-reporter'),
       require('karma-coverage'),
-      require('karma-chrome-launcher'),
-      require('karma-webpack')
+      require('karma-phantomjs-launcher'),
+      require('karma-phantomjs-shim'),
+      require('karma-ng-html2js-preprocessor'),
+      require('karma-jspm')
     ]
   };
 

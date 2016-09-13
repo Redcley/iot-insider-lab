@@ -29,6 +29,8 @@ using Microsoft.Azure.Devices.Client;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using ArgonneAdDisplay.ViewModel;
+using Microsoft.Practices.ServiceLocation;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -46,34 +48,33 @@ namespace ArgonneAdDisplay.Views
         private IEnumerable<Emotion> lastEmotionSample;
         private IEnumerable<Face> lastDetectedFaceSample;
         private IEnumerable<Tuple<Face, IdentifiedPerson>> lastIdentifiedPersonSample;
-        private IEnumerable<SimilarFaceMatch> lastSimilarPersistedFaceSample;
-
-        private DemographicsData demographics;
-        private Dictionary<Guid, Visitor> visitors = new Dictionary<Guid, Visitor>();
-
-        private CampaignDto currentCampaign = null;
+        private IEnumerable<SimilarFaceMatch> lastSimilarPersistedFaceSample;                
 
         private const String DEBUG_DEVICE_ID = "1117163c-b8e5-41fd-9cb7-0062d36a14f2";
         //private const string DEBUG_CAMPAIGN_ID = "3149351f-3c9e-4d0a-bfa5-d8caacfd77f0";
         private const string DeviceConnectionString = "HostName=iotlabargonneiothub.azure-devices.net;DeviceId=RashidTestDevice;SharedAccessKey=jBzEMd2UTD66Q0krZX5J+La5QQIZEnxjS5Ft+2A7YXY=";
 
-        // TODO: Make the url configurable
-        private ArgonneServiceClient apiClient = new ArgonneServiceClient(new Uri("http://localhost:44685/"));
-        //private ArgonneServiceClient apiClient = new ArgonneServiceClient(new Uri("http://api-argonne.azurewebsites.net/"));        
-        DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Amqp);
-        private IList<AdInCampaignDto> currentCampaignAds;
+        DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Amqp);        
 
         public AdImpressionView()
         {
             this.InitializeComponent();
 
-            this.DataContext = this;
+            //this.DataContext = this;
 
             Window.Current.Activated += CurrentWindowActivationStateChanged;
             this.cameraControl.SetRealTimeDataProvider(this);
             this.cameraControl.FilterOutSmallFaces = true;
             this.cameraControl.HideCameraControls();
             this.cameraControl.CameraAspectRatioChanged += CameraControl_CameraAspectRatioChanged;
+        }
+
+        public CampaignViewModel CurrentCampaign
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<CampaignViewModel>();
+            }
         }
 
         private void CameraControl_CameraAspectRatioChanged(object sender, EventArgs e)
@@ -94,41 +95,12 @@ namespace ArgonneAdDisplay.Views
 
         private async Task ProcessingLoop()
         {
-            var campaigns = await apiClient.ApiAdminCampaignGetAsync();
-
-            if (campaigns == null || campaigns.Count == 0)
-            {
-                // TODO: Error handling here when can't find campaign
-                return;
-            }
-
-            // TODO: Match campaigns to device
-            this.currentCampaign = campaigns[0];
-
-            // now get the adds            
-            this.currentCampaignAds = await apiClient.ApiAdminCampaignByCampaignidAdsGetAsync(this.currentCampaign.CampaignId);
-
-            if (currentCampaignAds == null || currentCampaignAds.Count == 0)
-            {
-                // TODO: Error handling here when can't find any ads
-                return;
-            }
-
-            // now get the ads in the campaign            
-
             while (this.isProcessingLoopInProgress)
             {
                 await this.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
                     if (!this.isProcessingPhoto)
                     {
-                        //if (DateTime.Now.Hour != this.demographics.StartTime.Hour)
-                        //{
-                        //    // We have been running through the hour. Reset the data...
-                        //    await this.ResetDemographicsData();
-                        //    this.UpdateDemographicsUI();
-                        //}
-
                         if (this.cameraControl.NumFacesOnLastFrame == 0)
                         {
                             await this.ProcessCameraCapture(null);
@@ -177,29 +149,82 @@ namespace ArgonneAdDisplay.Views
 
                 // detect faces
                 await Task.WhenAll(e.DetectEmotionAsync(), e.DetectFacesAsync(detectFaceAttributes: true));
-                var emotions = e.DetectedEmotion;
-                var faces = e.DetectedFaces;
+
+
+                if (!e.DetectedEmotion.Any())
+                {
+                    this.lastEmotionSample = null;
+                    this.ShowTimelineFeedbackForNoFaces();
+                }
+                else
+                {
+                    this.lastEmotionSample = e.DetectedEmotion;
+
+                    Scores averageScores = new Scores
+                    {
+                        Happiness = e.DetectedEmotion.Average(em => em.Scores.Happiness),
+                        Anger = e.DetectedEmotion.Average(em => em.Scores.Anger),
+                        Sadness = e.DetectedEmotion.Average(em => em.Scores.Sadness),
+                        Contempt = e.DetectedEmotion.Average(em => em.Scores.Contempt),
+                        Disgust = e.DetectedEmotion.Average(em => em.Scores.Disgust),
+                        Neutral = e.DetectedEmotion.Average(em => em.Scores.Neutral),
+                        Fear = e.DetectedEmotion.Average(em => em.Scores.Fear),
+                        Surprise = e.DetectedEmotion.Average(em => em.Scores.Surprise)
+                    };
+
+                    //this.emotionDataTimelineControl.DrawEmotionData(averageScores);
+                }
+
+                if (e.DetectedFaces == null || !e.DetectedFaces.Any())
+                {
+                    this.lastDetectedFaceSample = null;
+                }
+                else
+                {
+                    this.lastDetectedFaceSample = e.DetectedFaces;
+                }
+
+                // Compute Face Identification and Unique Face Ids
+                await Task.WhenAll(e.IdentifyFacesAsync(), e.FindSimilarPersistedFacesAsync());
+
+                if (!e.IdentifiedPersons.Any())
+                {
+                    this.lastIdentifiedPersonSample = null;
+                }
+                else
+                {
+                    this.lastIdentifiedPersonSample = e.DetectedFaces.Select(f => new Tuple<Face, IdentifiedPerson>(f, e.IdentifiedPersons.FirstOrDefault(p => p.FaceId == f.FaceId)));
+                }
+
+                if (!e.SimilarFaceMatches.Any())
+                {
+                    this.lastSimilarPersistedFaceSample = null;
+                }
+                else
+                {
+                    this.lastSimilarPersistedFaceSample = e.SimilarFaceMatches;
+                }
 
                 // now correlate the emotions and faces by matching faces with the emotions rectangular 
                 // var faceDict = e.DetectedFaces.ToDictionary(f => f.FaceId);
                 var impressionSet = new ImpressionResultset();
                 impressionSet.MessageType = "impression";
-                impressionSet.CampaignId = currentCampaign.CampaignId;
+                impressionSet.CampaignId = CurrentCampaign.Campaign.CampaignId;
                 impressionSet.DeviceId = DEBUG_DEVICE_ID;
                 impressionSet.DeviceTimestamp = DateTime.Now;
-                impressionSet.DisplayedAdId = currentCampaignAds[0].AdId;
+                impressionSet.DisplayedAdId = CurrentCampaign.CurrentAd.AdId;
                 //impressionSet.ImpressionId = ;
                 impressionSet.MessageId = Guid.NewGuid().ToString();
 
                 impressionSet.Faces = new List<ImpressionFace>();
 
                 // go through each impressions, find the face
-                foreach (var emotion in emotions)
+                foreach (var emotion in e.DetectedEmotion)
                 {
                     var variationSize = 10;
 
                     // now find the face
-                    var face = (from f in faces
+                    var face = (from f in e.DetectedFaces
                                 where (f.FaceRectangle.Height + variationSize) >= emotion.FaceRectangle.Height
                                 && (f.FaceRectangle.Left + variationSize) >= emotion.FaceRectangle.Left
                                 && (f.FaceRectangle.Top + variationSize) >= emotion.FaceRectangle.Top
@@ -227,13 +252,15 @@ namespace ArgonneAdDisplay.Views
                         impression.Scores = emotion.Scores;
 
                         impressionSet.Faces.Add(impression);
+
+                        this.debugText.Text = String.Format("You are {0} years old", impression.Age);
                     }
                     else
                     {
                         // something wrong
                         string test = string.Empty;
                     }
-                }
+                }                
 
                 var jsonSerializerSettings = new JsonSerializerSettings
                 {
@@ -266,87 +293,7 @@ namespace ArgonneAdDisplay.Views
             finally
             {
                 this.isProcessingPhoto = false;
-            }
-
-            /*
-            this.isProcessingPhoto = true;
-
-            if (e == null)
-            {
-                this.lastDetectedFaceSample = null;
-                this.lastIdentifiedPersonSample = null;
-                this.lastSimilarPersistedFaceSample = null;
-                this.lastEmotionSample = null;
-                //this.debugText.Text = "";
-
-                this.isProcessingPhoto = false;
-                return;
-            }
-
-            DateTime start = DateTime.Now;
-
-            // Compute Emotion, Age and Gender
-            await Task.WhenAll(e.DetectEmotionAsync(), e.DetectFacesAsync(detectFaceAttributes: true));
-
-            if (!e.DetectedEmotion.Any())
-            {
-                this.lastEmotionSample = null;
-                this.ShowTimelineFeedbackForNoFaces();
-            }
-            else
-            {
-                this.lastEmotionSample = e.DetectedEmotion;                
-
-                Scores averageScores = new Scores
-                {
-                    Happiness = e.DetectedEmotion.Average(em => em.Scores.Happiness),
-                    Anger = e.DetectedEmotion.Average(em => em.Scores.Anger),
-                    Sadness = e.DetectedEmotion.Average(em => em.Scores.Sadness),
-                    Contempt = e.DetectedEmotion.Average(em => em.Scores.Contempt),
-                    Disgust = e.DetectedEmotion.Average(em => em.Scores.Disgust),
-                    Neutral = e.DetectedEmotion.Average(em => em.Scores.Neutral),
-                    Fear = e.DetectedEmotion.Average(em => em.Scores.Fear),
-                    Surprise = e.DetectedEmotion.Average(em => em.Scores.Surprise)
-                };
-
-                //this.emotionDataTimelineControl.DrawEmotionData(averageScores);
-            }
-
-            if (e.DetectedFaces == null || !e.DetectedFaces.Any())
-            {
-                this.lastDetectedFaceSample = null;
-            }
-            else
-            {
-                this.lastDetectedFaceSample = e.DetectedFaces;
-            }
-
-            // Compute Face Identification and Unique Face Ids
-            await Task.WhenAll(e.IdentifyFacesAsync(), e.FindSimilarPersistedFacesAsync());
-
-            if (!e.IdentifiedPersons.Any())
-            {
-                this.lastIdentifiedPersonSample = null;
-            }
-            else
-            {
-                this.lastIdentifiedPersonSample = e.DetectedFaces.Select(f => new Tuple<Face, IdentifiedPerson>(f, e.IdentifiedPersons.FirstOrDefault(p => p.FaceId == f.FaceId)));
-            }
-
-            if (!e.SimilarFaceMatches.Any())
-            {
-                this.lastSimilarPersistedFaceSample = null;
-            }
-            else
-            {
-                this.lastSimilarPersistedFaceSample = e.SimilarFaceMatches;
-            }
-
-            this.UpdateDemographics(e);
-
-            //this.debugText.Text = string.Format("Latency: {0}ms", (int)(DateTime.Now - start).TotalMilliseconds);            
-
-            this.isProcessingPhoto = false;*/
+            }            
         }
 
         private void ShowTimelineFeedbackForNoFaces()
@@ -365,118 +312,14 @@ namespace ArgonneAdDisplay.Views
             else
             {
                 await FaceListManager.Initialize();
-
-                await ResetDemographicsData();
-                this.UpdateDemographicsUI();
-
+                
                 await this.cameraControl.StartStreamAsync(isForRealTimeProcessing: true);
                 this.StartProcessingLoop();
             }
 
             base.OnNavigatedTo(e);
-        }
-
-        private void UpdateDemographics(ImageAnalyzer img)
-        {
-            if (this.lastSimilarPersistedFaceSample != null)
-            {
-                bool demographicsChanged = false;
-                // Update the Visitor collection (either add new entry or update existing)
-                foreach (var item in this.lastSimilarPersistedFaceSample)
-                {
-                    Visitor visitor;
-                    if (this.visitors.TryGetValue(item.SimilarPersistedFace.PersistedFaceId, out visitor))
-                    {
-                        visitor.Count++;
-                    }
-                    else
-                    {
-                        demographicsChanged = true;
-
-                        visitor = new Visitor { UniqueId = item.SimilarPersistedFace.PersistedFaceId, Count = 1 };
-                        this.visitors.Add(visitor.UniqueId, visitor);
-                        this.demographics.Visitors.Add(visitor);
-
-                        // Update the demographics stats. We only do it for new visitors to avoid double counting. 
-                        AgeDistribution genderBasedAgeDistribution = null;
-                        if (string.Compare(item.Face.FaceAttributes.Gender, "male", StringComparison.OrdinalIgnoreCase) == 0)
-                        {
-                            this.demographics.OverallMaleCount++;
-                            genderBasedAgeDistribution = this.demographics.AgeGenderDistribution.MaleDistribution;
-                        }
-                        else
-                        {
-                            this.demographics.OverallFemaleCount++;
-                            genderBasedAgeDistribution = this.demographics.AgeGenderDistribution.FemaleDistribution;
-                        }
-
-                        if (item.Face.FaceAttributes.Age < 16)
-                        {
-                            genderBasedAgeDistribution.Age0To15++;
-                        }
-                        else if (item.Face.FaceAttributes.Age < 20)
-                        {
-                            genderBasedAgeDistribution.Age16To19++;
-                        }
-                        else if (item.Face.FaceAttributes.Age < 30)
-                        {
-                            genderBasedAgeDistribution.Age20s++;
-                        }
-                        else if (item.Face.FaceAttributes.Age < 40)
-                        {
-                            genderBasedAgeDistribution.Age30s++;
-                        }
-                        else if (item.Face.FaceAttributes.Age < 50)
-                        {
-                            genderBasedAgeDistribution.Age40s++;
-                        }
-                        else
-                        {
-                            genderBasedAgeDistribution.Age50sAndOlder++;
-                        }
-                    }
-                }
-
-                /*if (demographicsChanged)
-                {
-                    this.ageGenderDistributionControl.UpdateData(this.demographics);
-                }
-
-                this.overallStatsControl.UpdateData(this.demographics);
-                */
-            }
-        }
-
-        private void UpdateDemographicsUI()
-        {
-            //this.ageGenderDistributionControl.UpdateData(this.demographics);
-            //this.overallStatsControl.UpdateData(this.demographics);
-        }
-
-        private async Task ResetDemographicsData()
-        {
-            this.initializingUI.Visibility = Visibility.Visible;
-            this.initializingProgressRing.IsActive = true;
-
-            this.demographics = new DemographicsData
-            {
-                StartTime = DateTime.Now,
-                AgeGenderDistribution = new AgeGenderDistribution { FemaleDistribution = new AgeDistribution(), MaleDistribution = new AgeDistribution() },
-                Visitors = new List<Visitor>()
-            };
-
-            this.visitors.Clear();
-            await FaceListManager.ResetFaceLists();
-
-            this.initializingUI.Visibility = Visibility.Collapsed;
-            this.initializingProgressRing.IsActive = false;
-        }
-
-        public async Task HandleApplicationShutdownAsync()
-        {
-            await ResetDemographicsData();
-        }
-
+        }       
+        
         private void EnterKioskMode()
         {
             ApplicationView view = ApplicationView.GetForCurrentView();
@@ -491,8 +334,6 @@ namespace ArgonneAdDisplay.Views
             this.isProcessingLoopInProgress = false;
             Window.Current.Activated -= CurrentWindowActivationStateChanged;
             this.cameraControl.CameraAspectRatioChanged -= CameraControl_CameraAspectRatioChanged;
-
-            await this.ResetDemographicsData();
 
             await this.cameraControl.StopStreamAsync();
             base.OnNavigatingFrom(e);

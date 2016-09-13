@@ -1,7 +1,5 @@
-import {Component} from '@angular/core';
-
-@Component({
-  selector: 'fountain-footer',
-  template: require('./footer.html')
-})
-export class FooterComponent {}
+"use strict";
+exports.footer = {
+    templateUrl: 'src/app/footer.html'
+};
+//# sourceMappingURL=footer.js.map

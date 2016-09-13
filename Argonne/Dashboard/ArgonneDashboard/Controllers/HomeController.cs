@@ -1,45 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Argonne.Common.Interfaces;
+using System.Web;
+using System.Web.Mvc;
 
 namespace ArgonneDashboard.Controllers
 {
-    //[Authorize]
     public class HomeController : Controller
     {
-        IArgonneRepository _repo;
-
-        public HomeController(IArgonneRepository repository)
+        public ActionResult Index()
         {
-            this._repo = repository;
+            return View();
         }
 
-        public IActionResult Index()
+        public ActionResult About()
         {
-            return Redirect("/index.html");
-            //return View();
-        }
-
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
+            ViewBag.Message = "Your application description page.";
 
             return View();
         }
 
-        public IActionResult Contact()
+        public ActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
+            ViewBag.Message = "Your contact page.";
 
-            return View();
-        }
-
-        public IActionResult Error()
-        {
             return View();
         }
     }
