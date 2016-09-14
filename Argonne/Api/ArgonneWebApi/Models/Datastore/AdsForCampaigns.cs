@@ -9,6 +9,7 @@ namespace ArgonneWebApi.Models.Datastore
     {
         public Guid CampaignId { get; set; }
         public Guid AdId { get; set; }
+        public short Sequence { get; set; }
         public short Duration { get; set; }
         public short FirstImpression { get; set; }
         public short ImpressionInterval { get; set; }
