@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace ArgonneWebApi.Models.Dto
+namespace ArgonneWebApi.Models.Datastore
 {
     public class CampaignEmotion
     {
