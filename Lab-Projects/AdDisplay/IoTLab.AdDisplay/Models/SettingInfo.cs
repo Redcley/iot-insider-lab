@@ -1,4 +1,4 @@
-﻿namespace IoTLab.AdDisplay.Models
+namespace IoTLab.AdDisplay.Models
 {
 	public class SettingInfo
 	{

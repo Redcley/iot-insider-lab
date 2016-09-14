@@ -1,4 +1,4 @@
-﻿namespace IoTLab.AdDisplay.Constants
+namespace IoTLab.AdDisplay.Constants
 {
 	/// <summary>
 	/// General constant variables

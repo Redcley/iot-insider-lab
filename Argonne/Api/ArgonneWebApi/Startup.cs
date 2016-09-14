@@ -53,8 +53,8 @@ namespace ArgonneWebApi
                     Title = "Argonne API",
                     Description = "REST services for Project Argonne",
                     TermsOfService = "See Microsoft IOT Lab TOS",
-                    Contact = new Contact { Name = "Microsoft IOT Lab", Email = "", Url = "https://azure.microsoft.com/en-us/suites/iot-suite/" },
-                    License = new License { Name = "Use under Microsoft IOT Lab licensing", Url = "https://azure.microsoft.com/en-us/suites/iot-suite/" }
+                    Contact = new Contact { Name = "Microsoft IOT Insider Lab", Email = "iotinsider@microsoft.com", Url = "https://microsoft.com/en-us/iotinsider" },
+                    License = new License { Name = "MIT", Url = "https://opensource.org/licenses/MIT" }
                 });
 
                 //Determine base path for the application.
@@ -81,7 +81,7 @@ namespace ArgonneWebApi
             services.AddScoped<IEntityRepository<Impressions>, EntityRepository<Impressions>>();
             services.AddScoped<IEntityRepository<AdsForCampaigns>, EntityRepository<AdsForCampaigns>>();
             services.AddScoped<IEntityRepository<FacesForImpressions>, EntityRepository<FacesForImpressions>>();
-
+            services.AddScoped<IArgonneQueryContext, EntityRepository<Campaigns>>();
             // Automapper Configuration
             AutoMapperConfiguration.Configure();
 
