@@ -40,9 +40,8 @@ SystemJS.config({
         'github:*/*.json'
     ],
     map: {
-        'jquery-sparkline': 'npm:jquery-sparkline@2.3.2',
-        'momentjs': 'npm:momentjs@1.1.15',
         'moment': 'npm:moment@2.15.0',
+        'jquery-sparkline': 'npm:jquery-sparkline@2.3.2',
         'material-design-iconfont': 'npm:material-design-iconfont@0.1.7',
         'angular': 'npm:angular@1.5.8',
         'angular-ui-router': 'npm:angular-ui-router@1.0.0-beta.1',

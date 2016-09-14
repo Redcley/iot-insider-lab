@@ -83,7 +83,6 @@
       "material-design-iconfont": "npm:material-design-iconfont@^0.1.7",
       "materialize-css": "npm:materialize-css@^0.97.7",
       "moment": "npm:moment@^2.15.0",
-      "momentjs": "npm:momentjs@^1.1.15",
       "signalr": "npm:signalr@^2.2.1",
       "ts": "github:frankwallis/plugin-typescript@4.0.16"
     },

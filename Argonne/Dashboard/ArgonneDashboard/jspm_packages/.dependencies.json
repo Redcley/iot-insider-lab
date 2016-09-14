@@ -1,8 +1,4 @@
 {
-  "npm:moment@2.15.0": {
-    "deps": {},
-    "peerDeps": {}
-  },
   "npm:angular@1.5.8": {
     "deps": {},
     "peerDeps": {}
@@ -15,10 +11,6 @@
     "peerDeps": {}
   },
   "npm:jquery@3.1.0": {
-    "deps": {},
-    "peerDeps": {}
-  },
-  "npm:momentjs@1.1.15": {
     "deps": {},
     "peerDeps": {}
   },
@@ -75,6 +67,10 @@
     }
   },
   "npm:jquery-sparkline@2.3.2": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:moment@2.15.0": {
     "deps": {},
     "peerDeps": {}
   }

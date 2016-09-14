@@ -12,7 +12,10 @@
 
 <# var ts = TypeScript.Definitions()
 		.WithReference("Enums.ts")
-		.ForLoadedAssemblies();
+		.ForLoadedAssemblies()
+		.WithMemberFormatter((identifier) => 
+			Char.ToLower(identifier.Name[0]) + identifier.Name.Substring(1)
+		);
 #>
 
 <#= ts.Generate(TsGeneratorOutput.Properties) #>

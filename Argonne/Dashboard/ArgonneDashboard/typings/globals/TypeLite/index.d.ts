@@ -2,67 +2,67 @@
 // Source: scripts/TypeLite.Net4.d.ts
 declare module Argonne.Services.ArgonneService.Models {
 	interface AdDto {
-		AdId: string;
-		AdName: string;
-		Url: string;
+		adId: string;
+		adName: string;
+		url: string;
 	}
 	interface CampaignDto {
-		CampaignId: string;
-		CampaignName: string;
+		campaignId: string;
+		campaignName: string;
 	}
 	interface DeviceDto {
-		ActiveFrom: Date;
-		ActiveTo: Date;
-		Address: string;
-		Address2: string;
-		Address3: string;
-		CampaignId: string;
-		City: string;
-		DeviceId: string;
-		DeviceName: string;
-		PostalCode: string;
-		PrimaryKey: string;
-		StateProvince: string;
-		Timezone: string;
+		activeFrom: Date;
+		activeTo: Date;
+		address: string;
+		address2: string;
+		address3: string;
+		campaignId: string;
+		city: string;
+		deviceId: string;
+		deviceName: string;
+		postalCode: string;
+		primaryKey: string;
+		stateProvince: string;
+		timezone: string;
 	}
 	interface FaceForImpressionDto {
-		Age: number;
-		FaceId: string;
-		Gender: string;
-		ImpressionId: number;
-		ScoreAnger: number;
-		ScoreContempt: number;
-		ScoreDisgust: number;
-		ScoreFear: number;
-		ScoreHappiness: number;
-		ScoreNeutral: number;
-		ScoreSadness: number;
-		ScoreSurprise: number;
-		Sequence: number;
+		age: number;
+		faceId: string;
+		gender: string;
+		impressionId: number;
+		scoreAnger: number;
+		scoreContempt: number;
+		scoreDisgust: number;
+		scoreFear: number;
+		scoreHappiness: number;
+		scoreNeutral: number;
+		scoreSadness: number;
+		scoreSurprise: number;
+		sequence: number;
 	}
 	interface ImpressionDto {
-		CampaignId: string;
-		DeviceId: string;
-		DeviceTimestamp: Date;
-		DisplayedAdId: string;
-		Faces: Argonne.Services.ArgonneService.Models.FaceForImpressionDto[];
-		ImpressionId: number;
-		InsertTimestamp: Date;
-		MessageId: string;
+		campaignId: string;
+		deviceId: string;
+		deviceTimestamp: Date;
+		displayedAdId: string;
+		faces: Argonne.Services.ArgonneService.Models.FaceForImpressionDto[];
+		impressionId: number;
+		insertTimestamp: Date;
+		messageId: string;
 	}
 }
 declare module Models {
 	interface List {
-		Count: number;
-		CountEnded: number;
-		Id: number;
-		Name: string;
-		Tasks: Models.Task[];
+		count: number;
+		countEnded: number;
+		id: number;
+		name: string;
+		tasks: Models.Task[];
 	}
 	interface Task {
-		Ended: boolean;
-		Id: number;
-		ListId: number;
-		Name: string;
+		ended: boolean;
+		id: number;
+		listId: number;
+		name: string;
 	}
 }

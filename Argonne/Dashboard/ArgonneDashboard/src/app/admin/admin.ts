@@ -1,5 +1,5 @@
 import {ArgonneService} from '../services/argonneService.ts';
-import moment from 'moment';
+import {} from 'moment/moment';
 
 import 'jquery-sparkline';
 
@@ -7,13 +7,16 @@ interface CampaignDto extends Argonne.Services.ArgonneService.Models.CampaignDto
     ads: Argonne.Services.ArgonneService.Models.AdDto[];    
 }
 
-class AdminController {
+interface AJQuery extends JQuery {
+    sparkline(data: any[], config: any);
+}
+
+class AdminController {    
     static $inject = ['argonneService', '$interval', '$log', '$scope'];
-    private currentAfterDate: moment.Moment = moment();//.subtract('days', 1);
+    private currentAfterDate: moment.Moment;//.Moment = moment();//.subtract('days', 1);
     public impressions: Argonne.Services.ArgonneService.Models.ImpressionDto[];
     public campaigns: CampaignDto[];
-    public currentCampaign: CampaignDto;
-    public moment = moment;
+    public currentCampaign: CampaignDto;    
     public enableLiveStream: boolean = true;
     public liveStreamTimer: ng.IPromise<any>;    
 
@@ -23,7 +26,6 @@ class AdminController {
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope) {
         //this.startMonitor();
         this.initializeCharts();
-        this
 
         this.argonneService.getAllCampaigns().then((campaigns) => {
             this.campaigns = campaigns as CampaignDto[];            
@@ -153,7 +155,7 @@ class AdminController {
     }
 
     private initializeCharts() {
-        $("#clients-bar").sparkline([70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90], {
+        (<AJQuery>$("#clients-bar")).sparkline([70, 80, 65, 78, 58, 80, 78, 80, 70, 50, 75, 65, 80, 70, 65, 90, 65, 80, 70, 65, 90], {
             type: 'bar',
             height: '25',
             barWidth: 7,
@@ -163,7 +165,7 @@ class AdminController {
             zeroColor: '#81d4fa',
         });
 
-        $("#invoice-line").sparkline([5, 6, 7, 9, 9, 5, 3, 2, 2, 4, 6, 7, 5, 6, 7, 9, 9, 5], {
+        (<AJQuery>$("#invoice-line")).sparkline([5, 6, 7, 9, 9, 5, 3, 2, 2, 4, 6, 7, 5, 6, 7, 9, 9, 5], {
             type: 'line',
             width: '100%',
             height: '25',
@@ -182,7 +184,7 @@ class AdminController {
 
 
         // Tristate chart (Today Profit)
-        $("#profit-tristate").sparkline([2, 3, 0, 4, -5, -6, 7, -2, 3, 0, 2, 3, -1, 0, 2, 3, 3, -1, 0, 2, 3], {
+        (<AJQuery>$("#profit-tristate")).sparkline([2, 3, 0, 4, -5, -6, 7, -2, 3, 0, 2, 3, -1, 0, 2, 3, 3, -1, 0, 2, 3], {
             type: 'tristate',
             width: '100%',
             height: '25',
@@ -195,7 +197,7 @@ class AdminController {
         });
 
         // Bar + line composite charts (Total Sales)
-        $('#sales-compositebar').sparkline([4, 6, 7, 7, 4, 3, 2, 3, 1, 4, 6, 5, 9, 4, 6, 7, 7, 4, 6, 5, 9, 4, 6, 7], {
+        (<AJQuery>$('#sales-compositebar')).sparkline([4, 6, 7, 7, 4, 3, 2, 3, 1, 4, 6, 5, 9, 4, 6, 7, 7, 4, 6, 5, 9, 4, 6, 7], {
             type: 'bar',
             barColor: '#F6CAFD',
             height: '25',
@@ -204,7 +206,7 @@ class AdminController {
             barSpacing: 2,
             //tooltipFormat: $.spformat('{{value}}', 'tooltip-class')
         });
-        $('#sales-compositebar').sparkline([4, 1, 5, 7, 9, 9, 8, 8, 4, 2, 5, 6, 7], {
+        (<AJQuery>$('#sales-compositebar')).sparkline([4, 1, 5, 7, 9, 9, 8, 8, 4, 2, 5, 6, 7], {
             composite: true,
             type: 'line',
             width: '100%',
