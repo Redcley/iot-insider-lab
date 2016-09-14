@@ -19,7 +19,7 @@ namespace ArgonneAdDisplay.ViewModel
 
         // timer to swap out the ad based on the settings
         private Timer adTimer;
-        private int currentAdIndex = 0;
+        private int currentAdIndex = -1;
         private IArgonneServiceClient argonneService;
 
         private IList<AdInCampaignDto> currentCampaignAds;
@@ -58,27 +58,15 @@ namespace ArgonneAdDisplay.ViewModel
                 throw new InvalidOperationException("No ads for campaign");
             }
 
-            this.CurrentAdInfo = currentCampaignAds.FirstOrDefault();
-
-            if (CurrentAdInfo == null)
-            {
-                // TODO: Error handling here when can't find any ads
-                throw new InvalidOperationException("Current ad is null.");
-            }
-
-            // now create the timer.
-            // duration = how long to show the ad
-            // first impression = when to take the impression
-            // impression interval = how often to take the picture
-            this.adTimer = new Timer(this.UpdateCampaign, Campaign, 0, CurrentAdInfo.Duration.Value * 1000 * 60);           
-            //Task.Run(() => this.UpdateCampaign(null));
+            // immediately kickoff the timer callback
+            this.adTimer = new Timer(UpdateCampaign, null, 0, Timeout.Infinite);                       
 
             return true;
         }
 
         private void UpdateCampaign(Object stateInfo)
         {
-            if(currentAdIndex == this.currentCampaignAds.Count - 1)
+            if (currentAdIndex == this.currentCampaignAds.Count - 1)
             {
                 // start over
                 this.currentAdIndex = 0;
@@ -92,9 +80,16 @@ namespace ArgonneAdDisplay.ViewModel
             {
                 this.CurrentAdInfo = this.currentCampaignAds.ElementAtOrDefault(this.currentAdIndex);
 
+                // now create the timer.
+                // duration = how long to show the ad
+                // first impression = when to take the impression
+                // impression interval = how often to take the picture
+                this.adTimer.Change((CurrentAdInfo.Duration.Value * 1000) / 3, Timeout.Infinite);
+                //Task.Run(() => this.UpdateCampaign(null));
+
                 // get the add
 
-                this.CurrentAd = this.argonneService.ApiAdminAdByIdGet(this.CurrentAdInfo.AdId);                                
+                this.CurrentAd = this.argonneService.ApiAdminAdByIdGet(this.CurrentAdInfo.AdId);                
             });            
         }
 

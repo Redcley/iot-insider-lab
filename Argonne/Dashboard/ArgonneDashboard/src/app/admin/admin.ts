@@ -61,6 +61,48 @@ class AdminController {
             });
     }
 
+    public getImpressionResult(impression) {
+        var impressionResult = 'anger';
+        var largestImpression = impression.avgAnger;
+
+        if (largestImpression < impression.avgContempt) {
+            largestImpression = impression.avgContempt;
+            impressionResult = 'contempt';
+        }
+
+        if (largestImpression < impression.avgDisgust) {
+            largestImpression = impression.avgDisgust;
+            impressionResult = 'disgust';
+        }
+
+        if (largestImpression < impression.avgFear) {
+            largestImpression = impression.avgFear;
+            impressionResult = 'anger';
+        }
+
+        if (largestImpression < impression.avgHappiness) {
+            largestImpression = impression.avgHappiness;
+            impressionResult = 'happiness';
+        }
+
+        if (largestImpression < impression.avgNeutral) {
+            largestImpression = impression.avgNeutral;
+            impressionResult = 'neutral';
+        }
+
+        if (largestImpression < impression.avgSadness) {
+            largestImpression = impression.avgSadness;
+            impressionResult = 'sadness';
+        }
+
+        if (largestImpression < impression.avgSurprise) {
+            largestImpression = impression.avgSurprise;
+            impressionResult = 'surpise';
+        }        
+
+        return impressionResult;
+    }
+
     private loadAddInfo(impression) {
         if (this.currentCampaign == null) {
             debugger;
@@ -73,7 +115,7 @@ class AdminController {
         }
 
         impression.ad = this.currentCampaign.ads.find((ad) => {
-            return ad.displayedAdId == ad.addId;
+            return impression.displayedAdId == ad.adId;
         });
 
         impression.avgAnger = 0;
@@ -102,12 +144,12 @@ class AdminController {
         // now calcualte the avg
         impression.avgAnger = impression.avgAnger / impression.faces.length;
         impression.avgContempt = impression.avgContempt / impression.faces.length;
-        impression.avgDisgust = impression.avgDisgust / impression.faces.length;;
-        impression.avgFear = impression.avgFear / impression.faces.length;;
-        impression.avgHappiness = impression.avgHappiness / impression.faces.length;;
-        impression.avgNeutral = impression.avgNeutral / impression.faces.length;;
-        impression.avgSadness = impression.avgSadness  / impression.faces.length;;
-        impression.avgSurprise = impression.avgSurprise  / impression.faces.length;;
+        impression.avgDisgust = impression.avgDisgust / impression.faces.length;
+        impression.avgFear = impression.avgFear / impression.faces.length;
+        impression.avgHappiness = impression.avgHappiness / impression.faces.length;
+        impression.avgNeutral = impression.avgNeutral / impression.faces.length;
+        impression.avgSadness = impression.avgSadness  / impression.faces.length;
+        impression.avgSurprise = impression.avgSurprise  / impression.faces.length;
     }
 
     private initializeCharts() {

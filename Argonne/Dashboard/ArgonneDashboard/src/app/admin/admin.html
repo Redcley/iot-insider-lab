@@ -14,8 +14,7 @@
                     <span>Enable Live Stream</span>
                     <div class="switch valign">
                         <label>                           
-                            <input type="checkbox" ng-model="vm.enableLiveStream">
-                            {{vm.enableLiveStream}}
+                            <input type="checkbox" ng-model="vm.enableLiveStream">                            
                             <span class="lever"></span>                            
                         </label>
                     </div>
@@ -61,7 +60,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content blue-grey white-text">
-                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Today Profit</p>
+                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Sample</p>
                         <h4 class="card-stats-number">$806.52</h4>
                         <p class="card-stats-compare">
                             <i class="mdi-hardware-keyboard-arrow-up"></i> 80% <span class="blue-grey-text text-lighten-5">from yesterday</span>
@@ -75,7 +74,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content purple white-text">
-                        <p class="card-stats-title"><i class="mdi-editor-attach-money"></i>Total Sales</p>
+                        <p class="card-stats-title"><i class="mdi-editor-attach-money"></i>Sample</p>
                         <h4 class="card-stats-number">$8990.63</h4>
                         <p class="card-stats-compare">
                             <i class="mdi-hardware-keyboard-arrow-up"></i> 70% <span class="purple-text text-lighten-5">last month</span>
@@ -103,17 +102,17 @@
                                 <div class="col s6">
                                     <div class="collections-title">{{imp.ad.adName}}</div>
                                     <div class="collections-content">
-                                        <div class="row">
+                                        <div class="row result-{{vm.getImpressionResult(imp)}}">
                                             <div class="col s12 share-icons">
-                                                <i class="material-icons tiny blue-text">face</i> {{imp.faces.length | number: 2}}
-                                                <i class="material-icons tiny green-text">sentiment_very_satisfied</i> {{imp.avgHappiness | number: 2}}
-                                                <i class="material-icons tiny orange-text">sentiment_satisfied</i> {{imp.avgContempt | number: 2 }}
-                                                <i class="material-icons tiny yellow-text">sentiment_dissatisfied</i> {{imp.avgDisgust | number: 2}}
-                                                <i class="material-icons tiny red-text">face</i> {{imp.avgAnger | number: 2}}
-                                                <i class="material-icons tiny brown-text">face</i> {{imp.avgFear | number: 2}}
-                                                <i class="material-icons tiny gray-text">sentiment_neutral</i> {{imp.avgNeutral | number: 2}}
-                                                <i class="material-icons tiny lime-text">sentiment_dissatisfied</i> {{imp.avgSadness | number: 2}}
-                                                <i class="material-icons tiny purple-text">sentiment_satisfied</i> {{imp.avgSurprise | number: 2}}
+                                                <i class="material-icons blue-text">face</i> {{imp.faces.length | number: 2}}
+                                                <i class="material-icons green-text happiness">sentiment_very_satisfied</i> {{imp.avgHappiness | number: 2}}
+                                                <i class="material-icons orange-text contempt">sentiment_satisfied</i> {{imp.avgContempt | number: 2 }}
+                                                <i class="material-icons yellow-text disgust">sentiment_dissatisfied</i> {{imp.avgDisgust | number: 2}}
+                                                <i class="material-icons red-text anger">face</i> {{imp.avgAnger | number: 2}}
+                                                <i class="material-icons brown-text fear">face</i> {{imp.avgFear | number: 2}}
+                                                <i class="material-icons gray-text neutral">sentiment_neutral</i> {{imp.avgNeutral | number: 2}}
+                                                <i class="material-icons lime-text sadness">sentiment_dissatisfied</i> {{imp.avgSadness | number: 2}}
+                                                <i class="material-icons purple-text surprise">sentiment_satisfied</i> {{imp.avgSurprise | number: 2}}
                                             </div>                                            
                                         </div>                                       
                                     </div>
@@ -125,6 +124,7 @@
                                     <!--<div id="project-line-1"><canvas width="120" height="30" style="display: inline-block; width: 120px; height: 30px; vertical-align: top;"></canvas></div>-->
                                     <div><small>Campaign: {{imp.campaignId}}</small></div>
                                     <div><small>Device: {{imp.deviceId}}</small></div>                                    
+                                    <div><small>Ad: {{imp.displayedAdId}}</small></div>                                    
                                 </div>
                             </div>
                         </li>

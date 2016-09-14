@@ -303,7 +303,7 @@ namespace ArgonneAdDisplay.Views
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
-            EnterKioskMode();
+            //EnterKioskMode();
 
             if (string.IsNullOrEmpty(SettingsHelper.Instance.EmotionApiKey) || string.IsNullOrEmpty(SettingsHelper.Instance.FaceApiKey))
             {
