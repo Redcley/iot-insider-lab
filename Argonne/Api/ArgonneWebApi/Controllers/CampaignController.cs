@@ -646,7 +646,7 @@ namespace ArgonneWebApi.Controllers
                 end = DateTime.UtcNow + TimeSpan.FromDays(1);
 
             var campaignIdParam = new SqlParameter("@campaignId", idGuid);
-            var adIdParam = new SqlParameter("@adId", string.Empty);
+            var adIdParam = new SqlParameter("@adId", string.Empty);//can't use null here or EF barks
             var startDateParam = new SqlParameter("@dateFrom", start);
             var endDateParam = new SqlParameter("@dateTo", end);
 
