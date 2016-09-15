@@ -253,6 +253,11 @@ namespace ArgonneWebApi.Repositories
             {
                 entity.HasKey(e => e.CampaignId);
             });
+
+            modelBuilder.Entity<AdAggregateData>(entity =>
+            {
+                entity.HasKey(e => e.AdId);
+            });
         }
 
         public virtual DbSet<Ads> Ads { get; set; }
