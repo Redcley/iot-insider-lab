@@ -17,7 +17,7 @@ namespace ArgonneWebApi.Controllers
     /// Administrator API for Campaigns
     /// </summary>
     [Produces("application/json")]
-    [EnableCors("AllowAllOrigins")]
+    [EnableCors("AllowCORS")]
     public class CampaignController : Controller
     {
         private IEntityRepository<Campaigns> repository;

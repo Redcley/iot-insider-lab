@@ -1,6 +1,5 @@
 import {ArgonneService} from '../services/argonneService.ts';
-import {} from 'moment/moment';
-
+import moment = require("moment");
 import 'jquery-sparkline';
 
 interface CampaignDto extends Argonne.Services.ArgonneService.Models.CampaignDto {
@@ -13,7 +12,7 @@ interface AJQuery extends JQuery {
 
 class AdminController {    
     static $inject = ['argonneService', '$interval', '$log', '$scope'];
-    private currentAfterDate: moment.Moment;//.Moment = moment();//.subtract('days', 1);
+    private currentAfterDate: any; //.subtract('days', 1);
     public impressions: Argonne.Services.ArgonneService.Models.ImpressionDto[];
     public campaigns: CampaignDto[];
     public currentCampaign: CampaignDto;    
@@ -24,6 +23,8 @@ class AdminController {
     private CAMPAIGN_ID = '3149351f-3c9e-4d0a-bfa5-d8caacfd77f0';
 
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope) {
+        this.currentAfterDate = moment.utc();
+
         //this.startMonitor();
         this.initializeCharts();
 

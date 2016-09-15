@@ -90,18 +90,12 @@ namespace ArgonneWebApi
             {
                 //options.AddPolicy("DefaultPolicy", builder => builder.WithHeaders("Access-Control-Allow-Origin"));
                 //options.DefaultPolicyName = "DefaultPolicy";
-                options.AddPolicy("AllowAllOrigins",
+                options.AddPolicy("AllowCORS",
                     builder =>
                     {
-                        builder.AllowAnyOrigin();
+                        builder.AllowAnyOrigin().AllowAnyMethod();
                     });
-
-                options.AddPolicy("AllowAllMethods",
-                    builder =>
-                    {
-                        builder.WithOrigins("*")
-                               .AllowAnyMethod();
-                    });
+                
             });
 
             // Add framework services.

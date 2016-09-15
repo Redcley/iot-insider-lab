@@ -16,7 +16,7 @@ namespace ArgonneWebApi.Controllers
     /// Administrator API for Ads
     /// </summary>
     [Produces("application/json")]
-    [EnableCors("AllowAllOrigins")]
+    [EnableCors("AllowCORS")]
     public class AdController : Controller
     {
         private IEntityRepository<Ads> repository;
