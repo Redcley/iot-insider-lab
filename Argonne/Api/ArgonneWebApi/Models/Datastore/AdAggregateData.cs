@@ -5,7 +5,8 @@ namespace ArgonneWebApi.Models.Datastore
     public class AdAggregateData
     {
         public Guid AdId { get; set; }
-        public int? Faces { get; set; }
+        public int? TotalFaces { get; set; }
+        public int? UniqueFaces { get; set; }
         public int? Males { get; set; }
         public int? Females { get; set; }
 
