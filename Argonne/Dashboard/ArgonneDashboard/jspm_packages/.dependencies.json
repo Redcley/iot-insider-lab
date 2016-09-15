@@ -1,0 +1,77 @@
+{
+  "npm:angular@1.5.8": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:materialize-css@0.97.7": {
+    "deps": {
+      "jquery": "github:components/jquery",
+      "css": "github:systemjs/plugin-css"
+    },
+    "peerDeps": {}
+  },
+  "npm:jquery@3.1.0": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:angular-mocks@1.5.8": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:angular-ui-router@1.0.0-beta.1": {
+    "deps": {},
+    "peerDeps": {
+      "angular": "npm:angular@^1.3.0"
+    }
+  },
+  "npm:material-design-iconfont@0.1.7": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:signalr@2.2.1": {
+    "deps": {
+      "jquery": "npm:jquery"
+    },
+    "peerDeps": {}
+  },
+  "github:jspm/nodelibs-os@0.2.0-alpha": {
+    "deps": {
+      "os-browserify": "npm:os-browserify@^0.2.0"
+    },
+    "peerDeps": {}
+  },
+  "github:systemjs/plugin-css@0.1.27": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "github:frankwallis/plugin-typescript@4.0.16": {
+    "deps": {
+      "typescript": "npm:typescript@^1.8.7"
+    },
+    "peerDeps": {}
+  },
+  "github:components/jquery@3.1.0": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:os-browserify@0.2.1": {
+    "deps": {},
+    "peerDeps": {
+      "os": "github:jspm/nodelibs-os@^0.2.0-alpha"
+    }
+  },
+  "npm:typescript@1.8.10": {
+    "deps": {},
+    "peerDeps": {
+      "os": "github:jspm/nodelibs-os@^0.2.0-alpha"
+    }
+  },
+  "npm:jquery-sparkline@2.3.2": {
+    "deps": {},
+    "peerDeps": {}
+  },
+  "npm:moment@2.15.0": {
+    "deps": {},
+    "peerDeps": {}
+  }
+}

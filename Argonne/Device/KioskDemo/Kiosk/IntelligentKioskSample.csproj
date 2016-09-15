@@ -132,6 +132,7 @@
     <Compile Include="Controls\EmotionEmojiControl.xaml.cs">
       <DependentUpon>EmotionEmojiControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IoTHubHelper.cs" />
     <Compile Include="KioskExperiences.cs" />
     <Compile Include="Controls\CameraControl.xaml.cs">
       <DependentUpon>CameraControl.xaml</DependentUpon>
@@ -359,6 +360,11 @@
       <Project>{5d9320af-a9e4-48e3-89bc-9f7f0954b298}</Project>
       <Name>ServiceHelpers</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsIoT, Version=10.0.10586.0">
+      <Name>Windows IoT Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

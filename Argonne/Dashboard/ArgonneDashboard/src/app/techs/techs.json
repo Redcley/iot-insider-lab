@@ -28,18 +28,18 @@
     "text2": "CSS with superpowers."
   },
   {
-    "key": "babel",
-    "title": "Babel",
-    "logo": "http://fountainjs.io/assets/imgs/babel.png",
-    "text1": "Babel is a JavaScript compiler",
-    "text2": "Use next generation JavaScript, today"
+    "key": "typescript",
+    "title": "TypeScript",
+    "logo": "http://fountainjs.io/assets/imgs/typescript.png",
+    "text1": "TypeScript lets you write JavaScript the way you really want to.",
+    "text2": "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript."
   },
   {
-    "key": "eslint",
-    "title": "ESLint",
-    "logo": "http://fountainjs.io/assets/imgs/eslint.png",
-    "text1": "The pluggable linting utility for JavaScript and JSX.",
-    "text2": "1 tool for identifying and reporting on patterns found in ECMAScript/JavaScript code."
+    "key": "tslint",
+    "title": "TSLint",
+    "logo": "http://fountainjs.io/assets/imgs/tslint.png",
+    "text1": "A Linter for the TypeScript language.",
+    "text2": "TSLint checks your TypeScript code for readability, maintainability, and functionality errors."
   },
   {
     "key": "karma",

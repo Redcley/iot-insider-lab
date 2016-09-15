@@ -4,42 +4,20 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{F75D0F4A-00E9-4E8F-8060-47655259F71B}</ProjectGuid>
+    <ProjectGuid>{E41B410C-4470-42EE-B634-E8DF867727B5}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>ArgonneAdDisplay</RootNamespace>
     <AssemblyName>ArgonneAdDisplay</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
-    <TargetPlatformVersion>10.0.10586.0</TargetPlatformVersion>
+    <TargetPlatformVersion>10.0.10240.0</TargetPlatformVersion>
     <TargetPlatformMinVersion>10.0.10240.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <EnableDotNetNativeCompatibleProfile>true</EnableDotNetNativeCompatibleProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>ArgonneAdDisplay_TemporaryKey.pfx</PackageCertificateKeyFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-    <NoWarn>;2008</NoWarn>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
-    <Optimize>true</Optimize>
-    <NoWarn>;2008</NoWarn>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <Prefer32Bit>true</Prefer32Bit>
-    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+    <PackageCertificateKeyFile>Win10_TemporaryKey.pfx</PackageCertificateKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -87,6 +65,29 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+    <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
+  </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
     <None Include="project.json" />
@@ -95,16 +96,69 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\MainPage.xaml.cs">
+    <Compile Include="Controls\AgeGenderDistributionControl.xaml.cs">
+      <DependentUpon>AgeGenderDistributionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\CameraControl.xaml.cs">
+      <DependentUpon>CameraControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EmotionEmojiControl.xaml.cs">
+      <DependentUpon>EmotionEmojiControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EmotionMeterControl.xaml.cs">
+      <DependentUpon>EmotionMeterControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EmotionResponseStackBarControl.xaml.cs">
+      <DependentUpon>EmotionResponseStackBarControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\EmotionResponseTimelineControl.xaml.cs">
+      <DependentUpon>EmotionResponseTimelineControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\FaceIdentificationBorder.xaml.cs">
+      <DependentUpon>FaceIdentificationBorder.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ImageWithFaceBorderUserControl.xaml.cs">
+      <DependentUpon>ImageWithFaceBorderUserControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OverallStatsControl.xaml.cs">
+      <DependentUpon>OverallStatsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\RealTimeFaceIdentificationBorder.xaml.cs">
+      <DependentUpon>RealTimeFaceIdentificationBorder.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\VerticalBarWithValueControl.xaml.cs">
+      <DependentUpon>VerticalBarWithValueControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Design\DesignDataService.cs" />
+    <Compile Include="KioskExperiences.cs" />
+    <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\DataItem.cs" />
+    <Compile Include="Model\DataService.cs" />
+    <Compile Include="Model\IDataService.cs" />
+    <Compile Include="Model\ImpressionFace.cs" />
+    <Compile Include="Model\ImpressionResultset.cs" />
+    <Compile Include="Model\IntelligentKioskSample.cs" />
+    <Compile Include="NavMenuItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecondPage.xaml.cs">
+      <DependentUpon>SecondPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="SettingsHelper.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="ViewModel\CampaignViewModel.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Compile Include="Views\AdImpressionView.xaml.cs">
+      <DependentUpon>AdImpressionView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="ArgonneAdDisplay_TemporaryKey.pfx" />
+    <None Include="Win10_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Properties\Default.rd.xml" />
@@ -121,15 +175,80 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Views\MainPage.xaml">
+    <Page Include="Controls\AgeGenderDistributionControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Controls\CameraControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EmotionEmojiControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EmotionMeterControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EmotionResponseStackBarControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\EmotionResponseTimelineControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\FaceIdentificationBorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ImageWithFaceBorderUserControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\OverallStatsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\RealTimeFaceIdentificationBorder.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\VerticalBarWithValueControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="SecondPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AdImpressionView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="WindowsIoT, Version=10.0.10586.0">
-      <Name>Windows IoT Extensions for the UWP</Name>
+    <SDKReference Include="BehaviorsXamlSDKManaged, Version=12.0">
+      <Name>BehaviorsXamlSDKManaged</Name>
     </SDKReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Argonne.Common\Argonne.Common.csproj">
+      <Project>{121145ef-2f94-4c0f-b0e7-1c4c87895986}</Project>
+      <Name>Argonne.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceHelpers\ServiceHelpers.csproj">
+      <Project>{5d9320af-a9e4-48e3-89bc-9f7f0954b298}</Project>
+      <Name>ServiceHelpers</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Repositories\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

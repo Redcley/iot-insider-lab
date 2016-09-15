@@ -14,6 +14,6 @@ function partials() {
       module: conf.ngModule,
       root: 'src/app'
     }))
-    .pipe(insert.prepend(`import angular from 'angular';`))
+    .pipe(insert.prepend(`var angular = require('angular');`))
     .pipe(gulp.dest(conf.path.tmp()));
 }

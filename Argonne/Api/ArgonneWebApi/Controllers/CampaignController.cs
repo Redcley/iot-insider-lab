@@ -9,6 +9,7 @@ using ArgonneWebApi.Models.Validation;
 using ArgonneWebApi.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
 
 namespace ArgonneWebApi.Controllers
 {
@@ -16,6 +17,7 @@ namespace ArgonneWebApi.Controllers
     /// Administrator API for Campaigns
     /// </summary>
     [Produces("application/json")]
+    [EnableCors("AllowCORS")]
     public class CampaignController : Controller
     {
         private IEntityRepository<Campaigns> repository;
