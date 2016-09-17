@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" IgnorableNamespaces="uap mp">
-  <Identity Name="75ac4f6d-62c1-49f3-850a-dec90a485959" Publisher="CN=YourName" Version="1.0.0.0" />
+  <Identity Name="75ac4f6d-62c1-49f3-850a-dec90a485959" Publisher="CN=v-babarn" Version="1.0.8.0" />
   <mp:PhoneIdentity PhoneProductId="75ac4f6d-62c1-49f3-850a-dec90a485959" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>ArgonneAdDisplay</DisplayName>

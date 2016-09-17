@@ -6,7 +6,20 @@
 
 /// <reference path="Enums.ts" />
 
-declare module Argonne.Services.ArgonneService.Models {
+declare module ArgonneService.Models {
+	interface AdAggregateData {
+		adId: string;
+		ageBracket1: number;
+		ageBracket2: number;
+		ageBracket3: number;
+		ageBracket4: number;
+		ageBracket5: number;
+		ageBracket6: number;
+		females: number;
+		males: number;
+		totalFaces: number;
+		uniqueFaces: number;
+	}
 	interface AdDto {
 		adId: string;
 		adName: string;
@@ -51,7 +64,7 @@ declare module Argonne.Services.ArgonneService.Models {
 		deviceId: string;
 		deviceTimestamp: Date;
 		displayedAdId: string;
-		faces: Argonne.Services.ArgonneService.Models.FaceForImpressionDto[];
+		faces: ArgonneService.Models.FaceForImpressionDto[];
 		impressionId: number;
 		insertTimestamp: Date;
 		messageId: string;

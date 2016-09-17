@@ -256,10 +256,8 @@ var polarData = [
 	];	
 		
 
-
-
-window.onload = function(){
-	var trendingLineChart = document.getElementById("trending-line-chart").getContext("2d");
+function initCharts() {
+    var trendingLineChart = $("#trending-line-chart").get(0).getContext("2d");	
 	window.trendingLineChart = new Chart(trendingLineChart).Line(data, {		
 		scaleShowGridLines : true,///Boolean - Whether grid lines are shown across the chart		
 		scaleGridLineColor : "rgba(255,255,255,0.4)",//String - Colour of the grid lines		

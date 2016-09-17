@@ -16,7 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
-            <!--<RowDefinition Height="165" />-->
+            <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">
@@ -25,14 +25,14 @@
         </StackPanel>
 
         <Grid Grid.Row="1" DataContext="{Binding CurrentCampaign}">
-            <ctl:CameraControl x:Name="cameraControl" Visibility="Collapsed" />
+            <!--<ctl:CameraControl x:Name="cameraControl" Visibility="Collapsed" />-->
 
             <WebView Source="{Binding CurrentAd.Url}" Name="addView"/>
 
             <TextBlock x:Name="debugText" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center" />
         </Grid>
 
-        <!--<Grid Grid.Row="2">
+        <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="240"/>
@@ -43,7 +43,7 @@
             <ctl:OverallStatsControl Margin="5" x:Name="overallStatsControl" HeaderText="Total Faces" SubHeaderText="At this hour (erased hourly)" SubHeaderVisibility="Visible" Grid.Column="1" />
             <ctl:EmotionResponseTimelineControl Margin="5" Grid.Column="2" x:Name="emotionDataTimelineControl"  />
             <ctl:CameraControl Grid.Column="3" Margin="5" x:Name="cameraControl" />
-        </Grid>-->
+        </Grid>
 
         <Grid Grid.Row="1" x:Name="initializingUI" Visibility="Collapsed">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">

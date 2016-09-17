@@ -58,7 +58,7 @@ export function appRun($rootScope: IMGScopeRootScope, $state: IMGState/*ng.ui.IS
         //}, 100);        
     });
 
-    $transitions.onSuccess({ /*to: 'auth.**'*/ }, function (trans) {
+    $transitions.onSuccess({ /*to: 'auth.**'*/ }, function (trans) {        
         //debugger;
         //$timeout(() => {
         //    $rootScope.$broadcast('preloader', { loaded: true });

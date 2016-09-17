@@ -10,6 +10,7 @@
   "compileOnSave": true,
   "exclude": [
     "jspm_packages",
+    //"jspm_packages/npm/typescript@1.8.10",
     "node_modules",
     "Scripts/TypeLite.Net4.d.ts"
   ],
