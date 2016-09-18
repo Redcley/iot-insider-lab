@@ -11,11 +11,14 @@
 
     @*<link href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.css" rel="stylesheet" />*@
 
-    <base href="/">
-    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <base href="~/">
+
+    @*<link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="~/jspm_packages/npm/materialize-css@0.97.7/dist/css/materialize.min.css">
     <link rel="stylesheet" href="~/src/materialized/materialized.css">
-    <link rel="stylesheet" href="~/src/index.css">
+    <link rel="stylesheet" href="~/src/index.css">*@
+
+    <link href="~/wwwroot/index.css" rel="stylesheet">
 </head>
 <body ng-app="app" class="loaded">
     <preloader></preloader>
@@ -42,20 +45,22 @@
         src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.js"></script>*@
 
     <!-- build:js(.tmp) index.js -->
-    <script src="jspm_packages/system.js"></script>
+    @*<script src="jspm_packages/system.js"></script>
     <script src="jspm.browser.js"></script>
-    <script src="jspm.config.js"></script>
+    <script src="jspm.config.js"></script>*@
 
-    <script>
+    @*<script>
         System.import('src/index.ts').then(function () {
             //setTimeout(function () {
             //    initCharts();
             //}, 5000);
         });
-    </script>
+    </script>*@
     <!-- endbuild -->
 
-    <script async="async" src="~/src/materialized/chart-script.js"></script>
+    @*<script async="async" src="~/src/materialized/chart-script.js"></script>*@
+
+    <script type="text/javascript" src="~/wwwroot/index.js"></script>
     @RenderSection("scripts", required: false)
 
 </body>

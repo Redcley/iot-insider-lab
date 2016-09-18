@@ -5,6 +5,7 @@
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>
@@ -286,53 +287,36 @@
     <Content Include="conf\gulp.conf.js" />
     <Content Include="conf\karma-auto.conf.js" />
     <Content Include="conf\karma.conf.js" />
+    <Content Include="conf\webpack-dist.conf.js" />
+    <Content Include="conf\webpack-test.conf.js" />
+    <Content Include="conf\webpack-dev.conf.js" />
+    <Content Include="conf\webpack.conf.js" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <None Include="compilerconfig.json" />
-    <None Include="compilerconfig.json.defaults">
-      <DependentUpon>compilerconfig.json</DependentUpon>
-    </None>
     <Content Include="gulpfile.js" />
     <Content Include="gulp_tasks\browsersync.js" />
-    <Content Include="gulp_tasks\build.js" />
     <Content Include="gulp_tasks\karma.js" />
     <Content Include="gulp_tasks\misc.js" />
-    <Content Include="gulp_tasks\partials.js" />
-    <Content Include="gulp_tasks\scripts.js" />
-    <Content Include="gulp_tasks\styles.js" />
-    <Content Include="gulp_tasks\systemjs.js" />
-    <Content Include="jspm.browser.js" />
-    <Content Include="jspm.config.js" />
-    <Content Include="jspm.test.js" />
-    <Content Include="main-bundle.js" />
+    <Content Include="gulp_tasks\webpack.js" />
     <Content Include="Scripts\ai.0.22.19-build00125.js" />
     <Content Include="Scripts\ai.0.22.19-build00125.min.js" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="package.json" />
-    <Content Include="fonts\roboto\Roboto-Bold.eot" />
-    <Content Include="fonts\roboto\Roboto-Bold.ttf" />
-    <Content Include="fonts\roboto\Roboto-Bold.woff" />
-    <Content Include="fonts\roboto\Roboto-Bold.woff2" />
-    <Content Include="fonts\roboto\Roboto-Light.eot" />
-    <Content Include="fonts\roboto\Roboto-Light.ttf" />
-    <Content Include="fonts\roboto\Roboto-Light.woff" />
-    <Content Include="fonts\roboto\Roboto-Light.woff2" />
-    <Content Include="fonts\roboto\Roboto-Medium.eot" />
-    <Content Include="fonts\roboto\Roboto-Medium.ttf" />
-    <Content Include="fonts\roboto\Roboto-Medium.woff" />
-    <Content Include="fonts\roboto\Roboto-Medium.woff2" />
-    <Content Include="fonts\roboto\Roboto-Regular.eot" />
-    <Content Include="fonts\roboto\Roboto-Regular.ttf" />
-    <Content Include="fonts\roboto\Roboto-Regular.woff" />
-    <Content Include="fonts\roboto\Roboto-Regular.woff2" />
-    <Content Include="fonts\roboto\Roboto-Thin.eot" />
-    <Content Include="fonts\roboto\Roboto-Thin.ttf" />
-    <Content Include="fonts\roboto\Roboto-Thin.woff" />
-    <Content Include="fonts\roboto\Roboto-Thin.woff2" />
     <Content Include="Data\impressions.json" />
-    <Content Include="main-bundle.js.map" />
+    <Content Include=".editorconfig" />
+    <Content Include=".gitattributes" />
+    <Content Include=".gitignore" />
+    <Content Include=".yo-rc.json" />
+    <Content Include="package.json" />
+    <Content Include="wwwroot\index.css" />
+    <Content Include="wwwroot\index.min.css">
+      <DependentUpon>index.css</DependentUpon>
+    </Content>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="Properties\PublishProfiles\argonne - FTP.pubxml" />
     <None Include="Properties\PublishProfiles\argonne - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.1.0.intellisense.js" />
@@ -347,6 +331,7 @@
       <LastGenOutput>TypeLite.Net4.d.ts</LastGenOutput>
     </Content>
     <Content Include="Scripts\_references.js" />
+    <Content Include="Scripts\Manager.ttinclude" />
     <Content Include="src\.eslintrc.js" />
     <Content Include="src\app\admin\admin.html" />
     <Content Include="src\app\components\preloader\preloader.html" />
@@ -357,23 +342,21 @@
     <Content Include="src\app\techs\tech.html" />
     <Content Include="src\app\techs\techs.html" />
     <Content Include="src\app\title.html" />
+    <Content Include="src\font\material-design-icons\Material-Design-Icons.svg" />
+    <Content Include="src\font\material-design-icons\material-design.svg" />
     <Content Include="src\index.css">
       <DependentUpon>index.scss</DependentUpon>
     </Content>
+    <Content Include="src\index.html" />
     <Content Include="src\index.min.css">
       <DependentUpon>index.css</DependentUpon>
     </Content>
+    <Content Include="src\index.spec.js" />
     <Content Include="src\materialized\chart-script.js" />
     <Content Include="src\materialized\google-map-script.js" />
-    <Content Include="Scripts\Manager.ttinclude" />
-    <None Include="src\materialized\materialized.scss" />
     <Content Include="src\materialized\materialize-logo.png" />
-    <Content Include="src\materialized\materialized.css">
-      <DependentUpon>materialized.scss</DependentUpon>
-    </Content>
-    <Content Include="src\materialized\materialized.min.css">
-      <DependentUpon>materialized.css</DependentUpon>
-    </Content>
+    <Content Include="src\materialized\materialized.css" />
+    <Content Include="src\materialized\materialized.min.css" />
     <Content Include="src\materialized\plugins.js" />
     <Content Include="src\materialized\plugins.min.js" />
     <Content Include="src\materialized\sparkline-script.js" />
@@ -412,28 +395,47 @@
     <Content Include="Views\Manage\VerifyPhoneNumber.cshtml" />
     <Content Include="Views\Shared\Lockout.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
-    <Content Include="tsconfig.json" />
-    <Content Include="typings.json" />
-    <Content Include="src\app\techs\techs.json" />
-    <Content Include="src\index.scss" />
-    <Content Include="tslint.json" />
     <Content Include="Scripts\jquery-3.1.0.slim.min.map" />
     <Content Include="Scripts\jquery-3.1.0.min.map" />
-    <Content Include="typings\globals\angular-mocks\typings.json" />
-    <Content Include="typings\globals\angular-ui-router\typings.json" />
-    <Content Include="typings\globals\angular\typings.json" />
-    <Content Include="typings\globals\es6-shim\typings.json" />
-    <Content Include="typings\globals\jasmine\typings.json" />
-    <Content Include="typings\globals\jquery\typings.json" />
-    <Content Include="typings\globals\TypeLite\typings.json" />
-    <Content Include="typings\globals\moment\typings.json" />
+    <Content Include="src\app\techs\techs.json" />
+    <Content Include="src\index.scss" />
+    <Content Include="tsconfig.json" />
+    <Content Include="tslint.json" />
+    <Content Include="typings.json" />
+    <Content Include="src\font\material-design-icons\Material-Design-Icons.eot" />
+    <Content Include="src\font\material-design-icons\Material-Design-Icons.ttf" />
+    <Content Include="src\font\material-design-icons\Material-Design-Icons.woff" />
+    <Content Include="src\font\material-design-icons\Material-Design-Icons.woff2" />
+    <Content Include="src\font\material-design-icons\material-design.eot" />
+    <Content Include="src\font\material-design-icons\material-design.ttf" />
+    <Content Include="src\font\material-design-icons\material-design.woff" />
+    <Content Include="src\font\roboto\Roboto-Bold.eot" />
+    <Content Include="src\font\roboto\Roboto-Bold.ttf" />
+    <Content Include="src\font\roboto\Roboto-Bold.woff" />
+    <Content Include="src\font\roboto\Roboto-Bold.woff2" />
+    <Content Include="src\font\roboto\Roboto-Light.eot" />
+    <Content Include="src\font\roboto\Roboto-Light.ttf" />
+    <Content Include="src\font\roboto\Roboto-Light.woff" />
+    <Content Include="src\font\roboto\Roboto-Light.woff2" />
+    <Content Include="src\font\roboto\Roboto-Medium.eot" />
+    <Content Include="src\font\roboto\Roboto-Medium.ttf" />
+    <Content Include="src\font\roboto\Roboto-Medium.woff" />
+    <Content Include="src\font\roboto\Roboto-Medium.woff2" />
+    <Content Include="src\font\roboto\Roboto-Regular.eot" />
+    <Content Include="src\font\roboto\Roboto-Regular.ttf" />
+    <Content Include="src\font\roboto\Roboto-Regular.woff" />
+    <Content Include="src\font\roboto\Roboto-Regular.woff2" />
+    <Content Include="src\font\roboto\Roboto-Thin.eot" />
+    <Content Include="src\font\roboto\Roboto-Thin.ttf" />
+    <Content Include="src\font\roboto\Roboto-Thin.woff" />
+    <Content Include="src\font\roboto\Roboto-Thin.woff2" />
+    <Content Include="src\materialized\materialized.scss" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
-    <None Include="Project_Readme.html" />
     <Content Include="Views\Shared\_LayoutAngular.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -450,31 +452,28 @@
       <DependentUpon>TypeLite.Net4.tt</DependentUpon>
     </TypeScriptCompile>
     <TypeScriptCompile Include="src\app\admin\admin.ts" />
+    <TypeScriptCompile Include="src\app\admin\index.ts" />
     <TypeScriptCompile Include="src\app\components\preloader\preloader.ts" />
     <TypeScriptCompile Include="src\app\dashboard\dashboard.ts" />
     <TypeScriptCompile Include="src\app\dashboard\index.ts" />
+    <TypeScriptCompile Include="src\app\footer.spec.ts" />
     <TypeScriptCompile Include="src\app\footer.ts" />
+    <TypeScriptCompile Include="src\app\header.spec.ts" />
     <TypeScriptCompile Include="src\app\header.ts" />
+    <TypeScriptCompile Include="src\app\main.spec.ts" />
     <TypeScriptCompile Include="src\app\main.ts" />
-    <TypeScriptCompile Include="src\app\admin\index.ts" />
     <TypeScriptCompile Include="src\app\services\argonneService.ts" />
     <TypeScriptCompile Include="src\app\services\index.ts" />
     <TypeScriptCompile Include="src\app\techs\index.ts" />
+    <TypeScriptCompile Include="src\app\techs\tech.spec.ts" />
     <TypeScriptCompile Include="src\app\techs\tech.ts" />
+    <TypeScriptCompile Include="src\app\techs\techs.spec.ts" />
     <TypeScriptCompile Include="src\app\techs\techs.ts" />
+    <TypeScriptCompile Include="src\app\title.spec.ts" />
     <TypeScriptCompile Include="src\app\title.ts" />
     <TypeScriptCompile Include="src\index.run.ts" />
     <TypeScriptCompile Include="src\index.ts" />
     <TypeScriptCompile Include="src\routes.ts" />
-    <TypeScriptCompile Include="typings\globals\angular-mocks\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\angular-ui-router\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\angular\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\es6-shim\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\jasmine\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\jquery\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\moment\index.d.ts" />
-    <TypeScriptCompile Include="typings\globals\TypeLite\index.d.ts" />
-    <TypeScriptCompile Include="typings\index.d.ts" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -511,9 +510,9 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Net.Compilers.1.3.2\build\Microsoft.Net.Compilers.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.1\build\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
-    <Error Condition="!Exists('..\packages\BuildWebCompiler.1.11.323\build\BuildWebCompiler.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BuildWebCompiler.1.11.323\build\BuildWebCompiler.targets'))" />
+    <Error Condition="!Exists('..\packages\BuildWebCompiler.1.11.319\build\BuildWebCompiler.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BuildWebCompiler.1.11.319\build\BuildWebCompiler.targets'))" />
   </Target>
-  <Import Project="..\packages\BuildWebCompiler.1.11.323\build\BuildWebCompiler.targets" Condition="Exists('..\packages\BuildWebCompiler.1.11.323\build\BuildWebCompiler.targets')" />
+  <Import Project="..\packages\BuildWebCompiler.1.11.319\build\BuildWebCompiler.targets" Condition="Exists('..\packages\BuildWebCompiler.1.11.319\build\BuildWebCompiler.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

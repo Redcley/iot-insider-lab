@@ -6,12 +6,14 @@ import 'chartist';
 import 'd3';
 import 'angular-nvd3';
 import 'jquery-sparkline';
+import 'angular-ui-router';
+//import '!style!css!bootstrap/dist/css/bootstrap.min.css';
+//require('ui-router-state-events');
+import 'materialize-css';
 
 //import {techsModule} from './app/techs/index.ts';
 import {dashboardModule} from './app/dashboard/index.ts';
 import {adminModule} from './app/admin/index.ts';
-import 'angular-ui-router';
-import 'ui-router-state-events';
 import routesConfig from './routes.ts';
 
 import {main} from './app/main.ts';
@@ -24,10 +26,8 @@ import {ArgonneService} from './app/services/argonneService.ts';
 //import {admin} from './app/admin/admin.ts';
 import {appRun} from './index.run.ts';
 
-import 'materialize-css';
-
 angular
-    .module('app', [dashboardModule, adminModule, 'ui.router', 'ui.router.state.events','nvd3'])
+    .module('app', [dashboardModule, adminModule, 'ui.router', /*'ui.router.state.events',*/'nvd3'])
     .component('preloader', preloader)
     //.service('preloader', Preloader)
     .service('argonneService', ArgonneService)

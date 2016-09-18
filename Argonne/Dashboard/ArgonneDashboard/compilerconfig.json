@@ -1,10 +1,6 @@
 ﻿[
   {
-    "outputFile": "src/materialized/materialized.css",
-    "inputFile": "src/materialized/materialized.scss"
-  },
-  {
-    "outputFile": "src/index.css",
+    "outputFile": "wwwroot/index.css",
     "inputFile": "src/index.scss"
   }
 ]
