@@ -3,9 +3,10 @@
 import * as angular from 'angular';
 import 'chartjs';
 import 'chartist';
-import 'd3';
-import 'angular-nvd3';
+//import 'd3';
+//import 'angular-nvd3';
 import 'jquery-sparkline';
+import 'angular-chart.js';
 
 //import {techsModule} from './app/techs/index.ts';
 import {dashboardModule} from './app/dashboard/index.ts';
@@ -27,7 +28,7 @@ import {appRun} from './index.run.ts';
 import 'materialize-css';
 
 angular
-    .module('app', [dashboardModule, adminModule, 'ui.router', 'ui.router.state.events','nvd3'])
+    .module('app', [dashboardModule, adminModule, 'ui.router', 'ui.router.state.events','chart.js'])
     .component('preloader', preloader)
     //.service('preloader', Preloader)
     .service('argonneService', ArgonneService)

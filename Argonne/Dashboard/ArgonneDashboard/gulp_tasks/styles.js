@@ -8,6 +8,7 @@ const autoprefixer = require('autoprefixer');
 const conf = require('../conf/gulp.conf');
 
 gulp.task('styles', styles);
+gulp.task('styles:dev', styles);
 
 function styles() {
   return gulp.src(conf.path.src('index.scss'))
@@ -17,4 +18,14 @@ function styles() {
     .pipe(sourcemaps.write())
     .pipe(gulp.dest(conf.path.tmp()))
     .pipe(browserSync.stream());
+}
+
+function stylesDev() {
+    return gulp.src(conf.path.src('index.scss'))
+      .pipe(sourcemaps.init())
+      .pipe(sass({ outputStyle: 'expanded' })).on('error', conf.errorHandler('Sass'))
+      .pipe(postcss([autoprefixer()])).on('error', conf.errorHandler('Autoprefixer'))
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest(conf.path.tmp()))
+      .pipe(browserSync.stream());
 }

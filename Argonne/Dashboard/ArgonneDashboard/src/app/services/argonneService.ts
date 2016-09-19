@@ -50,14 +50,14 @@
             });
     }
 
-    public getCampaignAds(campaignId: string): ng.IPromise<ArgonneService.Models.AdDto[]> {
+    public getCampaignAds(campaignId: string): ng.IPromise<ArgonneService.Models.AdInCampaignDto[]> {
         var url = this.BASE_URI + '/api/admin/Campaign/' + campaignId + '/Ads';
 
         return this.$http.get(url,
             {
             })
             .then(response => {
-                return response.data as ArgonneService.Models.AdDto[];
+                return response.data as ArgonneService.Models.AdInCampaignDto[];
             });
     }
 
@@ -92,6 +92,17 @@
             })
             .then(response => {
                 return response.data as ArgonneService.Models.AdAggregateData[];
+            });
+    }
+
+    public getAllAds(): ng.IPromise<ArgonneService.Models.AdDto[]> {
+        var url = this.BASE_URI + '/api/admin/Ad';
+
+        return this.$http.get(url,
+            {            
+            })
+            .then(response => {
+                return response.data as ArgonneService.Models.AdDto[];
             });
     }
 }

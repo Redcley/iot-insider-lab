@@ -19,6 +19,14 @@ declare module ArgonneService.Models {
 		adName: string;
 		url: string;
 	}
+	interface AdInCampaignDto {
+		adId: string;
+		campaignId: string;
+		duration: number;
+		firstImpression: number;
+		impressionInterval: number;
+		sequence: number;
+	}
 	interface CampaignDto {
 		campaignId: string;
 		campaignName: string;

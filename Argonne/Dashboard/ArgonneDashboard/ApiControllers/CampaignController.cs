@@ -12,21 +12,24 @@ namespace ArgonneDashboard.ApiControllers
 {
     //[Produces("application/json")]
     public class CampaignController : ApiController
-    {       
+    {
+        const string BASE_URI = "http://api-argonne.azurewebsites.net";
         //[HttpGet()]
         //[Route("{campaignId}/impressions/aggregate")]
         //[ProducesResponseType(typeof(IEnumerable<DeviceDto>), 200)]
         [ActionName("aggregate")]
-        public async Task<IList<AdAggregateData>> GetCampaignAggregate(string id)
+        public async Task<AdAggregateData> GetCampaignAggregate(string id)
         {
+            
             using (ArgonneServiceClient client = new ArgonneServiceClient())
             {
-                client.BaseUri = new Uri("http://localhost:44685");
+                client.BaseUri = new Uri(BASE_URI);
                 var result = await client.ApiAdminCampaignByCampaignidImpressionsAggregateGetWithOperationResponseAsync(id);
+                
 
                 // todo: exception handling
 
-                return result.Body;
+                return null;
             }
         }
 

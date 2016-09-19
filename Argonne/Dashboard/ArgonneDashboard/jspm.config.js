@@ -11,7 +11,7 @@ SystemJS.config({
         'typings': {
             'defaultExtension': 'ts'
         },
-        '.tmp': {
+        'wwwroot': {
             'defaultExtension': 'ts'
         }
     },
@@ -40,13 +40,12 @@ SystemJS.config({
         'github:*/*.json'
     ],
     map: {
+        'angular': 'npm:angular@1.5.8',
+        'angular-chart.js': 'npm:angular-chart.js@1.0.2',
+        'font-awesome': 'npm:font-awesome@4.6.3',
         'typescript-collections': 'npm:typescript-collections@1.1.4',
-        'angular-nvd3': 'github:krispo/angular-nvd3@1.0.9',
-        'angular': 'github:angular/bower-angular@1.5.8',
-        'angular/bower-angular': 'github:angular/bower-angular@1.5.8',
         'chartist': 'npm:chartist@0.9.8',
         'chartjs': 'npm:chartjs@0.3.24',
-        'd3': 'npm:d3@3.5.17',
         'assert': 'github:jspm/nodelibs-assert@0.2.0-alpha',
         'buffer': 'github:jspm/nodelibs-buffer@0.2.0-alpha',
         'child_process': 'github:jspm/nodelibs-child_process@0.2.0-alpha',
@@ -59,7 +58,6 @@ SystemJS.config({
         'path': 'github:jspm/nodelibs-path@0.2.0-alpha',
         'stream': 'github:jspm/nodelibs-stream@0.2.0-alpha',
         'string_decoder': 'github:jspm/nodelibs-string_decoder@0.2.0-alpha',
-        'font-awesome': 'npm:font-awesome@4.6.3',
         'process': 'github:jspm/nodelibs-process@0.2.0-alpha',
         'moment': 'npm:moment@2.15.0',
         'jquery-sparkline': 'npm:jquery-sparkline@2.3.2',
@@ -95,11 +93,6 @@ SystemJS.config({
             'map': {
                 'css': 'github:systemjs/plugin-css@0.1.27',
                 'jquery': 'github:components/jquery@3.1.0'
-            }
-        },
-        'npm:font-awesome@4.6.3': {
-            'map': {
-                'css': 'github:systemjs/plugin-css@0.1.27'
             }
         },
         'github:jspm/nodelibs-http@0.2.0-alpha': {
@@ -322,10 +315,32 @@ SystemJS.config({
                 'minimalistic-assert': 'npm:minimalistic-assert@1.0.0'
             }
         },
-        'github:krispo/angular-nvd3@1.0.9': {
+        'npm:font-awesome@4.6.3': {
             'map': {
-                'nvd3': 'npm:nvd3@1.8.4',
-                'angular': 'github:angular/bower-angular@1.5.8'
+                'css': 'github:systemjs/plugin-css@0.1.27'
+            }
+        },
+        'npm:angular-chart.js@1.0.2': {
+            'map': {
+                'chart.js': 'npm:chart.js@2.2.2',
+                'angular': 'npm:angular@1.5.8'
+            }
+        },
+        'npm:chart.js@2.2.2': {
+            'map': {
+                'chartjs-color': 'npm:chartjs-color@2.0.0',
+                'moment': 'npm:moment@2.15.0'
+            }
+        },
+        'npm:chartjs-color@2.0.0': {
+            'map': {
+                'color-convert': 'npm:color-convert@0.5.3',
+                'chartjs-color-string': 'npm:chartjs-color-string@0.4.0'
+            }
+        },
+        'npm:chartjs-color-string@0.4.0': {
+            'map': {
+                'color-name': 'npm:color-name@1.1.1'
             }
         }
     }

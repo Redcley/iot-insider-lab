@@ -39,13 +39,9 @@
                             <span class="deep-purple-text text-lighten-5">{{vm.campaignAgData.totalFaces || 0}} totals faces</span>
                         </p>
                     </div>
-                    <div class="card-action pink darken-2 center-align white-text">
+                    <!--<div class="card-action pink darken-2 center-align white-text">
                         <div id="invoice-line" class="center-align"><canvas width="258" height="25" style="display: inline-block; width: 258px; height: 25px; vertical-align: top;"></canvas></div>
-                        <!--<span><i class="fa fa-male"></i> {{vm.campaignAgData.males}} </span><span><i class="fa fa-female"></i> {{vm.campaignAgData.females}} </span> <span class="deep-purple-text text-lighten-5">from {{vm.currentAfterDate.fromNow()}}</span>-->
-                        <!--<span id="chart-unique-users"></span>-->
-                        <!--<nvd3 options="vm.uniqueChartOptions" data="vm.uniqueChartData" class="with-3d-shadow with-transitions"></nvd3>-->
-                        <!--<div id="clients-bar" class="center-align"><canvas width="227" height="25" style="display: inline-block; width: 227px; height: 25px; vertical-align: top;"></canvas></div>-->
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <div class="col s12 m6 l3">
@@ -57,12 +53,12 @@
                             <!--<i class="mdi-hardware-keyboard-arrow-up"></i> 15%--> <span class="green-text text-lighten-5">Youngest {{vm.aggregatedData.smallestAge}} and oldest {{vm.aggregatedData.largestAge}}</span>
                         </p>
                     </div>
-                    <div class="card-action  green darken-2 center-align ">
+                    <!--<div class="card-action  green darken-2 center-align ">
                         <span id="chart-unique-users"></span>
-                    </div>
+                    </div>-->
                 </div>
             </div>
-            <div class="col s12 m6 l3">                
+            <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content blue-grey white-text">
                         <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Sentiment</p>
@@ -72,9 +68,9 @@
                             <i class="mdi-hardware-keyboard-arrow-up"></i> {{vm.aggregatedData.sentiment.count || '0'}} <span class="blue-grey-text text-lighten-5">{{vm.currentAfterDate.local().fromNow()}}</span>
                         </p>
                     </div>
-                    <div class="card-action blue-grey darken-2">
+                    <!--<div class="card-action blue-grey darken-2">
                         <div id="profit-tristate" class="center-align"><canvas width="227" height="25" style="display: inline-block; width: 227px; height: 25px; vertical-align: top;"></canvas></div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <div class="col s12 m6 l3">
@@ -88,70 +84,26 @@
                             <i class="mdi-hardware-keyboard-arrow-up"></i> 70% <span class="purple-text text-lighten-5">last month</span>
                         </p>-->
                     </div>
-                    <div class="card-action purple darken-2">
+                    <!--<div class="card-action purple darken-2">
                         <div id="sales-compositebar" class="center-align"><canvas width="214" height="25" style="display: inline-block; width: 214px; height: 25px; vertical-align: top;"></canvas></div>
-                    </div>
+                    </div>-->
                 </div>
             </div>
         </div>
     </div>
     <!--card stats end-->
 
-    <!--<div id="impression-collection-wrapper">
-        <div class="row">
-            <div class="card z-depth-0 no-margin no-padding">
-                <div class="card-content">
-                    <div class="card-title">
-                        <span class="card-title">Live Impression Stream ({{vm.impressions.length || 0}})</span>
-                    </div>
-                    <ul id="impression-collection" class="collection scrollable">
-                        <li class="collection-item" ng-repeat="imp in vm.impressions" ng-init="vm.loadAddInfo(imp)">
-                            <div class="row">
-                                <div class="col s6">
-                                    <div class="collections-title">{{imp.ad.adName}}</div>
-                                    <div class="collections-content">
-                                        <div class="row result-{{vm.getImpressionResult(imp)}}">
-                                            <div class="col s12 share-icons">
-                                                <i class="material-icons blue-text">face</i> {{imp.faces.length | number: 2}}
-                                                <i class="material-icons green-text happiness">sentiment_very_satisfied</i> {{imp.avgHappiness | number: 2}}
-                                                <i class="material-icons orange-text contempt">sentiment_satisfied</i> {{imp.avgContempt | number: 2 }}
-                                                <i class="material-icons yellow-text disgust">sentiment_dissatisfied</i> {{imp.avgDisgust | number: 2}}
-                                                <i class="material-icons red-text anger">face</i> {{imp.avgAnger | number: 2}}
-                                                <i class="material-icons brown-text fear">face</i> {{imp.avgFear | number: 2}}
-                                                <i class="material-icons gray-text neutral">sentiment_neutral</i> {{imp.avgNeutral | number: 2}}
-                                                <i class="material-icons lime-text sadness">sentiment_dissatisfied</i> {{imp.avgSadness | number: 2}}
-                                                <i class="material-icons purple-text surprise">sentiment_satisfied</i> {{imp.avgSurprise | number: 2}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col s3">
-                                    <span class="task-cat cyan">{{vm.moment.utc(imp.deviceTimestamp).fromNow()}}</span>
-                                </div>
-                                <div class="col s3">
-                                    <div><small>Campaign: {{imp.campaignId}}</small></div>
-                                    <div><small>Device: {{imp.deviceId}}</small></div>
-                                    <div><small>Ad: {{imp.displayedAdId}}</small></div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>-->
-
     <div id="ad-stats-container" class="row">
-        <!--<div class="col s12 m8">
+        <div class="col s12 m8">
             <div class="card">
                 <div class="card-move-up waves-effect waves-block waves-light">
                     <div class="move-up cyan darken-1">
                         <div>
-                            <span class="chart-title white-text">Revenue</span>
-                            <div class="chart-revenue cyan darken-2 white-text">
+                            <span class="chart-title white-text">Demographics</span>
+                            <!--<div class="chart-revenue cyan darken-2 white-text">
                                 <p class="chart-revenue-total">$4,500.85</p>
                                 <p class="chart-revenue-per"><i class="mdi-navigation-arrow-drop-up"></i> 21.80 %</p>
-                            </div>
+                            </div>-->
                             <div class="switch chart-revenue-switch right">
                                 <label class="cyan-text text-lighten-5">
                                     Month
@@ -160,16 +112,27 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="trending-line-chart-wrapper">
-                            <canvas id="trending-line-chart" height="352" width="1510" style="width: 755px; height: 176px;"></canvas>
+                        <div id="chart-ad-gender-wrapper">
+                            <canvas id="chart-ad-gender" class="chart-base" chart-type="vm.chartAdGenderType" height="50"
+                                    chart-data="vm.chartAdGenderData" chart-labels="vm.chartAdGenderLabels"
+                                    chart-options="vm.chartAdGenderOptions" chart-series="vm.chartAdGenderSeries" 
+                                    chart-dataset-override="vm.chartAdGenderDatasetOverride"></canvas>
+
+                            <!--<canvas class="chart chart-bar" chart-data="data" chart-labels="labels"
+                                    chart-options="options" chart-series="series"></canvas>-->
+
+                            <!--<canvas id="adTrendline" class="chart chart-line" chart-data="vm.data"
+                                    chart-labels="vm.labels" chart-series="vm.series" chart-options="vm.options"
+                                    chart-dataset-override="datasetOverride" chart-click="onClick"></canvas>-->
                         </div>
+                        <!--<nvd3 options="vm.adImpressionOptions" data="vm.adImpressionData" class="with-3d-shadow with-transitions"></nvd3>-->
                     </div>
                 </div>
                 <div class="card-content">
                     <a class="btn-floating btn-move-up waves-effect waves-light darken-2 right"><i class="mdi-content-add activator"></i></a>
                     <div class="col s12 m3 l3">
                         <div id="doughnut-chart-wrapper">
-                            <canvas id="doughnut-chart" height="224" width="338" style="width: 169px; height: 112px;"></canvas>
+                            <canvas id="doughnut-chart" height="115" width="175" style="width: 100px; height: 66px;"></canvas>
                             <div class="doughnut-chart-status">
                                 4500
                                 <p class="ultra-small center-align">Sold</p>
@@ -185,12 +148,12 @@
                     </div>
                     <div class="col s12 m5 l6">
                         <div class="trending-bar-chart-wrapper">
-                            <canvas id="trending-bar-chart" height="216" width="722" style="width: 361px; height: 108px;"></canvas>
+                            <canvas id="trending-bar-chart" height="115" width="388" style="width: 222px; height: 66px;"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <div class="card-reveal">
+                <div class="card-reveal" style="display: none; transform: translateY(0px);">
                     <span class="card-title grey-text text-darken-4">Revenue by Month <i class="mdi-navigation-close right"></i></span>
                     <table class="responsive-table">
                         <thead>
@@ -293,24 +256,26 @@
 
 
             </div>
-        </div>-->
+        </div>
         <div class="col s12 m4">
-            <ul id="projects-collection" class="collection scrollable">
+            <ul id="campaign-collection" class="collection scrollable">
                 <li class="collection-item avatar">
                     <i class="mdi-file-folder circle light-blue darken-2"></i>
-                    <span class="collection-header">Campaign's Ad</span>                    
+                    <span class="collection-header">Campaign's Ad</span>
                     <a href="#" class="secondary-content"><i class="mdi-action-grade"></i></a>
                 </li>
                 <li class="collection-item" ng-repeat="a in vm.currentCampaign.ads">
                     <div class="row" ng-init="vm.getAdDetails(a)">
                         <div class="col s6">
-                            <p class="collections-title">{{a.adName}}</p>
-                            <!--<p class="collections-content">{{a.url}}</p>-->
+                            <div class="collections-title">{{a.adName}}</div>
+                            <div class="collections-content subtitle">{{a.url}}</div>
+                            <span class="task-cat blue"><i class="fa fa-male"></i> {{a.aggregated.maleCount}}</span>
+                            <span class="task-cat pink"><i class="fa fa-female"></i> {{a.aggregated.femaleCount}}</span>
                         </div>
                         <div class="col s3">
-                            
+                            <span class="task-cat blue accent-2">{{a.aggregated.sentiment.name}}</span>
                         </div>
-                        <div class="col s3 valign-wrapper">
+                        <div class="col s3 right-align">
                             <!--<div id="project-line-1"><canvas width="120" height="30" style="display: inline-block; width: 120px; height: 30px; vertical-align: top;"></canvas></div>-->
                             <i class="valign material-icons happiness tiny">sentiment_very_satisfied</i>
                         </div>
@@ -355,7 +320,7 @@
                         <p>Here is some more information about this product that is only revealed once clicked on.</p>
                     </div>
                 </div>
-            </div>            
+            </div>
         </div>
     </div>-->
 

@@ -4,10 +4,10 @@ const replace = require('gulp-replace');
 const Builder = require('jspm').Builder;
 const conf = require('../conf/gulp.conf');
 
-gulp.task('systemjs', systemjs);
-gulp.task('systemjs:html', updateIndexHtml);
+gulp.task('systemjs:dev', systemjsDev);
+gulp.task('systemjs:dev:html', updateIndexHtmlDev);
 
-function systemjs(done) {
+function systemjsDev(done) {
   const builder = new Builder('./', 'jspm.config.js');
   builder.config({
     paths: {
@@ -21,10 +21,10 @@ function systemjs(done) {
     ]
   });
   builder.buildStatic(
-    `${'src/index.ts'} + ${conf.path.tmp('templateCacheHtml.ts')}`,
+    `${'src/index.ts'}`,
     conf.path.tmp('index.js'),
     {
-      production: true,
+      production: false,
       browser: true
     }
   ).then(() => {
@@ -32,7 +32,7 @@ function systemjs(done) {
   }, done);
 }
 
-function updateIndexHtml() {
+function updateIndexHtmlDev() {
   return gulp.src(conf.path.src('index.html'))
     .pipe(replace(
       /<script src="jspm_packages\/system.js">[\s\S]*System.import.*\n\s*<\/script>/,
