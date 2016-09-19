@@ -426,12 +426,6 @@
     <Content Include="src\font\roboto\Roboto-Thin.woff2" />
     <None Include="src\materialized\materialized.scss" />
     <Content Include="src\materialized\materialize-logo.png" />
-    <Content Include="src\materialized\materialized.css">
-      <DependentUpon>materialized.scss</DependentUpon>
-    </Content>
-    <Content Include="src\materialized\materialized.min.css">
-      <DependentUpon>materialized.css</DependentUpon>
-    </Content>
     <Content Include="src\materialized\plugins.js" />
     <Content Include="src\materialized\plugins.min.js" />
     <Content Include="src\materialized\sparkline-script.js" />

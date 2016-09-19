@@ -41,18 +41,18 @@
     @*<script async="async"
         src="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.js"></script>*@
     
-    <script src="jspm_packages/system.js"></script>
+    @*<script src="jspm_packages/system.js"></script>
     <script src="jspm.browser.js"></script>
     <script src="jspm.config.js"></script>
 
     <script>
         System.import('src/index.ts').then(function () {
         });
-    </script>
+    </script>*@
 
 
-    @*<script src="~/wwwroot/index.js"></script>*@
-    <script async="async" src="~/src/materialized/chart-script.js"></script>
+    <script src="~/wwwroot/index.js"></script>
+    @*<script async="async" src="~/src/materialized/chart-script.js"></script>*@
     @RenderSection("scripts", required: false)
 
 </body>

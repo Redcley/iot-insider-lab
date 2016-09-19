@@ -175,7 +175,7 @@ namespace ArgonneAdDisplay.Views
                         Surprise = e.DetectedEmotion.Average(em => em.Scores.Surprise)
                     };
 
-                    this.emotionDataTimelineControl.DrawEmotionData(averageScores);
+                    //this.emotionDataTimelineControl.DrawEmotionData(averageScores);
                 }
 
                 if (e.DetectedFaces == null || !e.DetectedFaces.Any())
@@ -306,7 +306,7 @@ namespace ArgonneAdDisplay.Views
 
         private void ShowTimelineFeedbackForNoFaces()
         {
-            this.emotionDataTimelineControl.DrawEmotionData(new Scores { Neutral = 1 });
+            //this.emotionDataTimelineControl.DrawEmotionData(new Scores { Neutral = 1 });
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -394,17 +394,17 @@ namespace ArgonneAdDisplay.Views
 
                 if (demographicsChanged)
                 {
-                    this.ageGenderDistributionControl.UpdateData(this.demographics);
+                    //this.ageGenderDistributionControl.UpdateData(this.demographics);
                 }
 
-                this.overallStatsControl.UpdateData(this.demographics);
+                //this.overallStatsControl.UpdateData(this.demographics);
             }
         }
 
         private void UpdateDemographicsUI()
         {
-            this.ageGenderDistributionControl.UpdateData(this.demographics);
-            this.overallStatsControl.UpdateData(this.demographics);
+            //this.ageGenderDistributionControl.UpdateData(this.demographics);
+            //this.overallStatsControl.UpdateData(this.demographics);
         }
 
         private async Task ResetDemographicsData()

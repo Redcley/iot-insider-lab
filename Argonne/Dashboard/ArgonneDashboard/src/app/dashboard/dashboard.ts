@@ -1,11 +1,11 @@
 import {ArgonneService} from '../services/argonneService.ts';
 import moment = require("moment");
-import 'jquery-sparkline';
+//import 'jquery-sparkline';
 //import rxjs = require('rx');
 //import d3 = require("d3");
 
 interface CampaignDto extends ArgonneService.Models.CampaignDto {
-    ads: ArgonneService.Models.getCampaignAds[];
+    ads: ArgonneService.Models.AdInCampaignDto[];
 }
 
 interface AJQuery extends JQuery {
@@ -137,7 +137,6 @@ class AggregatedData {
 class DashboardController {
     private currentAfterDate: any;
     public impressions: ArgonneService.Models.ImpressionDto[];
-    //public campaigns: CampaignDto[];
     public currentCampaign: CampaignDto;
     public enableLiveStream: boolean = true;
     public liveStreamTimer: ng.IPromise<any>;
@@ -145,17 +144,21 @@ class DashboardController {
     public uniqueChartOptions: any;
     public uniqueChartData: any;
     public aggregatedData: AggregatedData;
-    public campaignAdAggregations: ArgonneService.Models.AdAggregateData[];
     public adImpressions: AggregatedData[] = []; // stores the impressions by adid
     public chartAdGenderData: any[][];
     public chartAdGenderOptions: any;
     public chartAdGenderLabels: string[];
     public chartAdGenderSeries: string[];
     public chartAdGenderType: string;
-    public chartAdGenderDatasetOverride: [];
-    public allAds: ArgonneService.Models.AdDto[];
+    public chartAdGenderDatasetOverride: any[];
+    public ageData: any[] = [[]];
+    public chartImpressionSentimentType: string = 'line';
+    public chartImpressionSentimentData: any[];
+    public chartImpressionSentimentLabels: string[];
+    public chartImpressionSentimentSeries: string[];
+    public chartImpressionSentimentOption: any;
+    public chartImpressionSentitmentDatasetOverride: any[];
 
-    //public loaded: boolean = false;
     private CAMPAIGN_ID = '3149351f-3c9e-4d0a-bfa5-d8caacfd77f0';
     //private CAMPAIGN_ID = '7c69a011-f039-4fb2-8c45-986bfae5c13d';
 
@@ -163,10 +166,6 @@ class DashboardController {
 
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope, private $q: ng.IQService) {
         this.currentAfterDate = moment.utc();//.subtract('days', 1);
-
-        //this.startMonitor();
-
-        //this.initializeCharts();      
 
         this.initData();
 
@@ -179,7 +178,7 @@ class DashboardController {
         });
     }
 
-    public getCampaignDetails(campaign: CampaignDto) {
+    public getCampaignDetails(campaign: CampaignDto, allAds: ArgonneService.Models.AdDto) {
         this.argonneService.getCampaignAds(campaign.campaignId)
             .then((ads) => {
                 campaign.ads = ads;
@@ -188,69 +187,125 @@ class DashboardController {
                 campaign.ads.forEach((c: ArgonneService.Models.AdInCampaignDto) => {
                     // now find the 
 
-                    var foundAd = this.allAds.find(a => a.adId == c.adId);
-                    
-                    angular.merge(c, foundAd);                    
+                    var foundAd = allAds.find(a => a.adId == c.adId);
+
+                    angular.merge(c, foundAd);
                 });
 
                 // init the chart.
                 this.initGenderChart();
+                this.initLiveSentimentChart();
             });
     }
 
     public getAdDetails(ad: ArgonneService.Models.AdDto) {
-        this.argonneService.getAdDetails(ad.adId)
-            .then((adDetail) => {
-                ad = angular.extend(ad, adDetail);
+        //this.argonneService.getAdDetails(ad.adId)
+        //    .then((adDetail) => {
+        //        ad = angular.extend(ad, adDetail);
 
-                ad.aggregated = this.adImpressions[ad.adId];
+        //        ad.aggregated = this.adImpressions[ad.adId];
 
-                // now get the ad's metrics
-            });
+        //        // now get the ad's metrics
+        //    });
     }
 
     private updateChart() {
         this.chartAdGenderData = [
-            this.currentCampaign.ads.map(v => v.males),
-            this.currentCampaign.ads.map(v => v.females),
-            this.currentCampaign.ads.map(v => v.males + v.females)            
+            [this.campaignAgData.ageBracket1, this.campaignAgData.ageBracket2, this.campaignAgData.ageBracket3, this.campaignAgData.ageBracket4, this.campaignAgData.ageBracket5, this.campaignAgData.ageBracket6]
+            //this.currentCampaign.ads.map(v => v.males),
+            //this.currentCampaign.ads.map(v => v.females),
+            //this.currentCampaign.ads.map(v => v.males + v.females)            
             //[65, 59, 90, 81, 56, 55, 40],
             //[28, 48, 40, 19, 96, 27, 100]
         ];
     }
 
+    private initLiveSentimentChart() {
+        this.chartImpressionSentitmentDatasetOverride = [
+            {
+                label: "Male",
+                //fillColor: "rgba(255,255,255,0)",
+                fill: false,
+                strokeColor: "#fff",
+                pointColor: "#00796b ",
+                pointStrokeColor: "#fff",
+                pointHighlightFill: "#fff",
+                pointHighlightStroke: "rgba(220,220,220,1)"
+            },
+            {
+                label: "Female",
+                //fillColor: "rgba(255,255,255,0)",
+                //fill: false,
+                //strokeColor: "#fff",
+                //pointColor: "#00796b ",
+                //pointStrokeColor: "#fff",
+                //pointHighlightFill: "#fff",
+                //pointHighlightStroke: "rgba(220,220,220,1)"
+            }
+        ];
+
+        this.chartImpressionSentimentLabels = [];//["USA", "UK", "UAE", "AUS", "IN", "SA"]; // should be the date
+        //this.chartImpressionSentimentSeries = ['Sentiment'];
+        this.chartImpressionSentimentOption = {
+            scaleShowGridLines: false,
+            bezierCurve: true,
+            scaleFontSize: 12,
+            scaleFontStyle: "normal",
+            scaleFontColor: "#fff",
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    //stacked: true,
+                    display: false
+                }],
+                yAxes: [{
+                    //stacked: true,
+                    display: false
+                }]
+            }
+        };
+
+        this.chartImpressionSentimentData = [];
+
+        //this.chartImpressionSentimentData = [
+        //    [65, 45, 50, 30, 63, 45],   // male
+        //    [20, 11, 9, 20, 99, 8]      // female
+        //];
+    }
+
     private initGenderChart() {
-        // Configure all line charts        
-        debugger;
-        this.chartAdGenderData = [[],[],[]];
+        var ageCategories = ['0-15', '16-19', '20s', '30s', '40s', '50s+'];
+
+        // Configure all line charts                
+        this.chartAdGenderData = this.ageData;// [[1, 4, 2, 1, 0, 0]];//, [4, 6, 18, 1, 1, 0]];
 
         this.chartAdGenderDatasetOverride = [
             {
-                type: 'line',
-                strokeColor: 'blue',
-                fillColor: 'blue'
+                type: 'bar',
+                backgroundColor: 'rgba(72, 111, 136, 0.7)',
+                borderWidth: 0
             },
             {
-                type: 'line',
-                strokeColor: 'red',
-                fillColor: 'red',
-                fill: false,
-                backgroundColor: 'red'
+                type: 'bar'
             },
             {
+                type: 'bar',
                 backgroundColor: "#46BFBD",
                 borderWidth: 0,
-            }            
+            }
         ];
 
         this.chartAdGenderType = "bar";
-        this.chartAdGenderLabels = this.currentCampaign.ads.map(v => v.adName); //['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];        
-        this.chartAdGenderSeries = ['Male', 'Female', 'Total'];
+        this.chartAdGenderLabels = ageCategories; //this.currentCampaign.ads.map(v => v.adName); //['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];        
+        //this.chartAdGenderSeries = ['Female', 'Male'];
         this.chartAdGenderOptions = {
             //fillColor: "#46BFBD",
             //strokeColor: "#46BFBD",
-            highlightFill: "rgba(70, 191, 189, 0.4)",
-            highlightStroke: "rgba(70, 191, 189, 0.9)",
+            //scaleGridLineColor: "rgba(255,255,255,0.4)",//String - Colour of the grid lines		
+            //highlightFill: "rgba(70, 191, 189, 0.4)",
+            //highlightStroke: "rgba(70, 191, 189, 0.9)",
+            //scaleFontStyle: "normal",// String - Scale label font weight style		
+            //scaleFontColor: "#fff",// String - Scale label font colour
             scaleShowGridLines: false,///Boolean - Whether grid lines are shown across the chart
             showScale: false,
             animationSteps: 15,
@@ -259,7 +314,7 @@ class DashboardController {
             scales: {
                 xAxes: [{
                     stacked: true,
-                    display: false
+                    display: true
                 }],
                 yAxes: [{
                     stacked: true,
@@ -276,169 +331,39 @@ class DashboardController {
         //];
     }
 
-    private initializeCharts() {
-        //this.initGenderChart();
-
-        //this.colors = ['white', '#ff6384', '#ff8e72'];
-
-        //this.labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        //this.data = [
-        //    [65, -59, 80, 81, -56, 55, -40],
-        //    [28, 48, -40, 19, 86, 27, 90]
-        //];
-        /*this.datasetOverride = [
-            {
-                label: "Bar chart",
-                borderWidth: 1,
-                type: 'bar'
-            },
-            {
-                label: "Line chart",
-                borderWidth: 3,
-                hoverBackgroundColor: "rgba(255,99,132,0.4)",
-                hoverBorderColor: "rgba(255,99,132,1)",
-                type: 'bar'
-            }
-        ];*/
-
-        //this.labels = ["January", "February", "March", "April", "May", "June", "July"];
-        //this.series = ['Series A', 'Series B'];
-        //this.data = [
-        //    [50, 30, 50, 20, 11, 8, 2],
-        //    [65, 59, 80, 81, 56, 55, 40],
-        //    [28, 48, 40, 19, 86, 27, 90]
-        //];
-        //this.onClick = function (points, evt) {
-        //    console.log(points, evt);
-        //};
-        //this.datasetOverride = [{ yAxisID: 'y-axis-1' }, { yAxisID: 'y-axis-2' }];
-        //this.options = {
-        //    scales: {
-        //        yAxes: [
-        //            {
-        //                id: 'y-axis-1',
-        //                type: 'linear',
-        //                display: true,
-        //                position: 'left'
-        //            },
-        //            {
-        //                id: 'y-axis-2',
-        //                type: 'linear',
-        //                display: true,
-        //                position: 'right'
-        //            }
-        //        ]
-        //    }
-        //};
-
-        this.uniqueChartOptions = {
-            chart: {
-                type: 'multiBarChart',
-                height: 450,
-                margin: {
-                    top: 20,
-                    right: 20,
-                    bottom: 45,
-                    left: 45
-                },
-                clipEdge: true,
-                duration: 500,
-                stacked: true,
-                xAxis: {
-                    axisLabel: 'Time (ms)',
-                    showMaxMin: false,
-                    tickFormat: function (d) {
-                        return d3.format(',f')(d);
-                    }
-                },
-                yAxis: {
-                    axisLabel: 'Y Axis',
-                    axisLabelDistance: -20,
-                    tickFormat: function (d) {
-                        return d3.format(',.1f')(d);
-                    }
-                }
-            }
-        };
-    }
-
     private initData() {
         this.$q.all([this.argonneService.getAllAds(),
             this.argonneService.getCampaignDetails(this.CAMPAIGN_ID)])
             .then((resolves: any[]) => {
-                this.allAds = resolves[0];
+                var allAds = resolves[0];
 
                 this.currentCampaign = resolves[1] as CampaignDto;
 
-                //this.campaignAdAggregations = resolves[2];
-
-                // go through each aggregations
-                //this.campaignAdAggregations.forEach((data: ArgonneService.Models.AdAggregateData, index) => {
-                //    this.campaignAgData = data;
-
-                //    debugger;
-
-                //    // now get the map the data
-                //});
-
-                // todo: aggregate the real
-                //this.campaignAgData = this.campaignAdAggregations[0];
-
                 // now get the current campaign details
-                this.getCampaignDetails(this.currentCampaign);
+                this.getCampaignDetails(this.currentCampaign, allAds);
             });
     }
 
     private getData() {
-        var afterTimestamp = this.currentAfterDate.subtract('days', 10).utc().format("YYYY-MM-DD HH:mm");
-
-        //this.$q.all([this.argonneService.getAllAds(),
-        //    this.argonneService.getCampaignDetails(this.CAMPAIGN_ID),
-        //    this.argonneService.getCampaignAggregate(this.CAMPAIGN_ID, afterTimestamp)])
-        //    .then((resolves: any[]) => {
-        //        this.allAds = resolves[0];
-
-        //        this.currentCampaign = resolves[1] as CampaignDto;
-
-        //        this.campaignAdAggregations = resolves[2];
-
-        //        // go through each aggregations
-        //        //this.campaignAdAggregations.forEach((data: ArgonneService.Models.AdAggregateData, index) => {
-        //        //    this.campaignAgData = data;
-
-        //        //    debugger;
-
-        //        //    // now get the map the data
-        //        //});
-
-        //        // todo: aggregate the real
-        //        this.campaignAgData = this.campaignAdAggregations[0];
-
-        //        // now get the current campaign details
-        //        this.getCampaignDetails(this.currentCampaign);
-        //    });
-
-        //this.argonneService.getAllCampaigns().then((campaigns) => {
-        //    this.campaigns = campaigns as CampaignDto[];
-        //});
+        var afterTimestamp = this.currentAfterDate.utc().format("YYYY-MM-DD HH:mm");
 
         this.argonneService.getCampaignAggregate(this.CAMPAIGN_ID, afterTimestamp).then((campaignAdAggregations: ArgonneService.Models.AdAggregateData[]) => {
-            this.campaignAdAggregations = campaignAdAggregations;
-
             this.currentCampaign.ads.forEach((ad) => {
                 // find the aggregate
-                var foundAggregation = this.campaignAdAggregations.find(adAg => ad.adId == adAg.adId);
+                var foundAggregation = campaignAdAggregations.find(adAg => ad.adId == adAg.adId);
 
                 angular.merge(ad, foundAggregation);
             });
 
-
-            this.updateChart();
+            this.campaignAgData = campaignAdAggregations[0];
 
             // go through each aggregations
-            this.campaignAdAggregations.forEach((data: ArgonneService.Models.AdAggregateData, index) => {
-                this.campaignAgData = data;
-            });
+            //campaignAdAggregations.forEach((data: ArgonneService.Models.AdAggregateData, index) => {                
+            //    this.campaignAgData = data;
+            //});            
+
+            // update the demo chart
+            this.updateChart();
         });
 
         this.argonneService
@@ -450,8 +375,11 @@ class DashboardController {
                 this.aggregatedData = new AggregatedData();
 
                 this.adImpressions = [];
+                this.chartImpressionSentimentLabels = [];
+                this.chartImpressionSentimentData = [];
 
                 var totalImpressionSentiments: Sentiment[] = [];
+
 
                 impressions.forEach((imp: ArgonneService.Models.ImpressionDto) => {
                     // calculate and add                    
@@ -486,6 +414,29 @@ class DashboardController {
                             totalImpressionSentiments[impressionsAggregations.sentiment.name].count++;
                         }
                     }
+
+                    // now update the impression chart, build the chart labels and data
+                    this.chartImpressionSentimentLabels.push(imp.deviceTimestamp.toString());
+
+                    if (impressionsAggregations.sentiment.name == 'happiness') {
+                        this.chartImpressionSentimentData.push(3);
+                    } else if (impressionsAggregations.sentiment.name == 'surprise') {
+                        this.chartImpressionSentimentData.push(2);
+                    } else if (impressionsAggregations.sentiment.name == 'contempt') {
+                        this.chartImpressionSentimentData.push(1);
+                    } else if (impressionsAggregations.sentiment.name == 'neutral') {
+                        this.chartImpressionSentimentData.push(0);
+                    } else if (impressionsAggregations.sentiment.name == 'fear') {
+                        this.chartImpressionSentimentData.push(-1);
+                    } else if (impressionsAggregations.sentiment.name == 'sadness') {
+                        this.chartImpressionSentimentData.push(-2);
+                    } else if (impressionsAggregations.sentiment.name == 'disgust') {
+                        this.chartImpressionSentimentData.push(-3);
+                    } else if (impressionsAggregations.sentiment.name == 'anger') {
+                        this.chartImpressionSentimentData.push(-4);
+                    }
+
+                    //this.chartImpressionSentimentData.push(impressionsAggregations.avgAge);//impressionsAggregations.maleCount, impressionsAggregations.femaleCount]);
                 });
 
                 // average out all of the impressions aggregated age
@@ -509,6 +460,34 @@ class DashboardController {
                 }
 
                 this.aggregatedData.sentiment = overallSentiment;
+
+                //this.chartImpressionSentimentLabels.push(moment.now().toLocaleString());//impressions[0].deviceTimestamp.toString());
+
+                //if (overallSentiment.name == 'happiness') {
+                //    this.chartImpressionSentimentData.push(3 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'surprise') {
+                //    this.chartImpressionSentimentData.push(2 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'contempt') {
+                //    this.chartImpressionSentimentData.push(1 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'neutral') {
+                //    this.chartImpressionSentimentData.push(0 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'fear') {
+                //    this.chartImpressionSentimentData.push(-1 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'sadness') {
+                //    this.chartImpressionSentimentData.push(-2 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'disgust') {
+                //    this.chartImpressionSentimentData.push(-3 * overallSentiment.score);
+                //} else if (overallSentiment.name == 'anger') {
+                //    this.chartImpressionSentimentData.push(-4 * overallSentiment.score);
+                //}
+
+                //if (overallSentiment.name != 'surprise' && overallSentiment.name != 'happiness' && overallSentiment.name != 'contempt') {
+                //    // just multiple by -1 for a negative outlook
+                //    this.chartImpressionSentimentData.push(overallSentiment.score * -1);//impressionsAggregations.maleCount, impressionsAggregations.femaleCount]);
+                //} else {
+                //    this.chartImpressionSentimentData.push(overallSentiment.score);//impressionsAggregations.maleCount, impressionsAggregations.femaleCount]);
+                //}
+                //var sentimentValue = overallSentiment == '
             })
             ;
     }
@@ -533,41 +512,6 @@ class DashboardController {
 
         this.liveStreamTimer = null;
     }
-
-    /*Random Data Generator */
-    private sinAndCos() {
-        var sin = [], sin2 = [],
-            cos = [];
-
-        //Data is represented as an array of {x,y} pairs.
-        for (var i = 0; i < 100; i++) {
-            sin.push({ x: i, y: Math.sin(i / 10) });
-            sin2.push({ x: i, y: i % 10 == 5 ? null : Math.sin(i / 10) * 0.25 + 0.5 });
-            cos.push({ x: i, y: .5 * Math.cos(i / 10 + 2) + Math.random() / 10 });
-        }
-
-        //Line chart data should be sent as an array of series objects.
-        return [
-            {
-                values: sin,      //values - represents the array of {x,y} data points
-                key: 'Sine Wave', //key  - the name of the series.
-                color: '#ff7f0e',  //color - optional: choose your own line color.
-                strokeWidth: 2,
-                classed: 'dashed'
-            },
-            {
-                values: cos,
-                key: 'Cosine Wave',
-                color: '#2ca02c'
-            },
-            {
-                values: sin2,
-                key: 'Another sine wave',
-                color: '#7777ff',
-                area: true      //area - set to true if you want this line to turn into a filled area chart.
-            }
-        ];
-    };
 }
 
 export const dashboard: angular.IComponentOptions = {

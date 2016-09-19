@@ -17,8 +17,8 @@ namespace ArgonneAdDisplay.ViewModel
         //private const string CLIENT_URL = "http://localhost:44685/";
         private const string CLIENT_URL = "http://api-argonne.azurewebsites.net";
         private const String DEBUG_DEVICE_ID = "1117163c-b8e5-41fd-9cb7-0062d36a14f2";
-        private const String CAMPAIGN_ID = "7c69a011-f039-4fb2-8c45-986bfae5c13d";
-        //private const String CAMPAIGN_ID = "3149351F-3C9E-4D0A-BFA5-D8CAACFD77F0";
+        //private const String CAMPAIGN_ID = "7c69a011-f039-4fb2-8c45-986bfae5c13d";
+        private const String CAMPAIGN_ID = "3149351F-3C9E-4D0A-BFA5-D8CAACFD77F0";
 
         // timer to swap out the ad based on the settings
         private Timer adTimer;
