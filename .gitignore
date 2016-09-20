@@ -5,3 +5,14 @@ packages/
 node_modules/
 logs/
 .env
+Argonne/Dashboard/ArgonneDashboard/wwwroot/lib/
+*.user
+*.suo
+Argonne/Dashboard/ArgonneDashboard/project.fragment.lock.json
+/Argonne/Api/.vs
+/Argonne/Api/ArgonneWebApi/Properties/PublishProfiles
+Argonne/Dashboard/ArgonneDashboard/jspm_packages/github/
+Argonne/Dashboard/ArgonneDashboard/jspm_packages/npm/
+/Argonne/Dashboard/ArgonneDashboard/src/**/*.css
+/Argonne/Dashboard/ArgonneDashboard/src/**/*.js
+/Argonne/Dashboard/ArgonneDashboard/src/**/*.map

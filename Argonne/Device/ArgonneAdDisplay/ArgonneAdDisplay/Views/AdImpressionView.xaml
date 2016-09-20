@@ -1,0 +1,55 @@
+﻿<Page
+    x:Class="ArgonneAdDisplay.Views.AdImpressionView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ArgonneAdDisplay.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"    
+    xmlns:ctl="using:IntelligentKioskSample.Controls"
+    MinWidth="1024" MinHeight="800"
+    DataContext="{Binding Main, Source={StaticResource Locator}}"
+    mc:Ignorable="d">
+
+    <Grid x:Name="MainGrid" 
+            EntranceNavigationTransitionInfo.IsTargetElement="True" Background="#FF262626">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+            <!--<RowDefinition Height="165" />-->
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Smart Sign" Foreground="White" HorizontalAlignment="Center" FontFamily="Segoe UI Light" Style="{StaticResource HeaderTextBlockStyle}"/>
+            <TextBlock Text="IoT Insider Lab Demo" HorizontalAlignment="Center" FontFamily="Segoe UI Light"  Style="{StaticResource SubtitleTextBlockStyle}" FontStyle="Italic"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" DataContext="{Binding CurrentCampaign}">
+            <ctl:CameraControl x:Name="cameraControl" Visibility="Collapsed" />
+
+            <WebView Source="{Binding CurrentAd.Url}" Name="addView"/>
+
+            <TextBlock x:Name="debugText" Opacity="0.6" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        </Grid>
+
+        <!--<Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition />
+                <ColumnDefinition Width="150"/>
+            </Grid.ColumnDefinitions>
+            <ctl:AgeGenderDistributionControl Margin="5" x:Name="ageGenderDistributionControl" HeaderText="Demographics" SubHeaderText="At this hour (erased hourly)" SubHeaderVisibility="Visible" />
+            <ctl:OverallStatsControl Margin="5" x:Name="overallStatsControl" HeaderText="Total Faces" SubHeaderText="At this hour (erased hourly)" SubHeaderVisibility="Visible" Grid.Column="1" />
+            <ctl:EmotionResponseTimelineControl Margin="5" Grid.Column="2" x:Name="emotionDataTimelineControl"  />
+            <ctl:CameraControl Grid.Column="3" Margin="5" x:Name="cameraControl" />
+        </Grid>-->
+
+        <Grid Grid.Row="1" x:Name="initializingUI" Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Foreground="White" Text="Resetting data..." Style="{StaticResource HeaderTextBlockStyle}"/>
+                <ProgressRing x:Name="initializingProgressRing" Height="100" Width="100" Foreground="White"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>
