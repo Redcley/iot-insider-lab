@@ -13,7 +13,7 @@ PreviousEvent AS
 (
     SELECT
 		IoTHub.ConnectionDeviceId as deviceId,
-		LAST(temperature) OVER(LIMIT DURATION(ss, 60)) as temperature
+		LAST(temperature) OVER(LIMIT DURATION(ss, 11)) as temperature
     FROM iotlabdemo
 )
 
@@ -40,7 +40,7 @@ INTO
 FROM
     iotlabdemo
 JOIN PreviousEvent 
-    ON DATEDIFF(ss, iotlabdemo, PreviousEvent) between 0 and 61
+    ON DATEDIFF(ss, iotlabdemo, PreviousEvent) between 0 and 6
         AND iotlabdemo.IoTHub.ConnectionDeviceId = PreviousEvent.deviceId
 JOIN averages 
     ON DATEDIFF(ms, iotlabdemo, averages) = 0 
