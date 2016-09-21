@@ -17,3 +17,8 @@ Argonne/Dashboard/ArgonneDashboard/jspm_packages/npm/
 /Argonne/Dashboard/ArgonneDashboard/src/**/*.map
 Argonne/Device/ArgonneAdDisplay/ArgonneAdDisplay/AppPackages/ArgonneAdDisplay_1.0.4.0_Test/Dependencies/x86/Microsoft.NET.Native.Runtime.1.4.appx
 Argonne/Device/ArgonneAdDisplay/ArgonneAdDisplay/AppPackages/
+Argonne/Dashboard/ArgonneDashboard/wwwroot/index.css
+Argonne/Dashboard/ArgonneDashboard/wwwroot/index.html
+Argonne/Dashboard/ArgonneDashboard/wwwroot/index.js
+Argonne/Dashboard/ArgonneDashboard/wwwroot/index.min.css
+Argonne/Dashboard/ArgonneDashboard/wwwroot/templateCacheHtml.ts

@@ -8,10 +8,6 @@ interface CampaignDto extends ArgonneService.Models.CampaignDto {
     ads: ArgonneService.Models.AdInCampaignDto[];
 }
 
-interface AJQuery extends JQuery {
-    sparkline(data: any[], config: any);
-}
-
 class Sentiment {
     public name: string;
     public score: number;   // total score of the sentiment
@@ -81,6 +77,7 @@ class AggregatedData {
     }
 
     public static aggregateForImpression(sourceImpression: ArgonneService.Models.ImpressionDto): AggregatedData {
+        // TODO: should really get the aggregation from services than doing it this way
         var aggregations: AggregatedData = new AggregatedData();
 
         sourceImpression.faces.forEach((agData) => {
@@ -131,7 +128,6 @@ class AggregatedData {
         return aggregations;
 
     }
-    //public facesMap: { [key: string]: ArgonneService.Models.FaceForImpressionDto[]; } = {};
 }
 
 class DashboardController {
@@ -150,8 +146,7 @@ class DashboardController {
     public chartAdGenderLabels: string[];
     public chartAdGenderSeries: string[];
     public chartAdGenderType: string;
-    public chartAdGenderDatasetOverride: any[];
-    public ageData: any[] = [[]];
+    public chartAdGenderDatasetOverride: any[];    
     public chartImpressionSentimentType: string = 'line';
     public chartImpressionSentimentData: any[];
     public chartImpressionSentimentLabels: string[];
@@ -161,8 +156,8 @@ class DashboardController {
     public currentCampaignId: string;
     public allCampaigns: ArgonneService.Models.CampaignDto[];
 
-    private CAMPAIGN_ID = '3149351f-3c9e-4d0a-bfa5-d8caacfd77f0';
-    //private CAMPAIGN_ID = '7c69a011-f039-4fb2-8c45-986bfae5c13d';
+    // Specify the default campaign
+    private CAMPAIGN_ID = <Default Campaign ID Here>;
 
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope, private $q: ng.IQService, private $stateParams: any) {
         this.currentAfterDate = moment.utc();//.subtract('days', 1);
@@ -239,8 +234,6 @@ class DashboardController {
             //this.currentCampaign.ads.map(v => v.males),
             //this.currentCampaign.ads.map(v => v.females),
             //this.currentCampaign.ads.map(v => v.males + v.females)            
-            //[65, 59, 90, 81, 56, 55, 40],
-            //[28, 48, 40, 19, 96, 27, 100]
         ];
     }
 
@@ -268,7 +261,7 @@ class DashboardController {
             }
         ];
 
-        this.chartImpressionSentimentLabels = [];//["USA", "UK", "UAE", "AUS", "IN", "SA"]; // should be the date
+        this.chartImpressionSentimentLabels = [];
         //this.chartImpressionSentimentSeries = ['Sentiment'];
         this.chartImpressionSentimentOption = {
             scaleShowGridLines: false,
@@ -289,19 +282,14 @@ class DashboardController {
             }
         };
 
-        this.chartImpressionSentimentData = [];
-
-        //this.chartImpressionSentimentData = [
-        //    [65, 45, 50, 30, 63, 45],   // male
-        //    [20, 11, 9, 20, 99, 8]      // female
-        //];
+        this.chartImpressionSentimentData = [];        
     }
 
     private initGenderChart() {
         var ageCategories = ['0-15', '16-19', '20s', '30s', '40s', '50s+'];
 
         // Configure all line charts                
-        this.chartAdGenderData = this.ageData;// [[1, 4, 2, 1, 0, 0]];//, [4, 6, 18, 1, 1, 0]];
+        this.chartAdGenderData = [[]];
 
         this.chartAdGenderDatasetOverride = [
             {
@@ -320,7 +308,7 @@ class DashboardController {
         ];
 
         this.chartAdGenderType = "bar";
-        this.chartAdGenderLabels = ageCategories; //this.currentCampaign.ads.map(v => v.adName); //['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];        
+        this.chartAdGenderLabels = ageCategories;
         //this.chartAdGenderSeries = ['Female', 'Male'];
         this.chartAdGenderOptions = {
             //fillColor: "#46BFBD",
@@ -345,14 +333,7 @@ class DashboardController {
                     display: false
                 }]
             }
-        };
-
-        //this.chartAdGenderData = [
-        //    this.currentCampaign.ads.map(v => v.males),
-        //    this.currentCampaign.ads.map(v => v.females)
-        //    //[65, 59, 90, 81, 56, 55, 40],
-        //    //[28, 48, 40, 19, 96, 27, 100]
-        //];
+        };        
     }
 
     private initData() {
@@ -369,7 +350,7 @@ class DashboardController {
     }
 
     private getData() {
-        var afterTimestamp = this.currentAfterDate.utc().format("YYYY-MM-DD");
+        var afterTimestamp = this.currentAfterDate.utc().format("YYYY-MM-DDTH:m");
 
         this.argonneService.getCampaignAggregate(this.CAMPAIGN_ID, afterTimestamp).then((campaignAdAggregations: ArgonneService.Models.AdAggregateData[]) => {
 
@@ -482,37 +463,8 @@ class DashboardController {
                     }
                 }
 
-                this.aggregatedData.sentiment = overallSentiment;
-
-                //this.chartImpressionSentimentLabels.push(moment.now().toLocaleString());//impressions[0].deviceTimestamp.toString());
-
-                //if (overallSentiment.name == 'happiness') {
-                //    this.chartImpressionSentimentData.push(3 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'surprise') {
-                //    this.chartImpressionSentimentData.push(2 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'contempt') {
-                //    this.chartImpressionSentimentData.push(1 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'neutral') {
-                //    this.chartImpressionSentimentData.push(0 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'fear') {
-                //    this.chartImpressionSentimentData.push(-1 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'sadness') {
-                //    this.chartImpressionSentimentData.push(-2 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'disgust') {
-                //    this.chartImpressionSentimentData.push(-3 * overallSentiment.score);
-                //} else if (overallSentiment.name == 'anger') {
-                //    this.chartImpressionSentimentData.push(-4 * overallSentiment.score);
-                //}
-
-                //if (overallSentiment.name != 'surprise' && overallSentiment.name != 'happiness' && overallSentiment.name != 'contempt') {
-                //    // just multiple by -1 for a negative outlook
-                //    this.chartImpressionSentimentData.push(overallSentiment.score * -1);//impressionsAggregations.maleCount, impressionsAggregations.femaleCount]);
-                //} else {
-                //    this.chartImpressionSentimentData.push(overallSentiment.score);//impressionsAggregations.maleCount, impressionsAggregations.femaleCount]);
-                //}
-                //var sentimentValue = overallSentiment == '
-            })
-            ;
+                this.aggregatedData.sentiment = overallSentiment;                
+            });
     }
 
     private startMonitor() {

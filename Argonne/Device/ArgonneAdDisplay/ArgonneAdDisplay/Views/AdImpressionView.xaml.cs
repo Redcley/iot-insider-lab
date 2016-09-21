@@ -50,9 +50,8 @@ namespace ArgonneAdDisplay.Views
         private IEnumerable<Tuple<Face, IdentifiedPerson>> lastIdentifiedPersonSample;
         private IEnumerable<SimilarFaceMatch> lastSimilarPersistedFaceSample;                
 
-        private const String DEBUG_DEVICE_ID = "1117163c-b8e5-41fd-9cb7-0062d36a14f2";
-        //private const string DEBUG_CAMPAIGN_ID = "3149351f-3c9e-4d0a-bfa5-d8caacfd77f0";
-        private const string DeviceConnectionString = "HostName=iotlabargonneiothub.azure-devices.net;DeviceId=RashidTestDevice;SharedAccessKey=jBzEMd2UTD66Q0krZX5J+La5QQIZEnxjS5Ft+2A7YXY=";
+        private const String DEBUG_DEVICE_ID = <Device ID Here>;        
+        private const string DeviceConnectionString = <Connstring>;
 
         DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Amqp);
 
