@@ -16,7 +16,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition />
-            <!--<RowDefinition Height="165" />-->
+            <!--<RowDefinition Height="auto" />-->
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0">

@@ -11,7 +11,7 @@ gulp.task('clean', clean);
 gulp.task('other', other);
 
 function clean() {
-  return del([conf.paths.dist, conf.paths.tmp]);
+  //return del([conf.paths.dist, conf.paths.tmp]);
 }
 
 function other() {
@@ -24,7 +24,7 @@ function other() {
 
   return gulp.src([
     path.join(conf.paths.src, '/**/*'),
-    path.join(`!${conf.paths.src}`, '/**/*.{scss,js,html}')
+    path.join(`!${conf.paths.src}`, '/**/*.{scss,ts,html}')
   ])
     .pipe(fileFilter)
     .pipe(rename(jsonFilter))

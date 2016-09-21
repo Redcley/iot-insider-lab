@@ -1,33 +1,21 @@
-﻿<!DOCTYPE html>
+﻿@using ArgonneDashboard.Extensions
+
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
     <title>Argonne Dashboard</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
     <base href="/">
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="~/jspm_packages/npm/materialize-css@0.97.7/dist/css/materialize.min.css">        
-    <link rel="stylesheet" href="~/src/materialized/materialized.css">
-    <link rel="stylesheet" href="~/src/index.css">
-
-    @*<script src="~/jspm_packages/npm/jquery@3.1.0/dist/jquery.min.js"></script>
-    <script src="~/jspm_packages/npm/signalr@2.2.1/jquery.signalr.min.js"></script>
-    <script src="signalr/hubs"></script>
-        *@
-
-    <!-- build:js(.tmp) index.js -->
-    <script src="jspm_packages/system.js"></script>
-    <script src="jspm.browser.js"></script>
-    <script src="jspm.config.js"></script>
-
-    <script>
-        System.import('src/index.ts');
-    </script>
-    <!-- endbuild -->            
+    @*<link rel="stylesheet" href="~/jspm_packages/npm/materialize-css@0.97.7/dist/css/materialize.min.css">*@
+    <link rel="stylesheet" href="~/wwwroot/materialized/materialized.css">    
+    <link rel="stylesheet" href="~/wwwroot/index.css">
 </head>
-<body ng-app="app" class="loaded">    
-    <preloader></preloader>       
+<body ng-app="app" class="loaded">
+    <preloader></preloader>
     <!-- Start Page Loading -->
     <div id="loader-wrapper">
         <div id="loader"></div>
@@ -36,8 +24,26 @@
     </div>
     <!-- End Page Loading -->
 
-    @RenderBody()    
+    @RenderBody()
 
-    @RenderSection("scripts", required: false)    
+    @if (Html.IsReleaseBuild())
+    {
+        <script src="~/wwwroot/index.js"></script>
+    }
+    else
+    {
+        <!-- build:js(wwwroot) index.js -->
+        <script src="../jspm_packages/system.js"></script>
+        <script src="../jspm.browser.js"></script>
+        <script src="../jspm.config.js"></script>
+
+        <script>
+        System.import('wwwroot/index.ts').then(function () {});
+        </script>
+        <!-- endbuild -->
+    }        
+
+    @RenderSection("scripts", required: false)
+
 </body>
 </html>

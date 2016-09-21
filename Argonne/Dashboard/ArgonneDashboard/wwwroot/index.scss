@@ -1,0 +1,50 @@
+@import '../jspm_packages/npm/font-awesome@4.6.3/scss/font-awesome.scss';
+
+body {
+    
+}
+
+#content {    
+}
+
+#content .container {
+    width: 98%;
+    max-width: 100%;    
+}
+
+.card.no-margin .card-content {
+    margin: 0;    
+}
+
+.card.no-padding .card-content {
+    padding: 0;
+}
+
+#campaign-collection {
+    background: white;
+}
+
+.collection.scrollable {
+    height: 400px;
+    overflow-y: auto;
+}
+
+/*.share-icons i {
+    @extend .tiny;
+}*/
+
+.result-happiness i.happiness, .result-contempt i.contempt, .result-disgust i.disgust, .result-anger i.anger, .result-fear i.fear, .result-neutral i.neutral, .result-sadness i.sadness, .result-surprise i.surprise {
+    font-size: 20pt;
+}
+
+.collection-item .subtitle{
+    font-size: 8pt;
+}
+
+.collections-title {
+    font-weight: bold;
+}
+
+#chart-ad-gender-wrapper {
+    
+}
