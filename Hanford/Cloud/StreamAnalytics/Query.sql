@@ -13,15 +13,19 @@ PreviousEvent AS
 (
     SELECT
 		IoTHub.ConnectionDeviceId as deviceId,
+		EventEnqueuedUtcTime as Time,
 		LAST(temperature) OVER(LIMIT DURATION(ss, 11)) as temperature
-    FROM sensordata
+    FROM sensordata 
 )
 
 SELECT
     averages.deviceId as deviceId,
-	averages.time,
+	averages.time as EndTimeOfAverageWindow,
 	averages.avgtemp,
 	sensordata.temperature as TriggerTemp,
+	sensordata.EventEnqueuedUtcTime AS CurrentEventTime,
+	PreviousEvent.temperature as PreviousTemp,
+	PreviousEvent.Time as PreviousTime,
 	CONCAT(averages.deviceId, CAST(System.TimeStamp as nvarchar(max))) as uid,
 	CASE
 		WHEN ((sensordata.temperature - averages.avgtemp) > 5) AND ((PreviousEvent.temperature  - averages.avgtemp) <= 5) THEN 'red'
@@ -40,10 +44,10 @@ INTO
 FROM
     sensordata
 JOIN PreviousEvent 
-    ON DATEDIFF(ss, sensordata, PreviousEvent) between 0 and 6
+    ON DATEDIFF(ss, sensordata, PreviousEvent) between 1 and 6
         AND sensordata.IoTHub.ConnectionDeviceId = PreviousEvent.deviceId
 JOIN averages 
-    ON DATEDIFF(ms, sensordata, averages) = 0 
+    ON DATEDIFF(ss, sensordata, averages) between 1 and 6
     AND sensordata.IoTHub.ConnectionDeviceId = averages.deviceId 
 WHERE
 	(sensordata.temperature - averages.avgtemp > 1 ) OR ((PreviousEvent.temperature - averages.avgtemp) > 1)
