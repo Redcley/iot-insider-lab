@@ -2,6 +2,9 @@
 
 using System;
 using Microsoft.ServiceBus.Messaging;
+using Microsoft.Azure.Devices;
+using Newtonsoft.Json;
+using System.Text;
 
 public class FooMsg
 {
@@ -15,19 +18,51 @@ public class FooMsg
 	public string uid { get; set; }
 	public string color { get; set; }
 	public bool power { get; set; }
-	
+}
+
+public class Light
+{
+	public string power { get; set; }
+	public string color { get; set; }
+}
+
+public class Sound
+{
+	public bool play { get; set; }
+}
+
+public class CloudToDeviceMessage
+{
+	public string request { get; set; }
+	public List<Light> lights { get; set; }
+	public Sound sound { get; set; }
 }
 
 public static void Run(List<FooMsg> myEventHubMessages, TraceWriter log)
 {
+	var connectionString = System.Environment.GetEnvironmentVariable("iothub_connection");
+	var serviceClient = ServiceClient.CreateFromConnectionString(connectionString);
+	
     foreach(var msg in myEventHubMessages)
     {
-		log.Info($"------------------------------------------");
-		log.Info($"DeviceId: {myEventHubMessages[0].deviceid}");
-		log.Info($"Trigger Temp: {myEventHubMessages[0].triggertemp}");
-		log.Info($"Avg Temp: {myEventHubMessages[0].avgtemp}");
-        log.Info($"Color: {myEventHubMessages[0].color}");
-		log.Info($"Power: {myEventHubMessages[0].power}");
+//		log.Info($"------------------------------------------");
+//		log.Info($"DeviceId: {myEventHubMessages[0].deviceid}");
+//		log.Info($"Trigger Temp: {myEventHubMessages[0].triggertemp}");
+//		log.Info($"Avg Temp: {myEventHubMessages[0].avgtemp}");
+//      log.Info($"Color: {myEventHubMessages[0].color}");
+//		log.Info($"Power: {myEventHubMessages[0].power}");
+
+		log.Info($"DeviceId: {msg.deviceid}");
+		var command = new CloudToDeviceMessage
+		{
+			request = "output",
+			lights = new List<Light>{new Light{power = msg.power.ToString(), color = msg.color}},
+			sound = new Sound{play = false}
+		};
+		string messageString = JsonConvert.SerializeObject(command);
+		log.Info($"CloudToDeviceMessage: {messageString}");
+		
+		var commandMessage = new Message(Encoding.ASCII.GetBytes(messageString));
+		serviceClient.SendAsync(msg.deviceid, commandMessage).Wait(1000);
     }
-   
 }
