@@ -34,11 +34,9 @@ SELECT
 	PreviousEvent.Time as PreviousTime,
 	CONCAT(averages.deviceId, CAST(System.TimeStamp as nvarchar(max))) as uid,
 	CASE
-		WHEN ((sensordata.temperature - averages.avgtemp) > 5) AND ((PreviousEvent.temperature  - averages.avgtemp) <= 5) THEN 'red'
-		WHEN ((sensordata.temperature - averages.avgtemp) > 3) AND ((PreviousEvent.temperature - averages.avgtemp) <= 3) THEN 'green'
-		WHEN ((sensordata.temperature - averages.avgtemp) > 1) AND ((PreviousEvent.temperature - averages.avgtemp) <= 1) THEN 'blue'
-		WHEN ((sensordata.temperature - averages.avgtemp) < 5) AND ((PreviousEvent.temperature  - averages.avgtemp) >= 5) THEN 'green'
-		WHEN ((sensordata.temperature - averages.avgtemp) < 3) AND ((PreviousEvent.temperature - averages.avgtemp) >= 3) THEN 'blue'	
+		WHEN ((sensordata.temperature - averages.avgtemp) > 5) THEN 'red'
+		WHEN ((sensordata.temperature - averages.avgtemp) > 3) THEN 'green'
+		WHEN ((sensordata.temperature - averages.avgtemp) > 1) THEN 'blue'
 		ELSE 'off'
 	END as Color,
 	CASE
@@ -51,7 +49,7 @@ FROM
     sensordata
 JOIN PreviousEvent 
     ON DATEDIFF(ss, PreviousEvent, sensordata) between 1 and 6
-        AND sensordata.IoTHub.ConnectionDeviceId = PreviousEvent.deviceId
+        AND sensordata.IoTHub.ConnectionDeviceId = PreviousEvent.deviceId	
 JOIN averages 
     ON DATEDIFF(ss, averages, sensordata) between 1 and 6
     AND sensordata.IoTHub.ConnectionDeviceId = averages.deviceId 
