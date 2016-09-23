@@ -78,7 +78,6 @@
     "dependencies": {
       "angular-chart.js": "npm:angular-chart.js@^1.0.2",
       "angular-ui-router": "npm:angular-ui-router@1.0.0-beta.1",
-      "chartist": "npm:chartist@^0.9.8",
       "chartjs": "npm:chartjs@^0.3.24",
       "css": "github:systemjs/plugin-css@^0.1.27",
       "font-awesome": "npm:font-awesome@^4.6.3",

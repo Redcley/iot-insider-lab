@@ -22,3 +22,5 @@ Argonne/Dashboard/ArgonneDashboard/wwwroot/index.html
 Argonne/Dashboard/ArgonneDashboard/wwwroot/index.js
 Argonne/Dashboard/ArgonneDashboard/wwwroot/index.min.css
 Argonne/Dashboard/ArgonneDashboard/wwwroot/templateCacheHtml.ts
+Argonne/Dashboard/ArgonneDashboard/wwwroot/**/*.map
+Argonne/Dashboard/ArgonneDashboard/wwwroot/**/*.js

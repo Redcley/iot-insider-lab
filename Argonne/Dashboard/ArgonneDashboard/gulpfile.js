@@ -1,6 +1,5 @@
 const gulp = require('gulp');
 const HubRegistry = require('gulp-hub');
-const browserSync = require('browser-sync');
 const conf = require('./conf/gulp.conf');
 
 // Load some files into the registry
@@ -10,8 +9,6 @@ const hub = new HubRegistry([conf.path.tasks('*.js')]);
 gulp.registry(hub);
 
 gulp.task('build', gulp.series('partials', gulp.parallel('systemjs', 'systemjs:html'), 'build'));
-gulp.task('test', gulp.series('karma:single-run'));
-gulp.task('test:auto', gulp.series('karma:auto-run'));
 
 function reloadBrowserSync(cb) {
   browserSync.reload();

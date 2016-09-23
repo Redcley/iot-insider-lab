@@ -44,7 +44,6 @@ SystemJS.config({
         'angular-chart.js': 'npm:angular-chart.js@1.0.2',
         'font-awesome': 'npm:font-awesome@4.6.3',
         'typescript-collections': 'npm:typescript-collections@1.1.4',
-        'chartist': 'npm:chartist@0.9.8',
         'chartjs': 'npm:chartjs@0.3.24',
         'assert': 'github:jspm/nodelibs-assert@0.2.0-alpha',
         'buffer': 'github:jspm/nodelibs-buffer@0.2.0-alpha',

@@ -3,7 +3,7 @@
     "outputFile": "wwwroot/index.css",
     "inputFile": "wwwroot/index.scss",
     "options": {
-      "sourceMap": true
+      "sourceMap": false
     },
     "minify": {
       "enabled": true
@@ -13,7 +13,7 @@
     "outputFile": "wwwroot/materialized/materialized.css",
     "inputFile": "wwwroot/materialized/materialized.scss",
     "options": {
-      "sourceMap": true
+      "sourceMap": false
     },
     "minify": {
       "enabled": true
