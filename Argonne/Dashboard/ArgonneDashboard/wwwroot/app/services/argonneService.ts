@@ -1,6 +1,6 @@
 ﻿export class ArgonneService {
     // replace with valid service URL
-    private BASE_URI: string = 'http://api-argonne.azurewebsites.net';
+    private BASE_URI: string = <Service API>;
 
     constructor(private $http: ng.IHttpService) {
     }

@@ -46,8 +46,7 @@ class DashboardController {
     public currentCampaignId: string;
     
     // Specify the default campaign
-    private CAMPAIGN_ID = '3149351f-3c9e-4d0a-bfa5-d8caacfd77f0';
-    //private CAMPAIGN_ID = '7c69a011-f039-4fb2-8c45-986bfae5c13d';
+    private CAMPAIGN_ID = <Default Campaign ID>;
 
     // constructor
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope, private $q: ng.IQService, private $stateParams: any) {
