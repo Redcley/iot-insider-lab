@@ -8,16 +8,22 @@ WITH averages AS
     FROM sensordata
     GROUP BY SlidingWindow(mi, 5), IoTHub.ConnectionDeviceId
 ),
-
-PreviousEvent AS
+FlattenedEvent AS
 (
     SELECT
 		IoTHub.ConnectionDeviceId as deviceId,
 		EventEnqueuedUtcTime as Time,
-		LAST(temperature) OVER(LIMIT DURATION(ss, 11)) as temperature
+		temperature
     FROM sensordata 
+),
+PreviousEvent AS
+(
+    SELECT
+		LAG(deviceId,1,0) OVER(LIMIT DURATION(ss, 11)) as deviceId,
+		LAG(Time,1,0) OVER(LIMIT DURATION(ss, 11)) as Time,
+		LAG(temperature,1,0) OVER(LIMIT DURATION(ss, 11)) as temperature
+    FROM FlattenedEvent 
 )
-
 SELECT
     averages.deviceId as deviceId,
 	averages.time as EndTimeOfAverageWindow,
@@ -44,10 +50,10 @@ INTO
 FROM
     sensordata
 JOIN PreviousEvent 
-    ON DATEDIFF(ss, sensordata, PreviousEvent) between 1 and 6
+    ON DATEDIFF(ss, PreviousEvent, sensordata) between 1 and 6
         AND sensordata.IoTHub.ConnectionDeviceId = PreviousEvent.deviceId
 JOIN averages 
-    ON DATEDIFF(ss, sensordata, averages) between 1 and 6
+    ON DATEDIFF(ss, averages, sensordata) between 1 and 6
     AND sensordata.IoTHub.ConnectionDeviceId = averages.deviceId 
 WHERE
 	(sensordata.temperature - averages.avgtemp > 1 ) OR ((PreviousEvent.temperature - averages.avgtemp) > 1)
