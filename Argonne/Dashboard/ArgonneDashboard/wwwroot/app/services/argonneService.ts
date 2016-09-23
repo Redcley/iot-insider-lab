@@ -1,7 +1,6 @@
 ﻿export class ArgonneService {
     // replace with valid service URL
-    private BASE_URI: string = <http://someapiendpoint.azurewebsites.net>
-
+    private BASE_URI: string = 'http://api-argonne.azurewebsites.net';
 
     constructor(private $http: ng.IHttpService) {
     }
@@ -18,21 +17,7 @@
             })
             .then(response => {
                 return response.data as ArgonneService.Models.ImpressionDto[];
-            });
-
-        //return this.$http.get('/data/impressions.json')
-        //    .then((response) => {
-        //        debugger;
-        //        this.impressions = response.data as ArgonneService.Models.ImpressionDto[];
-        //        return this.impressions;
-        //    });
-
-        //var list: Models.List;
-        //$http
-        //    .get('src/app/techs/techs.json')
-        //    .then(response => {
-        //        this.techs = response.data as Tech[];
-        //    });
+            });        
     }
 
     public getAllCampaigns(): ng.IPromise<ArgonneService.Models.CampaignDto[]> {

@@ -63,10 +63,6 @@
     "deps": {},
     "peerDeps": {}
   },
-  "npm:chartist@0.9.8": {
-    "deps": {},
-    "peerDeps": {}
-  },
   "npm:typescript-collections@1.1.4": {
     "deps": {},
     "peerDeps": {}

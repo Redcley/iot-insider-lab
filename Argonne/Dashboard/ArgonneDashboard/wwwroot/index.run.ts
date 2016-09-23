@@ -1,4 +1,7 @@
-﻿import { ArgonneService } from './app/services/argonneService.ts';
+﻿/**
+    Angular run code.
+*/
+import { PreloaderService } from './app/components/preloader/preloaderService.ts';
 
 interface IMGScope extends ng.IScope {
     $state: ng.ui.IState;
@@ -15,53 +18,24 @@ interface IMGScopeRootScope extends ng.IRootScopeService {
     loaded: boolean;
 }
 
-export function appRun($rootScope: IMGScopeRootScope, $state: IMGState/*ng.ui.IStateService*/, $stateParams: ng.ui.IStateParamsService, $transitions: any, $timeout: ng.ITimeoutService, argonneService: ArgonneService) {    
-    //$transitions.onStart({}, function (trans) {
-    //    debugger;
-    //});
+export function appRun($rootScope: IMGScopeRootScope, $state: IMGState/*ng.ui.IStateService*/, $transitions: any, $timeout: ng.ITimeoutService, preloader: PreloaderService, $trace: any) {
+    $trace.enable('TRANSITION');
 
-    //$transitions.onSuccess({}, function (trans) {
-    //    debugger;
-    //});
+    //$rootScope.$on('$viewContentLoaded', function (event, viewConfig) {
+    //    preloader.setStatus(false);        
+    //});    
 
-    //$transitions.onBefore({}, function (trans) {
-    //    debugger;
-    //});
-
-    //$transitions.onStart({}, function (trans) {
-    //    debugger;
-    //    //var SpinnerService = trans.injector.get('SpinnerService');
-    //    //SpinnerService.transitionStart();
-    //    //trans.promise.finally(SpinnerService.transitionEnd);
-    //});
-
-    //$rootScope.$on('$stateChangeStart', function (event: any, toState: IMGState, toParams: any, fromState: IMGState, fromParams: any) {
-    //    debugger;
-    //    $rootScope.loaded = false;
-    //});
-
-    //$rootScope.$on('$stateChangeSuccess', function (event: any, toState: IMGState, toParams: any, fromState: IMGState, fromParams: any, transition: any) {
-    //    debugger;
-    //    toState.loaded = true;
-    //    toParams.loadedParam = true;
-    //    $rootScope.state = toState;
-    //    $rootScope.loaded = true;
-    //});
+    //$rootScope.$on('$viewContentLoading', function (event, viewConfig) {
+    //    preloader.setStatus(true);        
+    //});    
 
     $transitions.onStart({ /*to: 'auth.**'*/ }, function (trans) {
-        //$state.current.loaded = false;
-        //$rootScope.loaded = false;
-        //debugger;  
-        //debugger;
-        //$timeout(() => {
-        //    $rootScope.$broadcast('preloader', { loaded: false });
-        //}, 100);        
+        preloader.setStatus(true);        
     });
 
-    $transitions.onSuccess({ /*to: 'auth.**'*/ }, function (trans) {        
-        //debugger;
-        //$timeout(() => {
-        //    $rootScope.$broadcast('preloader', { loaded: true });
-        //}, 100);        
+    $transitions.onSuccess({ /*to: 'auth.**'*/ }, function (trans) {
+        $timeout(() => {
+            preloader.setStatus(false);
+        }, 250);        
     });
 };

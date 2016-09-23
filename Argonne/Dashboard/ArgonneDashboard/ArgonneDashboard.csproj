@@ -287,8 +287,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="conf\gulp.conf.js" />
-    <Content Include="conf\karma-auto.conf.js" />
-    <Content Include="conf\karma.conf.js" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
@@ -298,7 +296,6 @@
     </None>
     <Content Include="gulpfile.js" />
     <Content Include="gulp_tasks\build.js" />
-    <Content Include="gulp_tasks\karma.js" />
     <Content Include="gulp_tasks\misc.js" />
     <Content Include="gulp_tasks\partials.js" />
     <Content Include="gulp_tasks\scripts.js" />
@@ -334,12 +331,7 @@
     <Content Include="Scripts\_references.js" />
     <Content Include="wwwroot\.eslintrc.js" />
     <Content Include="wwwroot\app\admin\admin.html" />
-    <Content Include="wwwroot\app\components\preloader\preloader.html" />
     <Content Include="wwwroot\app\dashboard\dashboard.html" />
-    <Content Include="wwwroot\app\footer.html" />
-    <Content Include="wwwroot\app\header.html" />
-    <Content Include="wwwroot\app\main.html" />
-    <Content Include="wwwroot\app\title.html" />
     <Content Include="wwwroot\font\material-design-icons\Material-Design-Icons.svg" />
     <Content Include="wwwroot\font\material-design-icons\material-design.svg" />
     <Content Include="wwwroot\index.css">
@@ -348,7 +340,6 @@
     <Content Include="wwwroot\index.min.css">
       <DependentUpon>index.css</DependentUpon>
     </Content>
-    <Content Include="wwwroot\index.spec.js" />
     <Content Include="wwwroot\materialized\chart-script.js" />
     <Content Include="wwwroot\materialized\google-map-script.js" />
     <Content Include="Scripts\Manager.ttinclude" />
@@ -379,6 +370,26 @@
     <Content Include="wwwroot\font\material-design-icons\material-design.eot" />
     <Content Include="wwwroot\font\material-design-icons\material-design.ttf" />
     <Content Include="wwwroot\font\material-design-icons\material-design.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Bold.eot" />
+    <Content Include="wwwroot\font\roboto\Roboto-Bold.ttf" />
+    <Content Include="wwwroot\font\roboto\Roboto-Bold.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Bold.woff2" />
+    <Content Include="wwwroot\font\roboto\Roboto-Light.eot" />
+    <Content Include="wwwroot\font\roboto\Roboto-Light.ttf" />
+    <Content Include="wwwroot\font\roboto\Roboto-Light.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Light.woff2" />
+    <Content Include="wwwroot\font\roboto\Roboto-Medium.eot" />
+    <Content Include="wwwroot\font\roboto\Roboto-Medium.ttf" />
+    <Content Include="wwwroot\font\roboto\Roboto-Medium.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Medium.woff2" />
+    <Content Include="wwwroot\font\roboto\Roboto-Regular.eot" />
+    <Content Include="wwwroot\font\roboto\Roboto-Regular.ttf" />
+    <Content Include="wwwroot\font\roboto\Roboto-Regular.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Regular.woff2" />
+    <Content Include="wwwroot\font\roboto\Roboto-Thin.eot" />
+    <Content Include="wwwroot\font\roboto\Roboto-Thin.ttf" />
+    <Content Include="wwwroot\font\roboto\Roboto-Thin.woff" />
+    <Content Include="wwwroot\font\roboto\Roboto-Thin.woff2" />
     <None Include="wwwroot\materialized\materialized.scss" />
     <Content Include="wwwroot\materialized\materialize-logo.png" />
     <Content Include="wwwroot\materialized\materialized.css">
@@ -438,7 +449,6 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Project_Readme.html" />
-    <Content Include="Views\Shared\_LayoutAngular.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
@@ -454,16 +464,14 @@
       <DependentUpon>TypeLite.Net4.tt</DependentUpon>
     </TypeScriptCompile>
     <TypeScriptCompile Include="wwwroot\app\admin\admin.ts" />
+    <TypeScriptCompile Include="wwwroot\app\components\preloader\preloaderService.ts" />
+    <TypeScriptCompile Include="wwwroot\app\components\preloader\index.ts" />
     <TypeScriptCompile Include="wwwroot\app\components\preloader\preloader.ts" />
     <TypeScriptCompile Include="wwwroot\app\dashboard\dashboard.ts" />
     <TypeScriptCompile Include="wwwroot\app\dashboard\index.ts" />
-    <TypeScriptCompile Include="wwwroot\app\footer.ts" />
-    <TypeScriptCompile Include="wwwroot\app\header.ts" />
-    <TypeScriptCompile Include="wwwroot\app\main.ts" />
     <TypeScriptCompile Include="wwwroot\app\admin\index.ts" />
     <TypeScriptCompile Include="wwwroot\app\services\argonneService.ts" />
     <TypeScriptCompile Include="wwwroot\app\services\index.ts" />
-    <TypeScriptCompile Include="wwwroot\app\title.ts" />
     <TypeScriptCompile Include="wwwroot\index.run.ts" />
     <TypeScriptCompile Include="wwwroot\index.ts" />
     <TypeScriptCompile Include="wwwroot\routes.ts" />

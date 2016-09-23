@@ -11,7 +11,6 @@ const uglifySaveLicense = require('uglify-save-license');
 const ngAnnotate = require('gulp-ng-annotate');
 const rename = require("gulp-rename");
 
-
 const conf = require('../conf/gulp.conf');
 
 gulp.task('build', build);
@@ -24,11 +23,11 @@ function build() {
     return gulp.src(conf.path.dist(conf.path.srcIndexHtml()))
     .pipe(useref())
     .pipe(jsFilter)
-    .pipe(sourcemaps.init())
+    //.pipe(sourcemaps.init())
     .pipe(ngAnnotate())
     .pipe(uglify({preserveComments: uglifySaveLicense})).on('error', conf.errorHandler('Uglify'))
     //.pipe(rev())
-    .pipe(sourcemaps.write('maps'))
+    //.pipe(sourcemaps.write('maps'))
     .pipe(jsFilter.restore)
     .pipe(cssFilter)
     //.pipe(sourcemaps.init())

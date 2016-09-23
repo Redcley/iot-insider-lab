@@ -10,19 +10,18 @@
 
     <base href="/">
     <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    @*<link rel="stylesheet" href="~/jspm_packages/npm/materialize-css@0.97.7/dist/css/materialize.min.css">*@
-    <link rel="stylesheet" href="~/wwwroot/materialized/materialized.css">    
+    <link rel="stylesheet" href="~/wwwroot/materialized/materialized.css">
     <link rel="stylesheet" href="~/wwwroot/index.css">
 </head>
-<body ng-app="app" class="loaded">
-    <preloader></preloader>
+<body ng-app="app" class="">
     <!-- Start Page Loading -->
-    <div id="loader-wrapper">
+    <div id="loader-wrapper" preloader>
         <div id="loader"></div>
         <div class="loader-section section-left"></div>
         <div class="loader-section section-right"></div>
     </div>
     <!-- End Page Loading -->
+    <preloader></preloader>
 
     @RenderBody()
 
