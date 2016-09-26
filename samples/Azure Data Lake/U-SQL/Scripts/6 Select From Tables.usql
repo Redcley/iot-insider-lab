@@ -1,0 +1,33 @@
+﻿/*
+Note:
+As there are dependencies, run the scripts in the given order, running 1 Extract and Output.usql first and then run 2 Create View, etc.
+The purpose of this script is to give you a taste of the new Big Data query language U-SQL.
+*/
+
+/*
+This script shows --
+
+    1. Use of the SELECT statement on the tables created by the preceding Database and Tables script.
+    2. Use of the .NET Round function.
+    3. Use of the custom Reverse C# function in U-SQL SELECT.
+*/
+
+@aggregate = SELECT
+    Station,
+    System.Math.Round(Convert.ToDecimal(AVG(Temperature)), 1) AS AverageTemperature
+FROM WeatherDb.dbo.Observations   AS o
+     JOIN WeatherDb.dbo.Locations AS l
+       ON l.StationCode == o.StationCode
+GROUP BY Station;
+
+@top5 = SELECT 
+    Station,
+    U_SQL.Helpers.Reverse(Station) AS Reversed,
+    AverageTemperature
+FROM @aggregate
+ORDER BY AverageTemperature DESC
+FETCH 5 ROWS;
+
+OUTPUT @top5 TO "/output/TopAverageTemperatures.csv"
+ORDER BY AverageTemperature DESC
+USING Outputters.Csv();

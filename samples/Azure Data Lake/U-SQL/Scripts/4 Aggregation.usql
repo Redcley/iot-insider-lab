@@ -1,0 +1,19 @@
+﻿/*
+Note:
+As there are dependencies, run the scripts in the given order, running 1 Extract and Output.usql first and then run 2 Create View, etc.
+The purpose of this script is to give you a taste of the new Big Data query language U-SQL.
+*/
+
+/*
+This script demonstrates that U-SQL handles the familiar GROUP BY and ORDER BY clauses.
+*/
+
+@counts =
+    SELECT station,
+           COUNT( * ) AS observations
+    FROM AllWeather() AS gaw
+    GROUP BY station;
+
+OUTPUT @counts TO "/output/Counts.csv"
+ORDER BY observations DESC, station ASC
+USING Outputters.Csv();
