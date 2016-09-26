@@ -22,7 +22,7 @@ public class FooMsg
 
 public class Light
 {
-	public string power { get; set; }
+	public bool power { get; set; }
 	public string color { get; set; }
 }
 
@@ -45,18 +45,11 @@ public static void Run(List<FooMsg> myEventHubMessages, TraceWriter log)
 	
     foreach(var msg in myEventHubMessages)
     {
-//		log.Info($"------------------------------------------");
-//		log.Info($"DeviceId: {myEventHubMessages[0].deviceid}");
-//		log.Info($"Trigger Temp: {myEventHubMessages[0].triggertemp}");
-//		log.Info($"Avg Temp: {myEventHubMessages[0].avgtemp}");
-//      log.Info($"Color: {myEventHubMessages[0].color}");
-//		log.Info($"Power: {myEventHubMessages[0].power}");
-
 		log.Info($"DeviceId: {msg.deviceid}");
 		var command = new CloudToDeviceMessage
 		{
 			request = "output",
-			lights = new List<Light>{new Light{power = msg.power.ToString(), color = msg.color}},
+			lights = new List<Light>{new Light{power = msg.power, color = msg.color}},
 			sound = new Sound{play = false}
 		};
 		string messageString = JsonConvert.SerializeObject(command);
