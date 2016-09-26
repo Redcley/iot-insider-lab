@@ -1,5 +1,12 @@
 'use strict';
 
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 // utility to standardize our logging so we always have stack traces
 // available for errors.
 function err() {

@@ -1,48 +1,33 @@
-# Backend Processing & Management Dashboard Server
+# Node
 
-This server demonstrates handling both the backend processing and the management dashboard of our IoT solution.
+This demonstrates a device running on Raspbian as a node process.
 
 ## Setting up you environment
-
-The azure-event-hubs node module currently has a bug which we have worked around in our fork. Until the PR is accepted you'll need to clone our repo in a sibling directory to this directory or update the path in ```package.json```
-
-You can us commands like the following to set this up.
-
-```bash
-$ cd ..
-$ git clone https://github.com/seank-com/azure-event-hubs.git
-$ cd azure-event-hubs
-$ git checkout develop
-$ git pull
-```
-
-Then you can setup the rest of the dependencies by running the usual npm command
 
 ```bash
 npm install
 ```
 
-This server utilizes ```.env``` configuration files. This keeps you from pushing credentials to your repository. Before running the server, create a ```.env``` file in the same directory as ```app.js``` and put the following
+This device utilizes ```.env``` configuration files. This keeps you from pushing credentials to your repository. Before running the server, create a ```.env``` file in the same directory as ```device.js``` and put the following
 
 ```
-IOT_HUB_CONNECTIONSTRING=<your IoTHub iothubowner connection string>
-SQL_CONNECTIONSTRING=<Your SQL database connection string>
+IOT_DEVICE_CONNECTIONSTRING=<your IoTHub iothubowner connection string>
 ```
 
-The server also expects to find a logs directory where ```app.js``` is and will enable viewing the file in that directory from the management dashboard.
+The server also expects to find a logs directory where ```device.js``` is and will store logs there.
 
 ## Running
 
-You can run the server locally using the following command
+You can run the device locally using the following command
 
 ```bash
-node app.js
+node device.js
 ```
 
 or for an experience more like production
 
 ```bash
-node app.js >>logs/out.log 2>>logs/err.log
+node device.js >>logs/out.log 2>>logs/err.log
 ```
 
 ## Setting up a Node server
@@ -59,10 +44,7 @@ $ sudo apt-get update
 $ sudo apt-get dist-upgrade
 $ sudo apt-get install -y nodejs
 $ sudo apt-get install -y git
-$ sudo apt-get install -y nginx
-$ sudo apt-get install -y xrdp
 $ sudo apt-get autoremove
-$ sudo /etc/init.d/nginx stop
 ```
 
 Now setup the node server
@@ -70,6 +52,7 @@ Now setup the node server
 ```bash
 $ sudo su -
 $ useradd node
+$ usermod -G i2c node
 $ exit
 $ sudo mkdir /var/node
 $ sudo mkdir /var/node/logs
@@ -78,12 +61,6 @@ $ sudo chmod 775 /var/node/logs
 $ sudo mkdir /var/forever
 $ sudo chown $(whoami):node /var/forever
 $ sudo chmod 775 /var/forever
-$ sudo mkdir /var/azure-event-hubs
-$ sudo chown -R $(whoami):node /var/azure-event-hubs
-$ git clone https://github.com/seank-com/azure-event-hubs.git /var/azure-event-hubs
-$ cd /var/azure-event-hubs
-$ git checkout develop
-$ git pull
 ```
 
 Getting it ready to run forever
@@ -99,7 +76,7 @@ Paste the following for /var/node/forever.json
 {
   "uid": "iot-server",
   "append": true,
-  "script": "app.js",
+  "script": "device.js",
   "path": "/var/forever",
   "sourceDir": "/var/node",
   "workingDir": "/var/node",
@@ -184,48 +161,9 @@ Paste the following
 sudo logrotate -f /etc/logrotate.conf
 ```
 
-Now configure Nginx
-
-```bash
-$ sudo nano /etc/nginx/sites-enabled/default
-```
-
-Replace the contents of /etc/nginx/sites-enabled/default with
-the following
-
-```
-##
-# You should look at the following URL's in order to grasp a solid understanding
-# of Nginx configuration files in order to fully unleash the power of Nginx.
-# http://wiki.nginx.org/Pitfalls
-# http://wiki.nginx.org/QuickStart
-# http://wiki.nginx.org/Configuration
-#
-# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
-##
-
-# HTTP server
-server {
-  listen 		80 default;
-  server_name 	iot-server;
-
-  # Proxy pass-though to the local node server
-  location / {
-    proxy_pass http://127.0.0.1:4000/;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_connect_timeout       300;
-    proxy_send_timeout          300;
-    proxy_read_timeout          300;
-    send_timeout                300;
-  }
-}
-```
-
 Register and start services
 
 ```bash
 $ sudo update-rc.d iot-server defaults
 $ sudo /etc/init.d/iot-server start
-$ sudo /etc/init.d/nginx start
 ```

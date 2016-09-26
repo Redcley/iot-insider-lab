@@ -20,10 +20,12 @@ function err() {
   args.push(failure.stack);
 
   console.error.apply({}, args);
+  process.exit();
 };
 
 function out() {
-  console.log.apply({}, arguments);
+  // Uncomment for debugging
+  //console.log.apply({}, arguments);
 };
 
 module.exports.err = err;

@@ -1,5 +1,20 @@
 'use strict';
 
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
+// When running in production, forever doesn't set the working directory
+// correctly so we need to adjust it before trying to load files from the
+// requires below. Since we know we are run as the node user in production
+// this is an easy way to detect that state.
+if (process.env.USER === "node") {
+  process.chdir("/var/node");
+}
+
 require("dotenv").config();
 const Protocol = require("azure-iot-device-amqp").Amqp;
 const Client = require("azure-iot-device").Client;
@@ -11,10 +26,16 @@ const log = require("./logging.js");
 var environmentUpdateInterval = 5*1000; // every 5 seconds
 var sendInterval = null;
 
+log.out("Connecting using ", process.env.IOT_DEVICE_CONNECTIONSTRING);
+
 // Create IoT Hub client
 var client = Client.fromConnectionString(process.env.IOT_DEVICE_CONNECTIONSTRING, Protocol);
 
+//
+// sendMessage
+//
 // helper to be consistent about how we send messages
+//
 function sendMessage(msg) {
   if (typeof msg !== "object") {
       log.err("programmer error: msg is not an object");
@@ -30,6 +51,8 @@ function sendMessage(msg) {
   });
 };
 
+//
+// sendEnvironment
 //
 // send the following device to hub message
 //
@@ -50,6 +73,8 @@ function sendEnvironment() {
   sendMessage(msg);
 };
 
+//
+// parseConfigure
 //
 // parses the following hub to device message
 //
@@ -72,6 +97,8 @@ function parseConfigure(msg) {
 };
 
 //
+// sendInput
+//
 // send the following device to hub message
 //
 // {
@@ -83,6 +110,7 @@ function parseConfigure(msg) {
 //     true
 //   ]
 // }
+//
 function sendInput(dials, switches) {
   dials = dials || [];
   switches = switches || [];
@@ -122,6 +150,8 @@ function scheduleSoundOff(duration) {
   }, duration * 1000);
 }
 
+//
+// parseOutput
 //
 // parses the following hub to device message
 //
@@ -171,6 +201,8 @@ function parseOutput(msg) {
   }
 };
 
+//
+// sendStatus
 //
 // sends the following device to hub message
 //
@@ -239,6 +271,8 @@ function sendStatus(responseId) {
 };
 
 //
+// parseStatus
+//
 // parses the following hub to device message
 //
 // {
@@ -258,6 +292,8 @@ client.open(function (err, result) {
   if (err) {
     log.err("open error:", err);
   } else {
+
+    log.out("Setting reporting interval every ", environmentUpdateInterval, "ms");
 
     sendInterval = setInterval(sendEnvironment, environmentUpdateInterval);
 

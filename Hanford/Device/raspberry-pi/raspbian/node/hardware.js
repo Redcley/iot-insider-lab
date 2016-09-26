@@ -1,7 +1,16 @@
 'use strict';
+
+//
+// Author: Sean Kelly
+// Copyright (c) 2016 by Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// See LICENSE file in the project root for full license information.
+//
+
 const i2c = require("i2c-bus");
 const util = require('util');
 const EventEmitter = require('events');
+const log = require('./logging.js')
 
 // Temporary State data
 var lights = [];
@@ -49,6 +58,7 @@ function readMPL3115A2() {
 
     MPL3115A2_pressure = ((p_msb << 16) | (p_csb << 8) | (p_lsb & 0xF0))/64;
     MPL3115A2_temperature = ((t_msb << 8) | (t_lsb & 0xF0))/256;
+    log.out("MPL3115A2 msb:%d lsb:%d t:%d\n", t_msb, t_lsb, MPL3115A2_temperature);
   }
   bus.closeSync();
 };
@@ -70,7 +80,7 @@ function readHTU21D() {
 
   var t_msb = buf[0];
   var t_lsb = buf[1];
-  var chksum = buf[2];
+  var t_chksum = buf[2];
 
   bus.sendByteSync(ADDR2, TRIGGER_HUM);
 
@@ -81,10 +91,11 @@ function readHTU21D() {
 
   var h_msb = buf[0];
   var h_lsb = buf[1];
-  chksum = buf[2];
+  var h_chksum = buf[2];
 
   HTU21D_temperature = ((((t_msb << 8) | (t_lsb & 0xFC))/65536)*175.72)-46.85;
   HTU21D_humidity = ((((h_msb << 8) | (h_lsb & 0xFC))/65536)*125)-6;
+  log.out("HTU21D msb:%d lsb:%d chk:%d t:%d\n", t_msb, t_lsb, t_chksum, HTU21D_temperature);
 
   bus.closeSync();
 };
