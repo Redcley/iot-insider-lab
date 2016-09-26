@@ -1,0 +1,97 @@
+﻿/*
+Note:
+As there are dependencies, run the scripts in the given order, running 1 Extract and Output.usql first and then run 2 Create View, etc.
+The purpose of this script is to give you a taste of the new Big Data query language U-SQL.
+*/
+
+/*
+Creating a table is similar to creating a table in a relational database such as SQL Server. You either create a table with a predefined schema or create a table and infer the schema from the query that populates the table (also known as CREATE TABLE AS SELECT or CTAS).
+
+Now let's decide to persist the searchlog data in a schematized format in a table called Searchlog in your own database. 
+The script --
+
+    1. Creates the database,
+    2. Sets the context to the created database,
+    3. Creates the Observations table; and 
+    4. Inserts data into the created table.
+
+Steps (3) and (4) are repeated for the Locations table.
+
+*/
+
+DROP DATABASE IF EXISTS WeatherDb;
+
+CREATE DATABASE WeatherDb;
+
+USE DATABASE WeatherDb;
+
+DROP TABLE IF EXISTS Observations;
+
+CREATE TABLE Observations (
+	StationCode string, 
+	ObservedOn  DateTime,
+	Wind        string,
+	Visibility  decimal?,
+	Weather     string,
+	Conditions  string,
+	Temperature decimal?,
+	Dewpoint    decimal?,
+	Humidity    decimal?,
+	Pressure    decimal?,
+
+    INDEX weatherObservations_index CLUSTERED (StationCode ASC) 
+          PARTITIONED BY HASH (StationCode)
+);
+
+INSERT INTO Observations
+SELECT
+	    stationCode, 
+	    observedOn,
+	    wind,
+	    visibility,
+	    weather,
+	    conditions,
+	    temperature,
+	    dewpoint,
+	    humidity,
+	    pressure
+FROM   (
+    EXTRACT
+	    stationCode string, 
+	    observedOn  DateTime,
+	    wind        string,
+	    visibility  decimal?,
+	    weather     string,
+	    conditions  string,
+	    temperature decimal?,
+	    dewpoint    decimal?,
+	    humidity    decimal?,
+	    pressure    decimal?,
+        filename    string
+    FROM "/Weather/{filename:*}.csv"
+    USING Extractors.Csv()
+) AS o;
+
+DROP TABLE IF EXISTS Locations;
+
+CREATE TABLE Locations (
+	StationCode string, 
+	Station     string, 
+    State       string,
+    PostalCode  string,
+        
+    INDEX weatherLocations_index CLUSTERED (StationCode ASC)
+          PARTITIONED BY HASH (StationCode)
+);
+
+INSERT INTO Locations
+SELECT *
+FROM   (
+    EXTRACT 
+	    stationCode string, 
+	    station     string, 
+        state       string,
+        postalCode  string
+    FROM "/Weather/Locations.tsv"
+    USING Extractors.Tsv()
+) AS l;

@@ -1,0 +1,67 @@
+﻿/*
+Note:
+As there are dependencies, run the scripts in the given order, running 1 Extract and Output.usql first and then run 2 Create View, etc.
+The purpose of this script is to give you a taste of the new Big Data query language U-SQL.
+*/
+
+/*
+This script shows how to create a U-SQL function. Note that unlike a view, function can process data in several steps.
+*/
+
+DROP FUNCTION IF EXISTS AllWeather;
+
+CREATE FUNCTION AllWeather() 
+RETURNS @allWeather TABLE
+(
+	station     string, 
+	postalCode  string,
+	observedOn  DateTime,
+	wind        string,
+	visibility  decimal?,
+	weather     string,
+	conditions  string,
+	temperature decimal?,
+	dewpoint    decimal?,
+	humidity    decimal?,
+	pressure    decimal?
+)
+AS BEGIN 
+
+@allWeather = SELECT
+	station, 
+	postalCode,
+	observedOn,
+	wind,
+	visibility,
+	weather,
+	conditions,
+	temperature,
+	dewpoint,
+	humidity,
+	pressure
+FROM    ( EXTRACT
+	        stationCode string, 
+	        observedOn  DateTime,
+	        wind        string,
+	        visibility  decimal?,
+	        weather     string,
+	        conditions  string,
+	        temperature decimal?,
+	        dewpoint    decimal?,
+	        humidity    decimal?,
+	        pressure    decimal?,
+            filename    string
+        FROM "/Weather/{filename:*}.csv"
+        USING Extractors.Csv() ) AS o 
+    JOIN 
+        ( EXTRACT 
+	        stationCode string, 
+	        station     string, 
+            state       string,
+            postalCode  string
+        FROM "/Weather/Locations.tsv"
+        USING Extractors.Tsv() ) AS l
+     ON l.stationCode == o.stationCode;
+
+RETURN;
+END;
