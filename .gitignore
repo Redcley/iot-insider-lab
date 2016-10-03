@@ -24,3 +24,4 @@ Argonne/Dashboard/ArgonneDashboard/wwwroot/index.min.css
 Argonne/Dashboard/ArgonneDashboard/wwwroot/templateCacheHtml.ts
 Argonne/Dashboard/ArgonneDashboard/wwwroot/**/*.map
 Argonne/Dashboard/ArgonneDashboard/wwwroot/**/*.js
+Argonne/Api/ArgonneWebApi/project.lock.json
