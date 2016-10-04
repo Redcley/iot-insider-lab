@@ -14,8 +14,9 @@ namespace ArgonneAdDisplay.ViewModel
 {
     public class CampaignViewModel : ViewModelBase
     {
-        private const string CLIENT_URL = "http://localhost:44685/";
-        private const String DEBUG_DEVICE_ID = "1117163c-b8e5-41fd-9cb7-0062d36a14f2";        
+        private const string CLIENT_URL = <client Url>
+        private const String DEBUG_DEVICE_ID = <Debug Device ID>
+        private const String CAMPAIGN_ID = <Campaign ID>
 
         // timer to swap out the ad based on the settings
         private Timer adTimer;
@@ -38,16 +39,16 @@ namespace ArgonneAdDisplay.ViewModel
         public async Task<bool> Initialize()
         {            
             // get the device campaign  
-            var campaigns = await argonneService.ApiAdminCampaignGetAsync();
+            this.Campaign = await argonneService.ApiAdminCampaignByIdGetAsync(CAMPAIGN_ID);
 
-            if (campaigns == null || campaigns.Count == 0)
-            {
-                // TODO: Error handling here when can't find campaign
-                throw new InvalidOperationException("No campaign");
-            }
+            //if (campaigns == null || campaigns.Count == 0)
+            //{
+            //    // TODO: Error handling here when can't find campaign
+            //    throw new InvalidOperationException("No campaign");
+            //}
 
-            // TODO: Match campaigns to device
-            this.Campaign = campaigns[0];
+            //// TODO: Match campaigns to device
+            //this.Campaign = campaigns[0];
 
             // now get the adds            
             currentCampaignAds = await argonneService.ApiAdminCampaignByCampaignidAdsGetAsync(this.Campaign.CampaignId);
@@ -84,7 +85,7 @@ namespace ArgonneAdDisplay.ViewModel
                 // duration = how long to show the ad
                 // first impression = when to take the impression
                 // impression interval = how often to take the picture
-                this.adTimer.Change((CurrentAdInfo.Duration.Value * 1000) / 3, Timeout.Infinite);
+                this.adTimer.Change((CurrentAdInfo.Duration.Value * 1000), Timeout.Infinite);
                 //Task.Run(() => this.UpdateCampaign(null));
 
                 // get the add

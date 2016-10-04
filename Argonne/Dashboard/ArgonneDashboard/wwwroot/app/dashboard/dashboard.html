@@ -1,0 +1,134 @@
+<div id="breadcrumbs-wrapper">
+    <div class="container">
+        <div class="row">
+            <div class="col s10">
+                <h5 class="breadcrumbs-title">{{vm.currentCampaign.campaignName}}</h5>
+                <span>{{vm.currentAfterDate.local().format('LLL')}}</span>
+            </div>
+            <div class="col s2">
+                <div class="valign-wrapper">
+                    <span>Enable Live Stream</span>
+                    <div class="switch valign">
+                        <label>
+                            <input type="checkbox" ng-model="vm.enableLiveStream">
+                            <span class="lever"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--start container-->
+<div class="container">
+    <!--card stats start-->
+    <div id="card-stats">
+        <div class="row">
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content pink lighten-1 white-text">
+                        <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i> Unique Faces</p>
+                        <h4 class="card-stats-number">{{vm.campaignAgData.uniqueFaces|| 0}}</h4>
+                        <p class="card-stats-compare">
+                            <span class="deep-purple-text text-lighten-5">{{vm.campaignAgData.totalFaces || 0}} totals faces</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content green white-text">
+                        <p class="card-stats-title"><i class="mdi-social-group-add"></i> Average Age</p>
+                        <h4 class="card-stats-number">{{(vm.aggregatedData.avgAge | number:0) || 0}}</h4>
+                        <p class="card-stats-compare">
+                            <!--<i class="mdi-hardware-keyboard-arrow-up"></i> 15%--> <span class="green-text text-lighten-5">Youngest age is {{vm.aggregatedData.smallestAge}} and oldest is {{vm.aggregatedData.largestAge}}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content blue-grey white-text">
+                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Sentiment</p>
+                        <!--<i class="material-icons happiness medium">sentiment_very_satisfied</i>-->
+                        <h4 class="card-stats-number">{{vm.aggregatedData.sentiment.name || 'Uknown'}}</h4>
+                        <p class="card-stats-compare">
+                            <span class="blue-grey-text text-lighten-5">{{vm.currentAfterDate.local().fromNow()}}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12 m6 l3">
+                <div class="card">
+                    <div class="card-content purple white-text">
+                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Gender</p>
+                        <h2 class="card-stats-number">
+                            <i class="fa fa-male fa-2x"></i> {{vm.campaignAgData.males || 0}} / <i class="fa fa-female fa-2x"></i> {{vm.campaignAgData.females || 0}}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--card stats end-->
+
+    <div id="ad-stats-container" class="row">
+        <div class="col s12 m6">
+            <div class="card">
+                <div class="card-move-up waves-effect waves-block waves-light">
+                    <div class="move-up cyan darken-1">
+                        <div>
+                            <span class="chart-title white-text">Demographics</span>
+                        </div>
+                        <div id="chart-ad-gender-wrapper">
+                            <canvas id="chart-ad-gender" class="chart-base" chart-type="vm.chartAdGenderType" height="80"
+                                    chart-data="vm.chartAdGenderData" chart-labels="vm.chartAdGenderLabels"
+                                    chart-options="vm.chartAdGenderOptions" chart-series="vm.chartAdGenderSeries"
+                                    chart-dataset-override="vm.chartAdGenderDatasetOverride"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col s12 m6">
+            <div class="card">
+                <div class="card-move-up teal waves-effect waves-block waves-light">
+                    <div class="move-up">
+                        <p class="margin white-text">Live Impression Sentiments</p>
+                        <canvas id="chart-impression-sentiments" height="85"
+                                class="chart-base" chart-type="vm.chartImpressionSentimentType"
+                                chart-data="vm.chartImpressionSentimentData" chart-labels="vm.chartImpressionSentimentLabels"
+                                chart-options="vm.chartImpressionSentimentOption" chart-series="vm.chartImpressionSentimentSeries"
+                                chart-dataset-override="vm.chartImpressionSentitmentDatasetOverride"></canvas>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12 m6">
+            <ul id="campaign-collection" class="collection scrollable">
+                <li class="collection-item avatar">
+                    <i class="mdi-file-folder circle light-blue darken-2"></i>
+                    <span class="collection-header">Campaign's Ad</span>
+                    <a href="#" class="secondary-content"><i class="mdi-action-grade"></i></a>
+                </li>
+                <li class="collection-item" ng-repeat="a in vm.currentCampaign.ads">
+                    <div class="row">
+                        <div class="col s6">
+                            <div class="collections-title">{{a.adName}}</div>
+                            <div class="collections-content subtitle">{{a.url}}</div>
+                            <span class="task-cat blue"><i class="fa fa-male"></i> {{a.males || 0}}</span>
+                            <span class="task-cat pink"><i class="fa fa-female"></i> {{a.females || 0}}</span>
+                        </div>
+                        <div class="col s3">
+                            <span class="task-cat blue accent-2">Total faces: {{a.totalFaces || 0}}</span>
+                        </div>                        
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

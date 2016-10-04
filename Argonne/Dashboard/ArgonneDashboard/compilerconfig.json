@@ -1,10 +1,22 @@
 ﻿[
   {
-    "outputFile": "src/materialized/materialized.css",
-    "inputFile": "src/materialized/materialized.scss"
+    "outputFile": "wwwroot/index.css",
+    "inputFile": "wwwroot/index.scss",
+    "options": {
+      "sourceMap": false
+    },
+    "minify": {
+      "enabled": true
+    }
   },
   {
-    "outputFile": "src/index.css",
-    "inputFile": "src/index.scss"
+    "outputFile": "wwwroot/materialized/materialized.css",
+    "inputFile": "wwwroot/materialized/materialized.scss",
+    "options": {
+      "sourceMap": false
+    },
+    "minify": {
+      "enabled": true
+    }
   }
 ]

@@ -93,7 +93,7 @@ $ npm install forever -g
 $ nano /var/node/forever.json
 ```
 
-Paste the following for /etc/init.d/iot-server
+Paste the following for /var/node/forever.json
 
 ```
 {
