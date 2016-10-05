@@ -26,6 +26,8 @@ PreviousEvent AS
 		LAG(temperature,1,0) OVER(PARTITION BY deviceId LIMIT DURATION(ss, 11)) as temperature
     FROM FlattenedEvent 
 )
+
+--write alert events when tolerance for a device is exceeded
 SELECT
     averages.deviceId as deviceId,
 	averages.time as EndTimeOfAverageWindow,
@@ -60,3 +62,12 @@ JOIN averages
     AND sensordata.IoTHub.ConnectionDeviceId = averages.deviceId 
 WHERE
 	(sensordata.temperature - averages.avgtemp > CAST(reference.tolerance_low as float) ) OR ((PreviousEvent.temperature - averages.avgtemp) > CAST(reference.tolerance_low as float))
+
+--write out raw message data
+SELECT
+	IotHub.ConnectionDeviceId as deviceId,
+	IotHub.MessageId as messageId,
+	EventEnqueuedUtcTime as datestamp,
+	*
+into raw
+FROM sensordata Timestamp by EventEnqueuedUtcTime
