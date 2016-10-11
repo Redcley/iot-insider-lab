@@ -28,10 +28,10 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content pink lighten-1 white-text">
-                        <p class="card-stats-title"><i class="mdi-editor-insert-drive-file"></i> Unique Faces</p>
+                        <p class="card-stats-title"><i class="material-icons">face</i> Unique Faces</p>
                         <h4 class="card-stats-number">{{vm.campaignAgData.uniqueFaces|| 0}}</h4>
                         <p class="card-stats-compare">
-                            <span class="deep-purple-text text-lighten-5">{{vm.campaignAgData.totalFaces || 0}} totals faces</span>
+                            <span class="deep-purple-text text-lighten-5">{{vm.campaignAgData.totalFaces || 0}} total faces</span>
                         </p>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content green white-text">
-                        <p class="card-stats-title"><i class="mdi-social-group-add"></i> Average Age</p>
+                        <p class="card-stats-title"><i class="material-icons">linear_scale</i> Average Age</p>
                         <h4 class="card-stats-number">{{(vm.aggregatedData.avgAge | number:0) || 0}}</h4>
                         <p class="card-stats-compare">
                             <!--<i class="mdi-hardware-keyboard-arrow-up"></i> 15%--> <span class="green-text text-lighten-5">Youngest age is {{vm.aggregatedData.smallestAge}} and oldest is {{vm.aggregatedData.largestAge}}</span>
@@ -50,7 +50,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content blue-grey white-text">
-                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Sentiment</p>
+                        <p class="card-stats-title"><i class="material-icons">mood</i> Sentiment</p>
                         <!--<i class="material-icons happiness medium">sentiment_very_satisfied</i>-->
                         <h4 class="card-stats-number">{{vm.aggregatedData.sentiment.name || 'Uknown'}}</h4>
                         <p class="card-stats-compare">
@@ -62,7 +62,7 @@
             <div class="col s12 m6 l3">
                 <div class="card">
                     <div class="card-content purple white-text">
-                        <p class="card-stats-title"><i class="mdi-action-trending-up"></i> Gender</p>
+                        <p class="card-stats-title"><i class="material-icons">wc</i> Gender</p>
                         <h2 class="card-stats-number">
                             <i class="fa fa-male fa-2x"></i> {{vm.campaignAgData.males || 0}} / <i class="fa fa-female fa-2x"></i> {{vm.campaignAgData.females || 0}}
                         </h2>

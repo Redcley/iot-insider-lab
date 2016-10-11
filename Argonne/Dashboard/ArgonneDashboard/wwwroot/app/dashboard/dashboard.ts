@@ -1,4 +1,4 @@
-import {ArgonneService} from '../services/argonneService.ts';
+import { ArgonneService } from '../services/argonneService.ts';
 import moment = require("moment");
 
 /**
@@ -46,7 +46,7 @@ class DashboardController {
     public currentCampaignId: string;
     
     // Specify the default campaign
-    private CAMPAIGN_ID = <Default Campaign ID>;
+    private CAMPAIGN_ID = '3149351f-3c9e-4d0a-bfa5-d8caacfd77f0';
 
     // constructor
     constructor(private argonneService: ArgonneService, private $interval: ng.IIntervalService, private $log: ng.ILogService, private $scope: ng.IScope, private $q: ng.IQService, private $stateParams: any) {
@@ -225,6 +225,10 @@ class DashboardController {
             });
     }
 
+    private sumPropertyOnArray (theArray, propertyName) {
+        return theArray.reduce((currentSum, nextItem) => (currentSum + nextItem[propertyName]), 0);
+    };
+
     private getData() {
         // format the timestamp
         var afterTimestamp = this.currentAfterDate.local().format("YYYY-MM-DDTHH:mm:ss");
@@ -233,19 +237,31 @@ class DashboardController {
         this.argonneService.getCampaignAggregate(this.CAMPAIGN_ID, afterTimestamp).then((campaignAdAggregations: ArgonneService.Models.AdAggregateData[]) => {
 
             if (this.currentCampaign != null && this.currentCampaign.ads != null) {
-
-                // now match the aggregated data with the ad info
+                //copy the latest aggregate data into each ad model
                 this.currentCampaign.ads.forEach((ad) => {
-                    // find the aggregate ad info with the ad details
+                    //find a matching ad model by id and copy in the aggregate data fields
                     var foundAggregation = campaignAdAggregations.find(adAg => ad.adId == adAg.adId);
-
                     angular.merge(ad, foundAggregation);
                 });                
             }
 
             // save the campaign aggregated data
             if (campaignAdAggregations != null && campaignAdAggregations.length > 0) {
+
+                //Sum the ad data at the campaign level
                 this.campaignAgData = campaignAdAggregations[0];
+
+                this.campaignAgData.ageBracket1 = this.sumPropertyOnArray(campaignAdAggregations, 'ageBracket1');
+                this.campaignAgData.ageBracket2 = this.sumPropertyOnArray(campaignAdAggregations, 'ageBracket2');
+                this.campaignAgData.ageBracket3 = this.sumPropertyOnArray(campaignAdAggregations, 'ageBracket3');
+                this.campaignAgData.ageBracket4 = this.sumPropertyOnArray(campaignAdAggregations, 'ageBracket4');
+                this.campaignAgData.ageBracket5 = this.sumPropertyOnArray(campaignAdAggregations, 'ageBracket5');
+                this.campaignAgData.females = this.sumPropertyOnArray(campaignAdAggregations, 'females');
+                this.campaignAgData.males = this.sumPropertyOnArray(campaignAdAggregations, 'males');
+                this.campaignAgData.totalFaces = this.sumPropertyOnArray(campaignAdAggregations, 'totalFaces');
+                this.campaignAgData.uniqueFaces = this.sumPropertyOnArray(campaignAdAggregations, 'uniqueFaces');
+
+                //this.campaignAgData = campaignAdAggregations[0];
                 // update the demo chart
                 this.updateChart();
             }
