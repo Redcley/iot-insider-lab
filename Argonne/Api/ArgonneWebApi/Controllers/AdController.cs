@@ -31,7 +31,7 @@ namespace ArgonneWebApi.Controllers
         /// <param name="repo"></param>
         /// <param name="adCampRepo"></param>
         /// <param name="entityMapper"></param>
-        public AdController(IEntityRepository<Ads> repo, IEntityRepository<AdsForCampaigns> adCampRepo,
+        internal AdController(IEntityRepository<Ads> repo, IEntityRepository<AdsForCampaigns> adCampRepo,
             IEntityRepository<Impressions> impRepo, 
             IMapper entityMapper)
         {

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    public partial class Devices
+    internal partial class Devices
     {
         public Devices()
         {

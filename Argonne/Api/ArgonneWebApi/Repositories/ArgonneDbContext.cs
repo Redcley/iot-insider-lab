@@ -260,13 +260,13 @@ namespace ArgonneWebApi.Repositories
             });
         }
 
-        public virtual DbSet<Ads> Ads { get; set; }
-        public virtual DbSet<AdsForCampaigns> AdsForCampaigns { get; set; }
-        public virtual DbSet<BiasesForDevices> BiasesForDevices { get; set; }
-        public virtual DbSet<Campaigns> Campaigns { get; set; }
-        public virtual DbSet<Devices> Devices { get; set; }
-        public virtual DbSet<ErrorLog> ErrorLog { get; set; }
-        public virtual DbSet<FacesForImpressions> FacesForImpressions { get; set; }
-        public virtual DbSet<Impressions> Impressions { get; set; }
+        internal virtual DbSet<Ads> Ads { get; set; }
+        internal virtual DbSet<AdsForCampaigns> AdsForCampaigns { get; set; }
+        internal virtual DbSet<BiasesForDevices> BiasesForDevices { get; set; }
+        internal virtual DbSet<Campaigns> Campaigns { get; set; }
+        internal virtual DbSet<Devices> Devices { get; set; }
+        internal virtual DbSet<ErrorLog> ErrorLog { get; set; }
+        internal virtual DbSet<FacesForImpressions> FacesForImpressions { get; set; }
+        internal virtual DbSet<Impressions> Impressions { get; set; }
     }
 }
