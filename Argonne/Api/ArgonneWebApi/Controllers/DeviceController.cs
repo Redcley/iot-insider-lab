@@ -27,7 +27,7 @@ namespace ArgonneWebApi.Controllers
         /// </summary>
         /// <param name="deviceRepo"></param>
         /// <param name="entityMapper"></param>
-        internal DeviceController(IEntityRepository<Devices> deviceRepo, IMapper entityMapper)
+        public DeviceController(IEntityRepository<Devices> deviceRepo, IMapper entityMapper)
         {
             deviceRepository = deviceRepo;
             mapper = entityMapper;

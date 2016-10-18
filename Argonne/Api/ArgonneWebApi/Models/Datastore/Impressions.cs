@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal partial class Impressions
+    public partial class Impressions
     {
         public Impressions()
         {

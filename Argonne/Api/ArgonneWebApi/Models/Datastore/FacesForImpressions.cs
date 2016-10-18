@@ -3,7 +3,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal partial class FacesForImpressions
+    public partial class FacesForImpressions
     {
         public long ImpressionId { get; set; }
         public string FaceId { get; set; }

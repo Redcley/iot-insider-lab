@@ -5,7 +5,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal partial class ErrorLog
+    public partial class ErrorLog
     {
         public DateTime Timestamp { get; set; }
         public string Json { get; set; }

@@ -5,7 +5,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal partial class AdsForCampaigns
+    public partial class AdsForCampaigns
     {
         public Guid CampaignId { get; set; }
         public Guid AdId { get; set; }

@@ -2,7 +2,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal class CampaignEmotion
+    public class CampaignEmotion
     {
         public Guid CampaignId { get; set; }
         public string CampaignName { get; set; }

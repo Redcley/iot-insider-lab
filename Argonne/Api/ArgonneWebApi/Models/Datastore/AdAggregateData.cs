@@ -2,7 +2,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    internal class AdAggregateData
+    public class AdAggregateData
     {
         public Guid AdId { get; set; }
         public int? TotalFaces { get; set; }
