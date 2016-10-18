@@ -35,7 +35,7 @@ namespace ArgonneWebApi.Controllers
         /// <param name="devRepo"></param>
         /// <param name="impRepo"></param>
         /// <param name="entityMapper"></param>
-        public CampaignController(IEntityRepository<Campaigns> repo, 
+        internal CampaignController(IEntityRepository<Campaigns> repo, 
             IEntityRepository<AdsForCampaigns> adCampRepo,
             IEntityRepository<Devices> devRepo,
             IEntityRepository<Impressions> impRepo,
@@ -374,7 +374,7 @@ namespace ArgonneWebApi.Controllers
         /// <response code="400">Invalid Id</response>
         [Route("api/admin/[controller]/{campaignid}/Devices", Name = "GetDevices")]
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<Devices>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<DeviceDto>), 200)]
         public async Task<IActionResult> GetDevices(string campaignid)
         {
             if (string.IsNullOrEmpty(campaignid))

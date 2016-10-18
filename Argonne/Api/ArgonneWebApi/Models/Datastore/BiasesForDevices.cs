@@ -5,7 +5,7 @@
 
 namespace ArgonneWebApi.Models.Datastore
 {
-    public partial class BiasesForDevices
+    internal partial class BiasesForDevices
     {
         public Guid DeviceId { get; set; }
         public string ShadowName { get; set; }
