@@ -1,7 +1,7 @@
 USE [IoTLabArgonne]
 GO
 
-/****** Object:  StoredProcedure [dbo].[GetCampaignAdAggregates]    Script Date: 11/1/2016 11:01:09 AM ******/
+/****** Object:  StoredProcedure [dbo].[GetCampaignAdAggregates]    Script Date: 11/1/2016 1:53:06 PM ******/
 SET ANSI_NULLS ON
 GO
 
@@ -53,6 +53,14 @@ BEGIN
 		  ,MinAge
 		  ,MaxAge
 		  ,OverallSentiment
+		  ,TotalAnger
+		,TotalContempt
+		,TotalDisgust
+		,TotalFear
+		,TotalHappiness
+		,TotalNeutral
+		,TotalSadness
+		,TotalSurprise
 		  ,UniqueMales
 		  ,UniqueFemales
 		  ,AgeBracket0
@@ -94,6 +102,14 @@ BEGIN
 									,AVG(ScoreNeutral)
 									,AVG(ScoreSadness)
 									,AVG(ScoreSurprise) ) AS OverallSentiment
+								  ,SUM(ScoreAnger) As TotalAnger
+								  ,SUM(ScoreContempt) As TotalContempt
+								  ,SUM(ScoreDisgust) As TotalDisgust
+								  ,SUM(ScoreFear) As TotalFear
+								  ,SUM(ScoreHappiness) As TotalHappiness
+								  ,SUM(ScoreNeutral) As TotalNeutral
+								  ,SUM(ScoreSadness) As TotalSadness
+								  ,SUM(ScoreSurprise) As TotalSurprise
 								  ,SUM(UniqueMale)        AS UniqueMales
 								  ,SUM(UniqueFemale)      AS UniqueFemales
 								  ,SUM(AgeBracket0)       AS AgeBracket0
