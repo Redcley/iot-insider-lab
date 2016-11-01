@@ -11,6 +11,14 @@ namespace ArgonneWebApi.Models.Datastore
         public int? TotalFaces { get; set; }
         public int? UniqueFaces { get; set; }
         public string OverallSentiment { get; set; }
+        public decimal? TotalAnger { get; set; }
+        public decimal? TotalContempt { get; set; }
+        public decimal? TotalDisgust { get; set; }
+        public decimal? TotalFear { get; set; }
+        public decimal? TotalHappiness { get; set; }
+        public decimal? TotalNeutral { get; set; }
+        public decimal? TotalSadness { get; set; }
+        public decimal? TotalSurprise { get; set; }
         public int? MinAge { get; set; }
         public int? MaxAge { get; set; }
         public int? UniqueMales { get; set; }
