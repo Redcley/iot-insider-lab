@@ -264,6 +264,11 @@ namespace ArgonneWebApi.Repositories
                 entity.HasKey(e => e.DisplayedAdId);
             });
 
+            modelBuilder.Entity<AdSentimentData>(entity =>
+            {
+                entity.HasKey(e => e.DisplayedAdId);
+            });
+
         }
 
         internal virtual DbSet<Ads> Ads { get; set; }

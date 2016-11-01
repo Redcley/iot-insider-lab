@@ -703,6 +703,51 @@ namespace ArgonneWebApi.Controllers
             return new OkObjectResult(result);
         }
 
+        /// <summary>
+        /// Aggregated demographic and sentiment for a campaign during an interval of time
+        /// </summary>
+        /// <param name="campaignid">unique identifier for a campaign</param>
+        /// <param name="pager">paging settings</param>
+        /// <param name="start">timestamp for start of series</param>
+        /// <param name="end">timestamp for end of series</param>
+        /// <remarks>
+        /// Id must be a valid GUID
+        /// </remarks>
+        /// <response code="200">Success</response>
+        /// <response code="404">Not Found</response>
+        /// <response code="400">Invalid Id</response>
+        [Route("api/admin/[controller]/{campaignid}/sentiments/aggregatebyad", Name = "GetAggregateSentimentsForCampaignByAd")]
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<AdSentimentData>), 200)]
+        public async Task<IActionResult> GetAggregateSentimentsForCampaignByAd(string campaignid,
+            [FromQuery]PagerDto pager,
+            [FromQuery]DateTime? start = null,
+            [FromQuery]DateTime? end = null)
+        {
+            if (string.IsNullOrEmpty(campaignid))
+                return BadRequest();
+
+            Guid idGuid;
+            if (!Guid.TryParse(campaignid, out idGuid))
+            {
+                return BadRequest("invalid campaign id");
+            }
+
+            //if start and end are not supplied then treat as "for all time"
+            if (null == start)
+                start = DateTime.UtcNow - TimeSpan.FromDays(365 * 10);
+
+            if (null == end)
+                end = DateTime.UtcNow + TimeSpan.FromDays(1);
+
+            var campaignIdParam = new SqlParameter("@campaignId", idGuid);
+            var startDateParam = new SqlParameter("@dateFrom", start);
+            var endDateParam = new SqlParameter("@dateTo", end);
+
+            var result = await queryContext.Query<AdSentimentData>("GetCampaignAdSentiments @campaignId,@dateFrom,@dateTo", campaignIdParam,
+                startDateParam, endDateParam).ConfigureAwait(false);
+            return new OkObjectResult(result);
+        }
 
         #endregion
     }
