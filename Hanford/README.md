@@ -18,7 +18,7 @@ Project Hanford is an end to end demo of an IoT device communicating with the Az
 
 Project Hanford is composed of multiple components that have been organized into seperate repositories. Those repositories are linked below:
 
-- [Devices](redcley/iotil-hanford-device)
+- [Devices](https://github.com/Redcley/iotil-hanford-device)
 - Web App
 - PAAS
 - Database
