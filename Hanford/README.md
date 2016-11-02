@@ -3,15 +3,31 @@ Project Hanford is an end to end demo of an IoT device communicating with the Az
 
 ## Overview
 
+Project Hanford showcases multiple approaches for cloud configuration and deployment. These options are listed below:
+
+### Configuration A
+
+1. Devices send telemetry data (such as ambient temperature) to IotHub.
+2. A Node.js application deployed to a linux VM processes the messages from IoT Hub and performs the following actions:
+	* writes each message to a SQL Azure database by calling a stored procedure
+	* Stores 5 minutes of device data in memory
+	* Analyzes the 5 minutes of data on each new message to determine if temperature thresholds have been reached.
+	* If a threshold is exceeded it will send an cloud-to-device message to another device (not the triggering device) telling that device to set the LED color and on/off state.
+	* provides a web interface (dashboard) to view device telemetry, as well as an admin section to create devices.
+3. Cloud-to-device messages will cause the LED on a device to turn on and change colors when another device senses a temperature spike.
+4. A Power BI Dashboard displays device temperature data aggregated to 10 minute intervals
+
+### Configuration B
+
 1. Devices send telemetry data (such as ambient temperature) to IotHub.
 2. Stream Analytics instance processes each message from IotHub. The Stream Analytics job does 2 things:
 	* Every device telemetry message is output to an event hub (EH1)
-	* The temperature in each telemetry message is compared to per-device threshholds contained in a reference data file (JSON file in blob storage) and if an alert is triggered it will send an alert message to another event hub (EH2) [the reference data also contains the list of recipients who will be notified of the alert. those recipients are other devices.].
-
+	* The temperature in each telemetry message is compared to per-device thresholds contained in a reference data file (JSON file in blob storage) and if an alert is triggered it will send an alert message to another event hub (EH2) [the reference data also contains the list of recipients who will be notified of the alert. those recipients are other devices.].
 3. The event hub with raw messages (EH1) is processed by a function app (FA1) that invokes a SQL stored procedure for each message. The stored procedure processes the message and makes entries in several tables.
 4. The event hub with alert notification messages (EH2) is processed by another function app (FA2) that sends a cloud-to-device message to every device that was in the notification list of the alerting device (notification list is stored in the stream analytics reference data as JSON in blob storage).
 5. Cloud-to-device messages sent by FA2 will cause the LED on a device to turn on and change colors when another device senses a temperature spike.
 6. A Logic App runs with a recurrence trigger (scheduled job) every 10 minutes and invokes a stored procedure in the SQL database that aggregates device telemetry data into 10 minute intervals.
+7. A Power BI Dashboard displays device temperature data aggregated to 10 minute intervals
 
 
 ## Components
