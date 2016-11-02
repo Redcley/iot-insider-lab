@@ -1,7 +1,12 @@
 # Microsoft IoT Insider Lab
 This repository contains on-boarding documents and information that pertains to the IoT Insider Lab.
 
-[About the IoT lab here]
+# Projects
+
+The Microsoft IoT Insider Lab will from time to time produce demo, sample, or starter kit projects in order to help customers accelerate their IoT development. These projects will be listed here:
+
+- [Project Argonne](Argonne)
+- [Project Hanford](Hanford)
 
 ## Microsoft Azure IoT
 
