@@ -14,13 +14,11 @@ Project Hanford is an end to end demo of an IoT device communicating with the Az
 6. A Logic App runs with a recurrence trigger (scheduled job) every 10 minutes and invokes a stored procedure in the SQL database that aggregates device telemetry data into 10 minute intervals.
 
 
-## The Device
+## Components
 
-There are currently three different types of devices that connect to the Hanford IoTHub.
+Project Hanford is composed of multiple components that have been organized into seperate repositories. Those repositories are linked below:
 
-**Device/raspberry-pi/iot-core** - A RaspberryPi device running Windows IoT Core. The device is wired to a mpl3115a2 and htu21d to measure temperature, humidity and pressure and sends this data up to the cloud every 5 seconds as well as a rgb LED which it can drive to provide feedback. All the device code is written in C# using the Azure IoT client SDK to send and receive messages.
-
-**Device/raspberry-pi/raspbian/node** - A RaspberryPi device running Raspbian (Jessie). The device is wired to a mpl3115a2 and htu21d to measure temperature, humidity and pressure and sends this data up to the cloud every 5 seconds as well as a rgb LED which it can drive to provide feedback. All the device code is written in Javascript running in node using the Azure IoT client SDK to send and receive messages.
-
-**Device/mobile/xamarin** - A mobile device (currently Android). The device provides a native Android UI to enter temperature, humidity and pressure and sends this data up to the cloud every time the user presses the POST button. All the device code is written in C# using the xamarin development environment and the Azure IoT client SDK to send and receive messages.
-
+- [Devices](redcley/iotil-hanford-device)
+- Web App
+- PAAS
+- Database
