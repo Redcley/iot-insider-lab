@@ -5,7 +5,8 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false,
-    "noEmitOnError": true
+    "noEmitOnError": true,
+    "watch": true
   },
   "compileOnSave": true,
   "exclude": [

@@ -11,7 +11,6 @@
 /// <reference path="../jspm.config.js" />
 /// <reference path="../jspm.test.js" />
 /// <reference path="ai.0.22.19-build00125.min.js" />
-/// <reference path="jquery.signalr-2.2.1.min.js" />
 /// <reference path="jquery-3.1.0.js" />
 /// <reference path="jquery-3.1.0.slim.js" />
 /// <reference path="../wwwroot/.eslintrc.js" />
