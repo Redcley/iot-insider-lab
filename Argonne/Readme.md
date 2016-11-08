@@ -14,8 +14,8 @@ This project demonstrates campaign management and analytics for smart ads. User 
 ## Components
 - [Client App](https://github.com/Redcley/iotil-argonne-client)
 - [Client Simulator](https://github.com/Redcley/iotil-argonne-simulation)
-- [Azure Function](https://github.com/Redcley/iotil-argonne-simulation/AzureFunctionHarness)
+- [Azure Function](https://github.com/Redcley/iotil-argonne-simulation/tree/master/AzureFunctionHarness)
 - [Web Api](https://github.com/Redcley/iotil-argonne-api)
 - [Dashboard](https://github.com/Redcley/iotil-argonne-dashboard)
 - [Database](https://github.com/Redcley/iotil-argonne-database)
-- [PowerBI](https://github.com/Redcley/iotil-argonne-database/powerbi)
+- [PowerBI](https://github.com/Redcley/iotil-argonne-database/tree/master/PowerBI)
