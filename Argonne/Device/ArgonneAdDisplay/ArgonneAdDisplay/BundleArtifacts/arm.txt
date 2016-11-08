@@ -1,2 +1,0 @@
-MainPackage=C:\Users\rashi\Documents\repo\iot-insider-lab\Argonne\Device\ArgonneAdDisplay\ArgonneAdDisplay\bin\ARM\Release\ArgonneAdDisplay_1.0.4.0_ARM.appx
-SymbolPackage=C:\Users\rashi\Documents\repo\iot-insider-lab\Argonne\Device\ArgonneAdDisplay\ArgonneAdDisplay\AppPackages\ArgonneAdDisplay_1.0.4.0_Test\ArgonneAdDisplay_1.0.4.0_ARM.appxsym
