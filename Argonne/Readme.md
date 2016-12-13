@@ -12,10 +12,10 @@ This project demonstrates campaign management and analytics for smart ads. User 
 7. PowerBI connects to SQL Azure to allow users to view, slice, analyze impressions by campaign, ad, location, and demographic 
 
 ## Components
-- [Client App](https://github.com/Redcley/iotil-argonne-client)
-- [Client Simulator](https://github.com/Redcley/iotil-argonne-simulation)
-- [Azure Function](https://github.com/Redcley/iotil-argonne-simulation/tree/master/AzureFunctionHarness)
-- [Web Api](https://github.com/Redcley/iotil-argonne-api)
-- [Dashboard](https://github.com/Redcley/iotil-argonne-dashboard)
-- [Database](https://github.com/Redcley/iotil-argonne-database)
-- [PowerBI](https://github.com/Redcley/iotil-argonne-database/tree/master/PowerBI)
+- [Client App](https://github.com/IotInsiderLab/iotil-argonne-client)
+- [Client Simulator](https://github.com/IotInsiderLab/iotil-argonne-simulation)
+- [Azure Function](https://github.com/IotInsiderLab/iotil-argonne-simulation/tree/master/AzureFunctionHarness)
+- [Web Api](https://github.com/IotInsiderLab/iotil-argonne-api)
+- [Dashboard](https://github.com/IotInsiderLab/iotil-argonne-dashboard)
+- [Database](https://github.com/IotInsiderLab/iotil-argonne-database)
+- [PowerBI](https://github.com/IotInsiderLab/iotil-argonne-database/tree/master/PowerBI)
